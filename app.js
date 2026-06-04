@@ -6,14 +6,19 @@ dotenv.config();
 const express = require("express");
 const sql = require("mssql")
 
+// Controllers
+const testController = require("./controllers/testController");
+
 // create app
 const app = express();
 const port = process.env.PORT || 3000;
 
-// test route
+// test routes
 app.get("/", (req, res) => {
     res.send("Hi!");
 })
+
+app.get("/users", testController.getAllUsers);
 
 // start server
 app.listen(port, async () => {
