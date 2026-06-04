@@ -5,6 +5,7 @@ dotenv.config();
 // modules
 const express = require("express");
 const sql = require("mssql")
+const path = require("path");
 
 // Controllers
 const testController = require("./controllers/testController");
@@ -13,12 +14,25 @@ const testController = require("./controllers/testController");
 const app = express();
 const port = process.env.PORT || 3000;
 
+// middleware
+app.use(express.json());
+
 // test routes
 app.get("/", (req, res) => {
     res.send("Hi!");
 })
 
 app.get("/users", testController.getAllUsers);
+
+app.get("/login", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+})
+
+app.get("/home", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'home.html'))
+})
+
+app.post("/api/login", testController.getUser);
 
 // start server
 app.listen(port, async () => {
