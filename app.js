@@ -24,13 +24,15 @@ app.get("/", (req, res) => {
 
 app.get("/api/users", testController.getAllUsers);
 
+app.get("/api/user/:id", );
+
 app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
-})
+});
 
 app.get("/home", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'home.html'))
-})
+    res.sendFile(path.join(__dirname, 'public', 'home.html'));
+});
 
 app.post("/api/login", testController.getUser);
 

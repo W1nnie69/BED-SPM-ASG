@@ -40,22 +40,30 @@ async function getAllUsers() {
 }
 
 // get a specific user
-async function getUser(email) {
+async function getUser(id) {
     let connection;
 
     try {
         connection = await sql.connect(dbConfig);
+
+        // Check StallOwner
         const result = await connection.request()
-            .input('email', sql.VarChar, email)
-            .query('SELECT * FROM users WHERE email = @email');
+            .input('id', sql.VarChar, id)
+            .query('SELECT * FROM StallOwner WHERE OwnerID = @id');
         // return result.recordset;
 
-        if (result.recordset.length > 0) {
+        if (result.recordset.length <= 0) {
             console.log(result);
-            return true;
 
         } else {
-            return false;
+            // Check Operator
+            const result = await connection.request()
+            .input('id', sql.VarChar, id)
+            .query('SELECT * FROM Operator WHERE OperatorID = @id');
+
+            if (result.recordset.length <= 0) {
+                console.log(result);  
+            }
         }
         
 

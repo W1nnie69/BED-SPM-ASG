@@ -13,23 +13,16 @@ async function getAllUsers(req, res) {
 
 async function getUser(req, res) {
     try {
-        const { email, password } = req.body;
+        const id = parseInt(req.params.id);
 
-        const status = await testModel.getUser(email);
+        const user = await testModel.getUser(id);
 
-        if (status == true) {
-            // redirect to home page
-            console.log("user found")
-            res.json({ message: 'ok' });
-            return;
-
-        } else {
-            // show warning on frontend
-            console.log("user not found!")
-            res.status(401).json({ message: "Invalid credentials" });
-            return;
+        if(!user) {
+            return res.status(404).json({ error: "User not found" });
         }
 
+        res.json(user);
+        
     } catch (error) {
         console.error("Controller error: ", error);
         res.status(500).json({error: "Error retrieving user"});
