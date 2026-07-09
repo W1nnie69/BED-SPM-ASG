@@ -36,7 +36,19 @@ async function getUser(req, res) {
     }
 }
 
+async function getAllOperator(req, res) {
+    try {
+        const users = await testModel.getAllOperator();
+        res.json(users);
+
+    } catch (error) {
+        console.error("Controller error: ", error);
+        res.status(500).json({error: "Error retrieving users"});
+    }
+}
+
 module.exports = {
     getAllUsers,
-    getUser
+    getUser,
+    getAllOperator
 }
