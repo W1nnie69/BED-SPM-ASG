@@ -38,7 +38,7 @@ CREATE TABLE Operator (
     OperatorName VARCHAR(100) NOT NULL,
     ContactPerson VARCHAR(100) NOT NULL,
     Username VARCHAR(50) UNIQUE NOT NULL,
-    Password VARCHAR(255) NOT NULL
+    Password VARCHAR(255) NULL
 );
 
 CREATE TABLE StallOwner (
@@ -47,7 +47,7 @@ CREATE TABLE StallOwner (
     OwnerNRIC CHAR(9) UNIQUE NOT NULL,
     OwnerContactNo CHAR(8) NOT NULL,
     Username VARCHAR(50) UNIQUE NOT NULL,
-    Password VARCHAR(255) NOT NULL
+    Password VARCHAR(255) NULL
 );
 
 -- ============================================
@@ -247,28 +247,28 @@ INSERT INTO NEA_Officer (OfficerID, OfficerName, OfficerContactNo) VALUES
 ('O0005', 'Chong Wei Jie', '67001238'),
 ('O0006', 'Fatimah binti Ali', '67001239');
 
--- Operator (5 rows)
+-- Operator (5 rows) - Password left NULL, to be set later
 INSERT INTO Operator (OperatorID, OperatorName, ContactPerson, Username, Password) VALUES
-('OP001', 'Singapore Hawker Management Pte Ltd', 'Tan Ah Kow', 'shm_admin', 'Passw0rd!OP001'),
-('OP002', 'Foodfare Catering Services', 'Lim Chee Wah', 'foodfare_admin', 'Passw0rd!OP002'),
-('OP003', 'Kopitiam Investment Pte Ltd', 'Wong Siew Meng', 'kopitiam_admin', 'Passw0rd!OP003'),
-('OP004', 'Timbre+ Management', 'David Lee', 'timbre_admin', 'Passw0rd!OP004'),
-('OP005', 'NEA Direct Management', 'Kumar S.', 'neadirect_admin', 'Passw0rd!OP005');
+('OP001', 'Singapore Hawker Management Pte Ltd', 'Tan Ah Kow', 'shm_admin', NULL),
+('OP002', 'Foodfare Catering Services', 'Lim Chee Wah', 'foodfare_admin', NULL),
+('OP003', 'Kopitiam Investment Pte Ltd', 'Wong Siew Meng', 'kopitiam_admin', NULL),
+('OP004', 'Timbre+ Management', 'David Lee', 'timbre_admin', NULL),
+('OP005', 'NEA Direct Management', 'Kumar S.', 'neadirect_admin', NULL);
 
--- StallOwner (12 rows)
+-- StallOwner (12 rows) - Password left NULL, to be set later
 INSERT INTO StallOwner (OwnerID, OwnerName, OwnerNRIC, OwnerContactNo, Username, Password) VALUES
-('OW001', 'Lim Ah Seng', 'S5123456A', '81234567', 'limahseng', 'Passw0rd!OW001'),
-('OW002', 'Mdm Tan Geok Lian', 'S5234567B', '82345678', 'tangeoklian', 'Passw0rd!OW002'),
-('OW003', 'Raju s/o Krishnan', 'S5345678C', '83456789', 'rajukrishnan', 'Passw0rd!OW003'),
-('OW004', 'Lee Kim Huat', 'S5456789D', '84567890', 'leekimhuat', 'Passw0rd!OW004'),
-('OW005', 'Hassan bin Ahmad', 'S5567890E', '85678901', 'hassanahmad', 'Passw0rd!OW005'),
-('OW006', 'Chan Mei Fong', 'S5678901F', '86789012', 'chanmeifong', 'Passw0rd!OW006'),
-('OW007', 'Muthu s/o Raman', 'S5789012G', '87890123', 'muthuraman', 'Passw0rd!OW007'),
-('OW008', 'Siti binti Abdullah', 'S5890123H', '88901234', 'sitiabdullah', 'Passw0rd!OW008'),
-('OW009', 'Tan Hock Seng', 'S5901234I', '89012345', 'tanhockseng', 'Passw0rd!OW009'),
-('OW010', 'Lim Boon Keng', 'S6012345J', '80123456', 'limboonkeng', 'Passw0rd!OW010'),
-('OW011', 'Wong Ah Meng', 'S6123456K', '81112233', 'wongahmeng', 'Passw0rd!OW011'),
-('OW012', 'Raj Kumar', 'S6234567L', '82223344', 'rajkumar', 'Passw0rd!OW012');
+('OW001', 'Lim Ah Seng', 'S5123456A', '81234567', 'limahseng', NULL),
+('OW002', 'Mdm Tan Geok Lian', 'S5234567B', '82345678', 'tangeoklian', NULL),
+('OW003', 'Raju s/o Krishnan', 'S5345678C', '83456789', 'rajukrishnan', NULL),
+('OW004', 'Lee Kim Huat', 'S5456789D', '84567890', 'leekimhuat', NULL),
+('OW005', 'Hassan bin Ahmad', 'S5567890E', '85678901', 'hassanahmad', NULL),
+('OW006', 'Chan Mei Fong', 'S5678901F', '86789012', 'chanmeifong', NULL),
+('OW007', 'Muthu s/o Raman', 'S5789012G', '87890123', 'muthuraman', NULL),
+('OW008', 'Siti binti Abdullah', 'S5890123H', '88901234', 'sitiabdullah', NULL),
+('OW009', 'Tan Hock Seng', 'S5901234I', '89012345', 'tanhockseng', NULL),
+('OW010', 'Lim Boon Keng', 'S6012345J', '80123456', 'limboonkeng', NULL),
+('OW011', 'Wong Ah Meng', 'S6123456K', '81112233', 'wongahmeng', NULL),
+('OW012', 'Raj Kumar', 'S6234567L', '82223344', 'rajkumar', NULL);
 
 -- ============================================
 -- LEVEL 1 DEPENDENCIES
