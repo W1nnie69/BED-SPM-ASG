@@ -1,28 +1,41 @@
 const sql = require("mssql");
 const dbConfig = require("../dbConfig");
 
+// Close connection safely
+async function safeClose(connection) {
+    if (!connection) return;
+    try {
+        await connection.close();
+    } catch (err) {
+        console.error("Error closing connection: ", err);
+    }
+}
+
 // get all users
 async function getAllUsers() {
     let connection;
 
     try {
-        connection = await sql.connect(dbConfig);
-        const query = "SELECT * FROM users";
-        const result = await connection.request().query(query);
-        return result.recordset;
+        const operators = await getAllOperator();
+        const stallowners = await getAllStallOwner();
+
+        if ((!operators || operators.length == 0) || (!stallowners || stallowners.length == 0)) {
+            throw new Error ("User's array null or empty");
+        };
+
+        const users = {
+            "Operators": operators,
+            "Stall Owners": stallowners
+        };
+
+        return users;
 
     } catch (error) {
-        console.error("DB error: ", error);
+        console.error("Error: ", error);
         throw error;
-    } finally {
-        if (connection) {
-            try {
-                await connection.close();
 
-            } catch (err) {
-                console.error("Error closing connection: ", err);
-            }
-        }
+    } finally {
+       safeClose(connection);
     }
 }
 
@@ -51,14 +64,7 @@ async function getUser(email) {
         throw error;
 
     } finally {
-        if (connection) {
-            try {
-                await connection.close();
-
-            } catch (err) {
-                console.error("Error closing connection: ", err);
-            }
-        }
+        safeClose(connection);
     }
 }
 
@@ -75,14 +81,24 @@ async function getAllOperator() {
         console.error("DB error: ", error);
         throw error;
     } finally {
-        if (connection) {
-            try {
-                await connection.close();
+        safeClose(connection);
+    }
+}
 
-            } catch (err) {
-                console.error("Error closing connection: ", err);
-            }
-        }
+async function getAllStallOwner() {
+    let connection;
+
+    try {
+        connection = await sql.connect(dbConfig);
+        const query = "SELECT * FROM StallOwner";
+        const result = await connection.request().query(query);
+        return result.recordset;
+
+    } catch (error) {
+        console.error("DB error: ", error);
+        throw error;
+    } finally {
+        safeClose(connection);
     }
 }
 
@@ -90,5 +106,6 @@ async function getAllOperator() {
 module.exports = {
     getAllUsers,
     getUser,
-    getAllOperator
+    getAllOperator,
+    getAllStallOwner,
 }

@@ -47,8 +47,20 @@ async function getAllOperator(req, res) {
     }
 }
 
+async function getAllStallOwner(req, res) {
+    try {
+        const users = await testModel.getAllStallOwner();
+        res.json(users);
+
+    } catch (error) {
+        console.error("Controller error: ", error);
+        res.status(500).json({error: "Error retrieving users"});
+    }
+}
+
 module.exports = {
     getAllUsers,
     getUser,
-    getAllOperator
+    getAllOperator,
+    getAllStallOwner
 }

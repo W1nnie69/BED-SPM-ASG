@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
     res.send("Hi!");
 })
 
-app.get("/users", testController.getAllUsers);
+app.get("/api/users", testController.getAllUsers);
 
 app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
@@ -35,6 +35,8 @@ app.get("/home", (req, res) => {
 app.post("/api/login", testController.getUser);
 
 app.get("/api/operator", testController.getAllOperator);
+
+app.get("/api/stallowner", testController.getAllStallOwner);
 
 // start server
 app.listen(port, async () => {
