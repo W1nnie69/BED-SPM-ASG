@@ -40,7 +40,7 @@ async function getAllUsers() {
 }
 
 // get a specific user
-async function getUser(id) {
+async function getUserById(id) {
     let connection;
 
     try {
@@ -53,7 +53,7 @@ async function getUser(id) {
 
         if (result.recordset.length > 0) {
             console.log(result);
-            return result.recordset[0];
+            return result;
 
         } else {
             // Check Operator
@@ -63,10 +63,50 @@ async function getUser(id) {
 
             if (result2.recordset.length > 0) {
                 console.log(result2);  
-                return result2.recordset[0];
+                return result2;
             
             } else {
                 console.error("testModel: No user found")
+                return;
+            }
+        }
+        
+    } catch (error) {
+        console.error("DB error: ", error);
+        throw error;
+
+    } finally {
+        safeClose(connection);
+    }
+}
+
+async function getUserByUsername(username) {
+    let connection;
+
+    try {
+        connection = await sql.connect(dbConfig);
+
+        // Check StallOwner
+        const result = await connection.request()
+            .input('username', sql.VarChar, username)
+            .query('SELECT * FROM StallOwner WHERE Username = @username');
+
+        if (result.recordset.length > 0) {
+            console.log(result);
+            return result;
+
+        } else {
+            // Check Operator
+            const result2 = await connection.request()
+                .input('username', sql.VarChar, username)
+                .query('SELECT * FROM Operator WHERE Username = @username');
+
+            if (result2.recordset.length > 0) {
+                console.log(result2);  
+                return result2;
+            
+            } else {
+                console.error("testModel: No user found");
                 return;
             }
         }
@@ -116,16 +156,14 @@ async function getAllStallOwner() {
 
 async function updatePassword(loginDetails) {
     let connection;
-    const {id, hashedPassword} = loginDetails;
+    const { id, hashedPassword } = loginDetails;
 
     try {
         // Find user row first.
         connection = await sql.connect(dbConfig);
 
         // check in stall owner table first
-        const result = await connection.request()
-            .input('id', sql.VarChar, id)
-            .query('SELECT * FROM StallOwner WHERE OwnerID = @id');
+        const result = await getUserById(id);
 
         if (result.recordset.length > 0) {
             // update password
@@ -140,9 +178,7 @@ async function updatePassword(loginDetails) {
 
         } else {
             // check in operator table now
-            const result = await connection.request()
-                .input('id', sql.VarChar, id)
-                .query('SELECT * FROM Operator WHERE OperatorID = @id');
+            const result = await getUserById(id);
 
             if (result.recordset.length > 0) {
                 // update password
@@ -179,9 +215,7 @@ async function loginAuth(loginDetails) {
         connection = await sql.connect(dbConfig);
 
         // check in stall owner table first
-        const result = await connection.request()
-            .input('username', sql.VarChar, username)
-            .query('SELECT * FROM StallOwner WHERE Username = @username');
+        const result = await getUserByUsername(username);
 
         if (result.recordset.length > 0) {
             // return hash password
@@ -189,9 +223,8 @@ async function loginAuth(loginDetails) {
             return { "hashedPassword": hash, "userType": "StallOwner"};
             
         } else {
-            const result = await connection.request()
-                .input('username', sql.VarChar, username)
-                .query('SELECT * FROM Operator WHERE Username = @username');
+            // Check operator table 
+            const result = await getUserByUsername(username);
 
             if (result.recordset.length > 0) {
                 // return hash password
@@ -217,7 +250,8 @@ async function loginAuth(loginDetails) {
 
 module.exports = {
     getAllUsers,
-    getUser,
+    getUserById,
+    getUserByUsername,
     getAllOperator,
     getAllStallOwner,
     updatePassword,

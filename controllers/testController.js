@@ -12,17 +12,35 @@ async function getAllUsers(req, res) {
     }
 }
 
-async function getUser(req, res) {
+async function getUserById(req, res) {
     try {
         const id = req.params.id;
 
-        const user = await testModel.getUser(id);
+        const user = await testModel.getUserById(id);
 
         if(!user) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        res.json(user);
+        res.json(user.recordset[0]);
+        
+    } catch (error) {
+        console.error("Controller error: ", error);
+        res.status(500).json({error: "Error retrieving user"});
+    }
+}
+
+async function getUserByUsername(req, res) {
+    try {
+        const username = req.params.username;
+
+        const user = await testModel.getUserByUsername(username);
+
+        if(!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.json(user.recordset[0]);
         
     } catch (error) {
         console.error("Controller error: ", error);
@@ -116,7 +134,8 @@ async function loginAuth(req, res) {
 
 module.exports = {
     getAllUsers,
-    getUser,
+    getUserById,
+    getUserByUsername,
     getAllOperator,
     getAllStallOwner,
     updatePassword,

@@ -22,12 +22,23 @@ app.get("/", (req, res) => {
     res.send("Hi!");
 })
 
+// API ROUTES
 app.get("/api/users", testController.getAllUsers);
 
-app.get("/api/user/:id", testController.getUser);
+app.get("/api/user/byId/:id", testController.getUserById);
+
+app.get("/api/user/byUsername/:username", testController.getUserByUsername);
 
 app.put("/api/user/:id/updatepass", testController.updatePassword);
 
+app.post("/api/login", testController.loginAuth);
+
+app.get("/api/operator", testController.getAllOperator);
+
+app.get("/api/stallowner", testController.getAllStallOwner);
+
+
+// WEBSITE ROUTES
 app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
@@ -36,11 +47,7 @@ app.get("/home", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'home.html'));
 });
 
-app.post("/api/login", testController.loginAuth);
 
-app.get("/api/operator", testController.getAllOperator);
-
-app.get("/api/stallowner", testController.getAllStallOwner);
 
 // start server
 app.listen(port, async () => {
