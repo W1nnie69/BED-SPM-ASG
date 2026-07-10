@@ -22,7 +22,7 @@ async function getUserById(req, res) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        res.json(user.recordset[0]);
+        res.json(user);
         
     } catch (error) {
         console.error("Controller error: ", error);
@@ -102,7 +102,7 @@ async function updatePassword(req, res) {
     
     } catch (err) {
         console.error("Controller error: ", err);
-        res.status(500).json({error: "Unable to login"});
+        res.status(500).json({error: "Unable to update password"});
     }
 }
 
@@ -110,10 +110,10 @@ async function loginAuth(req, res) {
     const { username, password } = req.body;
 
     try{
-        const result = await testModel.loginAuth(req.body);
+        const result = await testModel.getUserByUsername(username);
 
-        if (result.hashedPassword && result.hashedPassword.length > 0) {
-            const match_result = await bcrypt.compare(password, result.hashedPassword);
+        if (result.result.recordset[0].Password && result.result.recordset[0].Password.length > 0) {
+            const match_result = await bcrypt.compare(password, result.result.recordset[0].Password);
 
             if (match_result) {
                 res.status(200).json({ "login status": true, "userType": result.userType });

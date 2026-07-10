@@ -19,7 +19,7 @@ async function getAllUsers() {
         const operators = await getAllOperator();
         const stallowners = await getAllStallOwner();
 
-        if ((!operators || operators.length == 0) || (!stallowners || stallowners.length == 0)) {
+        if ((!operators || operators.length === 0) || (!stallowners || stallowners.length === 0)) {
             throw new Error ("User's array null or empty");
         };
 
@@ -52,18 +52,18 @@ async function getUserById(id) {
             .query('SELECT * FROM StallOwner WHERE OwnerID = @id');
 
         if (result.recordset.length > 0) {
-            console.log(result);
-            return result;
+            // console.log(result);
+            return { result, "userType": "StallOwner" };
 
         } else {
             // Check Operator
-            const result2 = await connection.request()
+            const result = await connection.request()
                 .input('id', sql.VarChar, id)
                 .query('SELECT * FROM Operator WHERE OperatorID = @id');
 
-            if (result2.recordset.length > 0) {
-                console.log(result2);  
-                return result2;
+            if (result.recordset.length > 0) {
+                // console.log(result2);  
+                return { result, "userType": "Operator" };
             
             } else {
                 console.error("testModel: No user found")
@@ -92,18 +92,18 @@ async function getUserByUsername(username) {
             .query('SELECT * FROM StallOwner WHERE Username = @username');
 
         if (result.recordset.length > 0) {
-            console.log(result);
-            return result;
+            // console.log(result);
+            return { result, "userType": "StallOwner" };
 
         } else {
             // Check Operator
-            const result2 = await connection.request()
+            const result = await connection.request()
                 .input('username', sql.VarChar, username)
                 .query('SELECT * FROM Operator WHERE Username = @username');
 
-            if (result2.recordset.length > 0) {
-                console.log(result2);  
-                return result2;
+            if (result.recordset.length > 0) {
+                // console.log(result2);  
+                return { result, "userType": "Operator" };
             
             } else {
                 console.error("testModel: No user found");
@@ -158,44 +158,40 @@ async function updatePassword(loginDetails) {
     let connection;
     const { id, hashedPassword } = loginDetails;
 
+    const configTable = {
+        StallOwner: { table: 'StallOwner', idColumn: 'OwnerID' },
+        Operator: { table: 'Operator', idColumn: 'OperatorID' }
+    };
+
     try {
         // Find user row first.
-        connection = await sql.connect(dbConfig);
-
         // check in stall owner table first
         const result = await getUserById(id);
 
-        if (result.recordset.length > 0) {
+        if (result.result.recordset.length > 0) {
             // update password
-            console.log("User found: ", result.recordset[0]);
+            console.log("User found: ", result.result.recordset[0]);
+            
+            // Checks whether is userType is a valid table name
+            const config = configTable[result.userType];
+            if (!config) {
+                throw new Error("Invalid user type!");
+            }
+            
+            connection = await sql.connect(dbConfig);
+
+            const query = `UPDATE ${config.table} SET Password = @hashedPassword WHERE ${config.idColumn} = @id`
 
             const result2 = await connection.request()
                 .input('id', sql.VarChar, id)
                 .input('hashedPassword', sql.VarChar, hashedPassword)
-                .query('UPDATE StallOwner SET Password = @hashedPassword WHERE OwnerID = @id');
+                .query(query);
 
             return true;
 
         } else {
-            // check in operator table now
-            const result = await getUserById(id);
-
-            if (result.recordset.length > 0) {
-                // update password
-                console.log("User found: ", result.recordset[0]);
-
-                const result2 = await connection.request()
-                    .input('id', sql.VarChar, id)
-                    .input('hashedPassword', sql.VarChar, hashedPassword)
-                    .query('UPDATE Operator SET Password = @hashedPassword WHERE OperatorID = @id');
-
-                return true;
-
-            } else {
-                // User not found
-                console.log("User not found");
-                return false;
-            }
+            console.log("User not found");
+            return false;
         }
     
     } catch (err) {
@@ -207,53 +203,11 @@ async function updatePassword(loginDetails) {
     }
 }
 
-async function loginAuth(loginDetails) {
-    let connection;
-    const { username, password } = loginDetails;
-
-    try {
-        connection = await sql.connect(dbConfig);
-
-        // check in stall owner table first
-        const result = await getUserByUsername(username);
-
-        if (result.recordset.length > 0) {
-            // return hash password
-            const hash = result.recordset[0]["Password"];
-            return { "hashedPassword": hash, "userType": "StallOwner"};
-            
-        } else {
-            // Check operator table 
-            const result = await getUserByUsername(username);
-
-            if (result.recordset.length > 0) {
-                // return hash password
-                const hash = result.recordset[0]["Password"];
-                return { "hashedPassword": hash, "userType": "Operator"};
-
-            } else {
-                // no user found
-                console.log("User not found");
-                return false;
-            }
-        }
-
-    } catch (error) {
-        console.error("Model error: ", error.stack);
-        throw error;
-
-    } finally {
-        safeClose();
-    }
-}
-
-
 module.exports = {
     getAllUsers,
     getUserById,
     getUserByUsername,
     getAllOperator,
     getAllStallOwner,
-    updatePassword,
-    loginAuth
+    updatePassword
 }

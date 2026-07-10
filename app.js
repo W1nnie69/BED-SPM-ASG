@@ -29,7 +29,7 @@ app.get("/api/user/byId/:id", testController.getUserById);
 
 app.get("/api/user/byUsername/:username", testController.getUserByUsername);
 
-app.put("/api/user/:id/updatepass", testController.updatePassword);
+app.put("/api/user/updatepass/:id", testController.updatePassword);
 
 app.post("/api/login", testController.loginAuth);
 
