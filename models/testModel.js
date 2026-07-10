@@ -50,23 +50,27 @@ async function getUser(id) {
         const result = await connection.request()
             .input('id', sql.VarChar, id)
             .query('SELECT * FROM StallOwner WHERE OwnerID = @id');
-        // return result.recordset;
 
-        if (result.recordset.length <= 0) {
+        if (result.recordset.length > 0) {
             console.log(result);
+            return result.recordset[0];
 
         } else {
             // Check Operator
-            const result = await connection.request()
-            .input('id', sql.VarChar, id)
-            .query('SELECT * FROM Operator WHERE OperatorID = @id');
+            const result2 = await connection.request()
+                .input('id', sql.VarChar, id)
+                .query('SELECT * FROM Operator WHERE OperatorID = @id');
 
-            if (result.recordset.length <= 0) {
-                console.log(result);  
+            if (result2.recordset.length > 0) {
+                console.log(result2);  
+                return result2.recordset[0];
+            
+            } else {
+                console.error("testModel: No user found")
+                return;
             }
         }
         
-
     } catch (error) {
         console.error("DB error: ", error);
         throw error;

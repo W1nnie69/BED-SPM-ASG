@@ -13,7 +13,7 @@ async function getAllUsers(req, res) {
 
 async function getUser(req, res) {
     try {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
 
         const user = await testModel.getUser(id);
 

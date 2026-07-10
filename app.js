@@ -24,7 +24,7 @@ app.get("/", (req, res) => {
 
 app.get("/api/users", testController.getAllUsers);
 
-app.get("/api/user/:id", );
+app.get("/api/user/:id", testController.getUser);
 
 app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
