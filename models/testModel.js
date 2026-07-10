@@ -90,7 +90,7 @@ async function getAllOperator() {
         return result.recordset;
 
     } catch (error) {
-        console.error("DB error: ", error);
+        console.error("DB error: ", error.stack);
         throw error;
     } finally {
         safeClose(connection);
@@ -107,7 +107,7 @@ async function getAllStallOwner() {
         return result.recordset;
 
     } catch (error) {
-        console.error("DB error: ", error);
+        console.error("DB error: ", error.stack);
         throw error;
     } finally {
         safeClose(connection);
@@ -171,11 +171,55 @@ async function updatePassword(loginDetails) {
     }
 }
 
+async function loginAuth(loginDetails) {
+    let connection;
+    const { username, password } = loginDetails;
+
+    try {
+        connection = await sql.connect(dbConfig);
+
+        // check in stall owner table first
+        const result = await connection.request()
+            .input('username', sql.VarChar, username)
+            .query('SELECT * FROM StallOwner WHERE Username = @username');
+
+        if (result.recordset.length > 0) {
+            // return hash password
+            const hash = result.recordset[0]["Password"];
+            return { "hashedPassword": hash, "userType": "StallOwner"};
+            
+        } else {
+            const result = await connection.request()
+                .input('username', sql.VarChar, username)
+                .query('SELECT * FROM Operator WHERE Username = @username');
+
+            if (result.recordset.length > 0) {
+                // return hash password
+                const hash = result.recordset[0]["Password"];
+                return { "hashedPassword": hash, "userType": "Operator"};
+
+            } else {
+                // no user found
+                console.log("User not found");
+                return false;
+            }
+        }
+
+    } catch (error) {
+        console.error("Model error: ", error.stack);
+        throw error;
+
+    } finally {
+        safeClose();
+    }
+}
+
 
 module.exports = {
     getAllUsers,
     getUser,
     getAllOperator,
     getAllStallOwner,
-    updatePassword
+    updatePassword,
+    loginAuth
 }

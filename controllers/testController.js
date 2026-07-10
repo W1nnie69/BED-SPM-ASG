@@ -71,10 +71,11 @@ async function updatePassword(req, res) {
     try {
         const result = await testModel.updatePassword(loginDetails);
 
+        console.log(result);
+
         if (result) {
             res.status(200).json({
-                    status: "Done",
-                    newPasswordHash: result["Password"]
+                    status: "Done"
                 });
 
         } else {
@@ -87,10 +88,37 @@ async function updatePassword(req, res) {
     }
 }
 
+async function loginAuth(req, res) {
+    const { username, password } = req.body;
+
+    try{
+        const result = await testModel.loginAuth(req.body);
+
+        if (result.hashedPassword && result.hashedPassword.length > 0) {
+            const match_result = await bcrypt.compare(password, result.hashedPassword);
+
+            if (match_result) {
+                res.status(200).json({ "login status": true, "userType": result.userType });
+
+            } else {
+                res.status(401).json({ "login status": false });
+            }
+
+        } else {
+            res.status(500).json({ error: "hashedPassword is empty" });
+        }
+
+    } catch (error) {
+        console.error("Controller error: ", error.stack);
+        res.status(500).json({error: "Something wrong"});
+    }
+}
+
 module.exports = {
     getAllUsers,
     getUser,
     getAllOperator,
     getAllStallOwner,
-    updatePassword
+    updatePassword,
+    loginAuth
 }
