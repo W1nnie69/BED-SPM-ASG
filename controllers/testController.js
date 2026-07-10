@@ -1,4 +1,5 @@
 const testModel = require("../models/testModel");
+const bcrypt = require('bcrypt');
 
 async function getAllUsers(req, res) {
     try {
@@ -51,9 +52,45 @@ async function getAllStallOwner(req, res) {
     }
 }
 
+async function hashPassword(plainPassword) {
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
+    return hashedPassword;
+}
+
+async function updatePassword(req, res) {
+    const hashedPassword = await hashPassword(req.body.password);
+
+    console.log(hashedPassword);
+
+    const loginDetails = {
+        "id": req.params.id,
+        "hashedPassword": hashedPassword
+    }
+
+    try {
+        const result = await testModel.updatePassword(loginDetails);
+
+        if (result) {
+            res.status(200).json({
+                    status: "Done",
+                    newPasswordHash: result["Password"]
+                });
+
+        } else {
+            res.status(500).json({error: "user not found?"});
+        }
+    
+    } catch (err) {
+        console.error("Controller error: ", err);
+        res.status(500).json({error: "Unable to login"});
+    }
+}
+
 module.exports = {
     getAllUsers,
     getUser,
     getAllOperator,
-    getAllStallOwner
+    getAllStallOwner,
+    updatePassword
 }

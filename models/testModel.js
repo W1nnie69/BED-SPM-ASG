@@ -114,10 +114,68 @@ async function getAllStallOwner() {
     }
 }
 
+async function updatePassword(loginDetails) {
+    let connection;
+    const {id, hashedPassword} = loginDetails;
+
+    try {
+        // Find user row first.
+        connection = await sql.connect(dbConfig);
+
+        // check in stall owner table first
+        const result = await connection.request()
+            .input('id', sql.VarChar, id)
+            .query('SELECT * FROM StallOwner WHERE OwnerID = @id');
+
+        if (result.recordset.length > 0) {
+            // update password
+            console.log("User found: ", result.recordset[0]);
+
+            const result2 = await connection.request()
+                .input('id', sql.VarChar, id)
+                .input('hashedPassword', sql.VarChar, hashedPassword)
+                .query('UPDATE StallOwner SET Password = @hashedPassword WHERE OwnerID = @id');
+
+            return true;
+
+        } else {
+            // check in operator table now
+            const result = await connection.request()
+                .input('id', sql.VarChar, id)
+                .query('SELECT * FROM Operator WHERE OperatorID = @id');
+
+            if (result.recordset.length > 0) {
+                // update password
+                console.log("User found: ", result.recordset[0]);
+
+                const result2 = await connection.request()
+                    .input('id', sql.VarChar, id)
+                    .input('hashedPassword', sql.VarChar, hashedPassword)
+                    .query('UPDATE Operator SET Password = @hashedPassword WHERE OperatorID = @id');
+
+                return true;
+
+            } else {
+                // User not found
+                console.log("User not found");
+                return false;
+            }
+        }
+    
+    } catch (err) {
+        console.error("Model error: " + err.stack);
+        throw err;
+
+    } finally {
+        safeClose();
+    }
+}
+
 
 module.exports = {
     getAllUsers,
     getUser,
     getAllOperator,
     getAllStallOwner,
+    updatePassword
 }

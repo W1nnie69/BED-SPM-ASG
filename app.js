@@ -26,6 +26,8 @@ app.get("/api/users", testController.getAllUsers);
 
 app.get("/api/user/:id", testController.getUser);
 
+app.put("/api/user/:id/updatepass", testController.updatePassword);
+
 app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
