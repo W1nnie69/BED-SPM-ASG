@@ -114,8 +114,8 @@
     <p class="subtitle">Log in to your account to continue</p>
 
     <form id="loginForm">
-      <label for="username">Username</label>
-      <input type="text" id="username" name="username" placeholder="Enter your username" required>
+      <label for="email">Email</label>
+      <input type="text" id="email" name="email" placeholder="Enter your email" required>
 
       <label for="password">Password</label>
       <input type="password" id="password" name="password" placeholder="Enter your password" required>
@@ -134,9 +134,46 @@
   </div>
 
   <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      alert('Login form submitted (this is just a demo, no real login yet).');
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const button = e.target.querySelector('button');
+ 
+      button.disabled = true;
+      button.textContent = 'Logging in...';
+ 
+      try {
+        const response = await fetch('http://localhost:3000/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+ 
+        if (!response.ok) {
+          throw new Error('Login failed. Please check your username and password.');
+        }
+ 
+        // const data = await response.json();
+ 
+        // // Most APIs send back a token here. Save it so the browser
+        // // remembers the user is logged in on future page loads.
+        // if (data.token) {
+        //   localStorage.setItem('authToken', data.token);
+        // }
+ 
+        // Send the user to whatever page comes after login.
+        window.location.href = '/dash';
+ 
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Log in';
+      }
+
     });
   </script>
 

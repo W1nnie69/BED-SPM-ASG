@@ -4,6 +4,7 @@ dotenv.config();
 
 // modules
 const express = require("express");
+const session = require("express-session");
 const sql = require("mssql")
 const path = require("path");
 
@@ -16,6 +17,14 @@ const port = process.env.PORT || 3000;
 
 // middleware
 app.use(express.json());
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 2 // session lasts 2 hours
+  }
+}));
 
 // test routes
 app.get("/", (req, res) => {
@@ -29,9 +38,17 @@ app.get("/api/user/byId/:id", testController.getUserById);
 
 app.get("/api/user/byEmail/:email", testController.getUserByEmail);
 
+//reset password not fully implemented yet on the frontend
 app.put("/api/user/updatepass/:id", testController.updatePassword);
 
 app.post("/api/login", testController.loginAuth);
+
+app.post("/api/logout", (req, res) => {
+    req.session.destroy(() => {
+        res.clearCookie('connect.sid');
+        res.status(200).json({ message: "Logged out"});
+    });
+});
 
 // TEST API ROUTES
 app.get("/api/operator", testController.getAllOperator);
@@ -55,8 +72,8 @@ app.get("/reset-password", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'reset-password.html'));
 });
 
-app.get("/home", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'home.html'));
+app.get("/dash", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
 

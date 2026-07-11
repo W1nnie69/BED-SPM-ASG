@@ -117,6 +117,14 @@ async function loginAuth(req, res) {
             const match_result = await bcrypt.compare(password, result.result.recordset[0].Password);
 
             if (match_result) {
+
+                const userIdType = {
+                    Operator: "OperatorID",
+                    StallOwner: "OwnerID"
+                };
+
+                req.session.userId = result.result.recordset[0][userIdType[result.userType]];
+                console.log(req.session.userId);
                 res.status(200).json({ "login status": true, "userType": result.userType });
 
             } else {
