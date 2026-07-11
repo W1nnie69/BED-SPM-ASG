@@ -1,9 +1,9 @@
-const testModel = require("../models/testModel");
+const uamModel = require("../models/uamModel");
 const bcrypt = require('bcrypt');
 
 async function getAllUsers(req, res) {
     try {
-        const users = await testModel.getAllUsers();
+        const users = await uamModel.getAllUsers();
         res.json(users);
 
     } catch (error) {
@@ -16,7 +16,7 @@ async function getUserById(req, res) {
     try {
         const id = req.params.id;
 
-        const user = await testModel.getUserById(id);
+        const user = await uamModel.getUserById(id);
 
         if(!user) {
             return res.status(404).json({ error: "User not found" });
@@ -34,7 +34,7 @@ async function getUserByEmail(req, res) {
     try {
         const email = req.params.email;
 
-        const user = await testModel.getUserByEmail(email);
+        const user = await uamModel.getUserByEmail(email);
 
         if(!user || user.length <= 0) {
             return res.status(404).json({ error: "User not found" });
@@ -50,7 +50,7 @@ async function getUserByEmail(req, res) {
 
 async function getAllOperator(req, res) {
     try {
-        const users = await testModel.getAllOperator();
+        const users = await uamModel.getAllOperator();
         res.json(users);
 
     } catch (error) {
@@ -61,7 +61,7 @@ async function getAllOperator(req, res) {
 
 async function getAllStallOwner(req, res) {
     try {
-        const users = await testModel.getAllStallOwner();
+        const users = await uamModel.getAllStallOwner();
         res.json(users);
 
     } catch (error) {
@@ -87,7 +87,7 @@ async function updatePassword(req, res) {
     }
 
     try {
-        const result = await testModel.updatePassword(loginDetails);
+        const result = await uamModel.updatePassword(loginDetails);
 
         console.log(result);
 
@@ -111,7 +111,7 @@ async function loginAuth(req, res) {
 
     try{
         // Find user in DB
-        const result = await testModel.getUserByEmail(email);
+        const result = await uamModel.getUserByEmail(email);
 
         if (result.result.recordset[0].Password && result.result.recordset[0].Password.length > 0) {
             const match_result = await bcrypt.compare(password, result.result.recordset[0].Password);
