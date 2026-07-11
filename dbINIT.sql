@@ -37,8 +37,8 @@ CREATE TABLE Operator (
     OperatorID CHAR(5) PRIMARY KEY,
     OperatorName VARCHAR(100) NOT NULL,
     ContactPerson VARCHAR(100) NOT NULL,
-    Username VARCHAR(50) UNIQUE NOT NULL,
-    Password VARCHAR(255) NULL
+    Email VARCHAR(50) UNIQUE NOT NULL,
+    Password VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE StallOwner (
@@ -46,8 +46,8 @@ CREATE TABLE StallOwner (
     OwnerName VARCHAR(100) NOT NULL,
     OwnerNRIC CHAR(9) UNIQUE NOT NULL,
     OwnerContactNo CHAR(8) NOT NULL,
-    Username VARCHAR(50) UNIQUE NOT NULL,
-    Password VARCHAR(255) NULL
+    Email VARCHAR(50) UNIQUE NOT NULL,
+    Password VARCHAR(255) NOT NULL
 );
 
 -- ============================================
@@ -248,27 +248,27 @@ INSERT INTO NEA_Officer (OfficerID, OfficerName, OfficerContactNo) VALUES
 ('O0006', 'Fatimah binti Ali', '67001239');
 
 -- Operator (5 rows) - Password left NULL, to be set later
-INSERT INTO Operator (OperatorID, OperatorName, ContactPerson, Username, Password) VALUES
-('OP001', 'Singapore Hawker Management Pte Ltd', 'Tan Ah Kow', 'shm_admin', NULL),
-('OP002', 'Foodfare Catering Services', 'Lim Chee Wah', 'foodfare_admin', NULL),
-('OP003', 'Kopitiam Investment Pte Ltd', 'Wong Siew Meng', 'kopitiam_admin', NULL),
-('OP004', 'Timbre+ Management', 'David Lee', 'timbre_admin', NULL),
-('OP005', 'NEA Direct Management', 'Kumar S.', 'neadirect_admin', NULL);
+INSERT INTO Operator (OperatorID, OperatorName, ContactPerson, Email, Password) VALUES
+('OP001', 'Singapore Hawker Management Pte Ltd', 'Tan Ah Kow', 'shm_admin@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OP002', 'Foodfare Catering Services', 'Lim Chee Wah', 'foodfare_admin@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OP003', 'Kopitiam Investment Pte Ltd', 'Wong Siew Meng', 'kopitiam_admin@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OP004', 'Timbre+ Management', 'David Lee', 'timbre_admin@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OP005', 'NEA Direct Management', 'Kumar S.', 'neadirect_admin@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK');
 
 -- StallOwner (12 rows) - Password left NULL, to be set later
-INSERT INTO StallOwner (OwnerID, OwnerName, OwnerNRIC, OwnerContactNo, Username, Password) VALUES
-('OW001', 'Lim Ah Seng', 'S5123456A', '81234567', 'limahseng', NULL),
-('OW002', 'Mdm Tan Geok Lian', 'S5234567B', '82345678', 'tangeoklian', NULL),
-('OW003', 'Raju s/o Krishnan', 'S5345678C', '83456789', 'rajukrishnan', NULL),
-('OW004', 'Lee Kim Huat', 'S5456789D', '84567890', 'leekimhuat', NULL),
-('OW005', 'Hassan bin Ahmad', 'S5567890E', '85678901', 'hassanahmad', NULL),
-('OW006', 'Chan Mei Fong', 'S5678901F', '86789012', 'chanmeifong', NULL),
-('OW007', 'Muthu s/o Raman', 'S5789012G', '87890123', 'muthuraman', NULL),
-('OW008', 'Siti binti Abdullah', 'S5890123H', '88901234', 'sitiabdullah', NULL),
-('OW009', 'Tan Hock Seng', 'S5901234I', '89012345', 'tanhockseng', NULL),
-('OW010', 'Lim Boon Keng', 'S6012345J', '80123456', 'limboonkeng', NULL),
-('OW011', 'Wong Ah Meng', 'S6123456K', '81112233', 'wongahmeng', NULL),
-('OW012', 'Raj Kumar', 'S6234567L', '82223344', 'rajkumar', NULL);
+INSERT INTO StallOwner (OwnerID, OwnerName, OwnerNRIC, OwnerContactNo, Email, Password) VALUES
+('OW001', 'Lim Ah Seng', 'S5123456A', '81234567', 'limahseng@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OW002', 'Mdm Tan Geok Lian', 'S5234567B', '82345678', 'tangeoklian@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OW003', 'Raju s/o Krishnan', 'S5345678C', '83456789', 'rajukrishnan@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OW004', 'Lee Kim Huat', 'S5456789D', '84567890', 'leekimhuat@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OW005', 'Hassan bin Ahmad', 'S5567890E', '85678901', 'hassanahmad@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OW006', 'Chan Mei Fong', 'S5678901F', '86789012', 'chanmeifong@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OW007', 'Muthu s/o Raman', 'S5789012G', '87890123', 'muthuraman@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OW008', 'Siti binti Abdullah', 'S5890123H', '88901234', 'sitiabdullah@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OW009', 'Tan Hock Seng', 'S5901234I', '89012345', 'tanhockseng@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OW010', 'Lim Boon Keng', 'S6012345J', '80123456', 'limboonkeng@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OW011', 'Wong Ah Meng', 'S6123456K', '81112233', 'wongahmeng@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OW012', 'Raj Kumar', 'S6234567L', '82223344', 'rajkumar@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK');
 
 -- ============================================
 -- LEVEL 1 DEPENDENCIES
