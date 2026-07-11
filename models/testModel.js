@@ -80,7 +80,7 @@ async function getUserById(id) {
     }
 }
 
-async function getUserByUsername(username) {
+async function getUserByEmail(email) {
     let connection;
 
     try {
@@ -88,8 +88,8 @@ async function getUserByUsername(username) {
 
         // Check StallOwner
         const result = await connection.request()
-            .input('username', sql.VarChar, username)
-            .query('SELECT * FROM StallOwner WHERE Username = @username');
+            .input('email', sql.VarChar, email)
+            .query('SELECT * FROM StallOwner WHERE Email = @email');
 
         if (result.recordset.length > 0) {
             // console.log(result);
@@ -98,8 +98,8 @@ async function getUserByUsername(username) {
         } else {
             // Check Operator
             const result = await connection.request()
-                .input('username', sql.VarChar, username)
-                .query('SELECT * FROM Operator WHERE Username = @username');
+                .input('email', sql.VarChar, email)
+                .query('SELECT * FROM Operator WHERE Email = @email');
 
             if (result.recordset.length > 0) {
                 // console.log(result2);  
@@ -206,7 +206,7 @@ async function updatePassword(loginDetails) {
 module.exports = {
     getAllUsers,
     getUserById,
-    getUserByUsername,
+    getUserByEmail,
     getAllOperator,
     getAllStallOwner,
     updatePassword

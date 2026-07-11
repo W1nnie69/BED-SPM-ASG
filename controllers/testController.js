@@ -30,17 +30,17 @@ async function getUserById(req, res) {
     }
 }
 
-async function getUserByUsername(req, res) {
+async function getUserByEmail(req, res) {
     try {
-        const username = req.params.username;
+        const email = req.params.email;
 
-        const user = await testModel.getUserByUsername(username);
+        const user = await testModel.getUserByEmail(email);
 
-        if(!user) {
+        if(!user || user.length <= 0) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        res.json(user.recordset[0]);
+        res.json(user.result.recordset[0]);
         
     } catch (error) {
         console.error("Controller error: ", error);
@@ -107,10 +107,11 @@ async function updatePassword(req, res) {
 }
 
 async function loginAuth(req, res) {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
     try{
-        const result = await testModel.getUserByUsername(username);
+        // Find user in DB
+        const result = await testModel.getUserByEmail(email);
 
         if (result.result.recordset[0].Password && result.result.recordset[0].Password.length > 0) {
             const match_result = await bcrypt.compare(password, result.result.recordset[0].Password);
@@ -135,7 +136,7 @@ async function loginAuth(req, res) {
 module.exports = {
     getAllUsers,
     getUserById,
-    getUserByUsername,
+    getUserByEmail,
     getAllOperator,
     getAllStallOwner,
     updatePassword,

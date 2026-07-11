@@ -27,16 +27,16 @@ app.get("/api/users", testController.getAllUsers);
 
 app.get("/api/user/byId/:id", testController.getUserById);
 
-app.get("/api/user/byUsername/:username", testController.getUserByUsername);
+app.get("/api/user/byEmail/:email", testController.getUserByEmail);
 
 app.put("/api/user/updatepass/:id", testController.updatePassword);
 
 app.post("/api/login", testController.loginAuth);
 
+// TEST API ROUTES
 app.get("/api/operator", testController.getAllOperator);
 
 app.get("/api/stallowner", testController.getAllStallOwner);
-
 
 // WEBSITE ROUTES
 app.get("/login", (req, res) => {
