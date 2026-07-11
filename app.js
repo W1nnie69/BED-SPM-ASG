@@ -28,7 +28,7 @@ app.use(session({
 
 // test routes
 app.get("/", (req, res) => {
-    res.send("Hi!");
+    res.redirect("https://www.youtube.com/watch?v=DLzxrzFCyOs");
 })
 
 // API ROUTES
