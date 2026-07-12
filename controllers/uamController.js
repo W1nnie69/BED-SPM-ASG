@@ -1,6 +1,7 @@
 const uamModel = require("../models/uamModel");
 const bcrypt = require('bcrypt');
 
+
 async function getAllUsers(req, res) {
     try {
         const users = await uamModel.getAllUsers();
@@ -70,12 +71,24 @@ async function getAllStallOwner(req, res) {
     }
 }
 
+// TODO: Move this function to a helper/ utils file
 async function hashPassword(plainPassword) {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
     return hashedPassword;
 }
 
+// Currently this doesnt work in the frontend as the forgot password page
+// requests the user's email. My updatePassword model uses ID to find
+// the user as i think thats safer? (IDs will never be duped, unless i do some stupid shit)
+// Now looking into how actual password resets work.
+//
+// 1) User request for password change on front-end.
+// 2) A token is then generated, which is sent to user's email with a link to redirect them to the change password page.              
+// 3) On the change password page, User enters new password.
+// 4) Request to change password is sent to backend
+// 5) Backend checks the token sent from the user matches the one that was generated in step 2
+// 6) If match, password change is executed. Else, throw error or smt like that
 async function updatePassword(req, res) {
     const hashedPassword = await hashPassword(req.body.password);
 
@@ -113,16 +126,24 @@ async function loginAuth(req, res) {
         // Find user in DB
         const result = await uamModel.getUserByEmail(email);
 
+        // Horrible to look at but it works...
+        // Probably should just return the recordset instead of the whole result lol
         if (result.result.recordset[0].Password && result.result.recordset[0].Password.length > 0) {
             const match_result = await bcrypt.compare(password, result.result.recordset[0].Password);
 
             if (match_result) {
 
+                // This is to get the stupid userID from the result below.
+                // Since both tables have different column names for the ID, i use the userType
+                // in the result to properly set the column name.
+                // However, I COULD JUST CHANGE THE COLUMN NAME IN THE dbINIT SCRIPT!!!!!!!!
+                // TODO: Maybe change the column name in the init script
                 const userIdType = {
                     Operator: "OperatorID",
                     StallOwner: "OwnerID"
                 };
 
+                // Sets the session userId
                 req.session.userId = result.result.recordset[0][userIdType[result.userType]];
                 console.log(req.session.userId);
                 res.status(200).json({ "login status": true, "userType": result.userType });
@@ -132,11 +153,13 @@ async function loginAuth(req, res) {
             }
 
         } else {
+            // Will it ever be empty? idk 
             res.status(500).json({ error: "hashedPassword is empty" });
         }
 
     } catch (error) {
         console.error("Controller error: ", error.stack);
+        // Top 10 error messages...
         res.status(500).json({error: "Something wrong"});
     }
 }

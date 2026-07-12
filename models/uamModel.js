@@ -2,6 +2,7 @@ const sql = require("mssql");
 const dbConfig = require("../dbConfig");
 
 // Close connection safely
+// TODO: Might move this to a helper/utils file too
 async function safeClose(connection) {
     if (!connection) return;
     try {
@@ -11,7 +12,8 @@ async function safeClose(connection) {
     }
 }
 
-// get all users
+// getAllUsers couldve been done with a single sql query but im too stoopid(lazy) for advance sql stuff...
+// get all users...
 async function getAllUsers() {
     let connection;
 
@@ -39,7 +41,7 @@ async function getAllUsers() {
     }
 }
 
-// get a specific user
+// get a specific user by using its id
 async function getUserById(id) {
     let connection;
 
@@ -80,6 +82,7 @@ async function getUserById(id) {
     }
 }
 
+// get a specific user by their email
 async function getUserByEmail(email) {
     let connection;
 
@@ -120,6 +123,7 @@ async function getUserByEmail(email) {
     }
 }
 
+// used for getAllUsers
 async function getAllOperator() {
     let connection;
 
@@ -137,6 +141,7 @@ async function getAllOperator() {
     }
 }
 
+// used for getAllUsers
 async function getAllStallOwner() {
     let connection;
 
@@ -173,6 +178,8 @@ async function updatePassword(loginDetails) {
             console.log("User found: ", result.result.recordset[0]);
             
             // Checks whether is userType is a valid table name
+            // This is done to prevent sql injections as im using string interpolation below,
+            // for the table name and column name.
             const config = configTable[result.userType];
             if (!config) {
                 throw new Error("Invalid user type!");
