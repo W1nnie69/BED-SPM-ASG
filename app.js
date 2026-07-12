@@ -41,6 +41,10 @@ app.get("/api/user/byEmail/:email", userController.getUserByEmail);
 //reset password not fully implemented yet on the frontend
 app.put("/api/user/updatepass/:id", userController.updatePassword);
 
+app.post("/api/user/forgot-password", userController.forgotPassword);
+
+app.post("/api/user/reset-password", userController.resetPassword);
+
 app.post("/api/login", userController.loginAuth);
 
 app.post("/api/logout", (req, res) => {
