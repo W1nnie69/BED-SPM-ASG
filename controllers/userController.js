@@ -84,32 +84,43 @@ async function hashPassword(plainPassword) {
     return hashedPassword;
 }
 
-
+// Cant believe it worked first try!!!
+// Both forgotPassword and resetPassword works,
+// just need to link them with the frontend.
 async function forgotPassword(req, res) {
     const { email } = req.body;
 
-    const user = getUserByEmail(email);
+    try {
+        const user = await userModel.getUserByEmail(email);
 
-    if (!user || user.result.recordset.length < 0) {
-        return res.json({ message: "If that email exists, a reset link has been sent." });
+        console.log(user.result);
+
+        if (!user || user.result.recordset.length < 0) {
+            return res.json({ message: "If that email exists, a reset link has been sent." });
+        }
+
+        const token = crypto.randomBytes(32).toString('hex');
+        const expiresAt = Date.now() + 30 * 60 * 1000; // 30 mins from now
+
+        // using the stupid method of selecting the ID from below...
+        const userIdType = {
+                        Operator: "OperatorID",
+                        StallOwner: "OwnerID"
+                    };
+
+        resetTokens.set(token, { userId: user.result.recordset[0][userIdType[user.userType]], expiresAt });
+
+        const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+
+        await utils.sendResetEmail(user.result.recordset[0].Email, resetLink);
+
+        res.json({ message: "If that email exists, a reset link has been sent." });
+
+    } catch(error) {
+        console.error("Controller error: ", error.stack);
+        res.status(500).json({ error: "Something went wrong" });
     }
-
-    const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = Date.now() + 30 * 60 * 1000; // 30 mins from now
-
-    // using the stupid method of selecting the ID from below...
-    const userIdType = {
-                    Operator: "OperatorID",
-                    StallOwner: "OwnerID"
-                };
-
-    resetTokens.set(token, { userId: user.result.recordset[0][userIdType[result.userType]], expiresAt });
-
-    const resetLink = `http://localhost:3000/reset-password?token=${token}`;
-
-    await utils.sendResetEmail(user.result.recordset[0].Email, resetLink);
-
-    res.json({ message: "If that email exists, a reset link has been sent." });
+    
 }
 
 async function resetPassword(req, res) {
