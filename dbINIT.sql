@@ -255,9 +255,10 @@ INSERT INTO Operator (OperatorID, OperatorName, ContactPerson, Email, Password) 
 ('OP004', 'Timbre+ Management', 'David Lee', 'timbre_admin@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
 ('OP005', 'NEA Direct Management', 'Kumar S.', 'neadirect_admin@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK');
 
+
 -- StallOwner (12 rows) - Password left NULL, to be set later
 INSERT INTO StallOwner (OwnerID, OwnerName, OwnerNRIC, OwnerContactNo, Email, Password) VALUES
-('OW001', 'Lim Ah Seng', 'S5123456A', '81234567', 'limahseng@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('OW001', 'Dani Bin Mirza', 'S1234567A', '81234567', 'danizye@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
 ('OW002', 'Mdm Tan Geok Lian', 'S5234567B', '82345678', 'tangeoklian@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
 ('OW003', 'Raju s/o Krishnan', 'S5345678C', '83456789', 'rajukrishnan@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
 ('OW004', 'Lee Kim Huat', 'S5456789D', '84567890', 'leekimhuat@gmail.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
