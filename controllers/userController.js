@@ -1,10 +1,10 @@
-const uamModel = require("../models/uamModel");
+const userModel = require("../models/userModel");
 const bcrypt = require('bcrypt');
 
 
 async function getAllUsers(req, res) {
     try {
-        const users = await uamModel.getAllUsers();
+        const users = await userModel.getAllUsers();
         res.json(users);
 
     } catch (error) {
@@ -17,7 +17,7 @@ async function getUserById(req, res) {
     try {
         const id = req.params.id;
 
-        const user = await uamModel.getUserById(id);
+        const user = await userModel.getUserById(id);
 
         if(!user) {
             return res.status(404).json({ error: "User not found" });
@@ -35,7 +35,7 @@ async function getUserByEmail(req, res) {
     try {
         const email = req.params.email;
 
-        const user = await uamModel.getUserByEmail(email);
+        const user = await userModel.getUserByEmail(email);
 
         if(!user || user.length <= 0) {
             return res.status(404).json({ error: "User not found" });
@@ -51,7 +51,7 @@ async function getUserByEmail(req, res) {
 
 async function getAllOperator(req, res) {
     try {
-        const users = await uamModel.getAllOperator();
+        const users = await userModel.getAllOperator();
         res.json(users);
 
     } catch (error) {
@@ -62,7 +62,7 @@ async function getAllOperator(req, res) {
 
 async function getAllStallOwner(req, res) {
     try {
-        const users = await uamModel.getAllStallOwner();
+        const users = await userModel.getAllStallOwner();
         res.json(users);
 
     } catch (error) {
@@ -100,7 +100,7 @@ async function updatePassword(req, res) {
     }
 
     try {
-        const result = await uamModel.updatePassword(loginDetails);
+        const result = await userModel.updatePassword(loginDetails);
 
         console.log(result);
 
@@ -124,7 +124,7 @@ async function loginAuth(req, res) {
 
     try{
         // Find user in DB
-        const result = await uamModel.getUserByEmail(email);
+        const result = await userModel.getUserByEmail(email);
 
         // Horrible to look at but it works...
         // Probably should just return the recordset instead of the whole result lol

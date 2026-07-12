@@ -9,7 +9,7 @@ const sql = require("mssql")
 const path = require("path");
 
 // Controllers
-const uamController = require("./controllers/uamController");
+const userController = require("./controllers/userController");
 
 // create app
 const app = express();
@@ -32,16 +32,16 @@ app.get("/", (req, res) => {
 })
 
 // API ROUTES
-app.get("/api/users", uamController.getAllUsers);
+app.get("/api/users", userController.getAllUsers);
 
-app.get("/api/user/byId/:id", uamController.getUserById);
+app.get("/api/user/byId/:id", userController.getUserById);
 
-app.get("/api/user/byEmail/:email", uamController.getUserByEmail);
+app.get("/api/user/byEmail/:email", userController.getUserByEmail);
 
 //reset password not fully implemented yet on the frontend
-app.put("/api/user/updatepass/:id", uamController.updatePassword);
+app.put("/api/user/updatepass/:id", userController.updatePassword);
 
-app.post("/api/login", uamController.loginAuth);
+app.post("/api/login", userController.loginAuth);
 
 app.post("/api/logout", (req, res) => {
     req.session.destroy(() => {
@@ -51,9 +51,9 @@ app.post("/api/logout", (req, res) => {
 });
 
 // TEST API ROUTES
-app.get("/api/operator", uamController.getAllOperator);
+app.get("/api/operator", userController.getAllOperator);
 
-app.get("/api/stallowner", uamController.getAllStallOwner);
+app.get("/api/stallowner", userController.getAllStallOwner);
 
 // WEBSITE ROUTES
 app.get("/login", (req, res) => {
