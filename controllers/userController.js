@@ -1,5 +1,11 @@
 const userModel = require("../models/userModel");
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+const utils = require('../utils/email');
+
+// VARIABLE TO STORE PASSWORD RESET TOKENS! DO NOT TOUCH!!
+// Might store the tokens in the db instead. We'll see.
+const resetTokens = new Map();
 
 
 async function getAllUsers(req, res) {
@@ -78,6 +84,51 @@ async function hashPassword(plainPassword) {
     return hashedPassword;
 }
 
+
+async function forgotPassword(req, res) {
+    const { email } = req.body;
+
+    const user = getUserByEmail(email);
+
+    if (!user || user.result.recordset.length < 0) {
+        return res.json({ message: "If that email exists, a reset link has been sent." });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = Date.now() + 30 * 60 * 1000; // 30 mins from now
+
+    // using the stupid method of selecting the ID from below...
+    const userIdType = {
+                    Operator: "OperatorID",
+                    StallOwner: "OwnerID"
+                };
+
+    resetTokens.set(token, { userId: user.result.recordset[0][userIdType[result.userType]], expiresAt });
+
+    const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+
+    await utils.sendResetEmail(user.result.recordset[0].Email, resetLink);
+
+    res.json({ message: "If that email exists, a reset link has been sent." });
+}
+
+async function resetPassword(req, res) {
+    const { token, password } = req.body;
+
+    const record = resetTokens.get(token);
+
+    if (!record || record.expiresAt < Date.now()) {
+        return res.status(400).json({ error: "This reset link is invalid or has expired." });
+    }
+
+    const hashedPassword = await hashPassword(password);
+    await userModel.updatePassword(record.userId, hashedPassword);
+
+    resetTokens.delete(token);
+
+    res.json({ message: "Password updated successfully! "});
+}
+
 // Currently this doesnt work in the frontend as the forgot password page
 // requests the user's email. My updatePassword model uses ID to find
 // the user as i think thats safer? (IDs will never be duped, unless i do some stupid shit)
@@ -124,12 +175,12 @@ async function loginAuth(req, res) {
 
     try{
         // Find user in DB
-        const result = await userModel.getUserByEmail(email);
+        const user = await userModel.getUserByEmail(email);
 
         // Horrible to look at but it works...
         // Probably should just return the recordset instead of the whole result lol
-        if (result.result.recordset[0].Password && result.result.recordset[0].Password.length > 0) {
-            const match_result = await bcrypt.compare(password, result.result.recordset[0].Password);
+        if (user.result.recordset[0].Password && user.result.recordset[0].Password.length > 0) {
+            const match_result = await bcrypt.compare(password, user.result.recordset[0].Password);
 
             if (match_result) {
 
@@ -144,7 +195,7 @@ async function loginAuth(req, res) {
                 };
 
                 // Sets the session userId
-                req.session.userId = result.result.recordset[0][userIdType[result.userType]];
+                req.session.userId = user.result.recordset[0][userIdType[result.userType]];
                 console.log(req.session.userId);
                 res.status(200).json({ "login status": true, "userType": result.userType });
 
@@ -171,5 +222,7 @@ module.exports = {
     getAllOperator,
     getAllStallOwner,
     updatePassword,
-    loginAuth
+    loginAuth,
+    forgotPassword,
+    resetPassword
 }

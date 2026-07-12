@@ -159,9 +159,8 @@ async function getAllStallOwner() {
     }
 }
 
-async function updatePassword(loginDetails) {
+async function updatePassword(id, hashedPassword) {
     let connection;
-    const { id, hashedPassword } = loginDetails;
 
     const configTable = {
         StallOwner: { table: 'StallOwner', idColumn: 'OwnerID' },
