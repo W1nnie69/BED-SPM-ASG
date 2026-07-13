@@ -19,8 +19,11 @@
   },
   "homepage": "https://github.com/W1nnie69/BED-SPM-ASG#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "mssql": "^12.5.5"
+    "express-session": "^1.19.0",
+    "mssql": "^12.7.0",
+    "resend": "^6.17.2"
   }
 }
