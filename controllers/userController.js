@@ -126,18 +126,25 @@ async function forgotPassword(req, res) {
 async function resetPassword(req, res) {
     const { token, password } = req.body;
 
-    const record = resetTokens.get(token);
+    try {
+        const record = resetTokens.get(token);
 
-    if (!record || record.expiresAt < Date.now()) {
-        return res.status(400).json({ error: "This reset link is invalid or has expired." });
+        if (!record || record.expiresAt < Date.now()) {
+            return res.status(400).json({ error: "This reset link is invalid or has expired." });
+        }
+
+        const hashedPassword = await hashPassword(password);
+        await userModel.updatePassword(record.userId, hashedPassword);
+
+        resetTokens.delete(token);
+
+        res.json({ message: "Password updated successfully! "});
+
+    } catch (error) {
+        console.error("Controller error: ", error.stack);
+        res.status(500).json({ error: "Something went wrong" });
     }
-
-    const hashedPassword = await hashPassword(password);
-    await userModel.updatePassword(record.userId, hashedPassword);
-
-    resetTokens.delete(token);
-
-    res.json({ message: "Password updated successfully! "});
+    
 }
 
 // Currently this doesnt work in the frontend as the forgot password page
