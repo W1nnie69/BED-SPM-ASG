@@ -147,46 +147,37 @@ async function resetPassword(req, res) {
     
 }
 
-// Currently this doesnt work in the frontend as the forgot password page
-// requests the user's email. My updatePassword model uses ID to find
-// the user as i think thats safer? (IDs will never be duped, unless i do some stupid shit)
-// Now looking into how actual password resets work.
-//
-// 1) User request for password change on front-end.
-// 2) A token is then generated, which is sent to user's email with a link to redirect them to the change password page.              
-// 3) On the change password page, User enters new password.
-// 4) Request to change password is sent to backend
-// 5) Backend checks the token sent from the user matches the one that was generated in step 2
-// 6) If match, password change is executed. Else, throw error or smt like that
-async function updatePassword(req, res) {
-    const hashedPassword = await hashPassword(req.body.password);
+// updatePassword has been replaced by forgotPassword and resetPassword.
+// It is now deprecated...
+// async function updatePassword(req, res) {
+//     const hashedPassword = await hashPassword(req.body.password);
 
-    console.log(hashedPassword);
+//     console.log(hashedPassword);
 
-    const loginDetails = {
-        "id": req.params.id,
-        "hashedPassword": hashedPassword
-    }
+//     const loginDetails = {
+//         "id": req.params.id,
+//         "hashedPassword": hashedPassword
+//     }
 
-    try {
-        const result = await userModel.updatePassword(loginDetails);
+//     try {
+//         const result = await userModel.updatePassword(loginDetails);
 
-        console.log(result);
+//         console.log(result);
 
-        if (result) {
-            res.status(200).json({
-                    status: "Done"
-                });
+//         if (result) {
+//             res.status(200).json({
+//                     status: "Done"
+//                 });
 
-        } else {
-            res.status(500).json({error: "user not found?"});
-        }
+//         } else {
+//             res.status(500).json({error: "user not found?"});
+//         }
     
-    } catch (err) {
-        console.error("Controller error: ", err);
-        res.status(500).json({error: "Unable to update password"});
-    }
-}
+//     } catch (err) {
+//         console.error("Controller error: ", err);
+//         res.status(500).json({error: "Unable to update password"});
+//     }
+// }
 
 async function loginAuth(req, res) {
     const { email, password } = req.body;
@@ -239,7 +230,6 @@ module.exports = {
     getUserByEmail,
     getAllOperator,
     getAllStallOwner,
-    updatePassword,
     loginAuth,
     forgotPassword,
     resetPassword
