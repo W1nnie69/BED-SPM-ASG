@@ -170,20 +170,24 @@ async function updatePassword(id, hashedPassword) {
     try {
         // Find user row first.
         // check in stall owner table first
-        const result = await getUserById(id);
 
-        if (result.result.recordset.length > 0) {
-            // update password
-            console.log("User found: ", result.result.recordset[0]);
-            
-            // Checks whether is userType is a valid table name
-            // This is done to prevent sql injections as im using string interpolation below,
-            // for the table name and column name.
-            const config = configTable[result.userType];
+        // Since the check it done on the controller now, this can be removed.
+        
+        // ===================== TODO: Remove the section below ==================================================
+        const result = await getUserById(id);                                                   
+        if (result.result.recordset.length > 0) {                                             
+            // update password                                                               
+            console.log("User found: ", result.result.recordset[0]);                          
+                                                                                             
+            // Checks whether is userType is a valid table name                                 
+            // This is done to prevent sql injections as im using string interpolation below,    
+            // for the table name and column name.                                              
+            const config = configTable[result.userType];                                       
             if (!config) {
                 throw new Error("Invalid user type!");
             }
             
+        // =====================================================================================================
             connection = await sql.connect(dbConfig);
 
             const query = `UPDATE ${config.table} SET Password = @hashedPassword WHERE ${config.idColumn} = @id`
