@@ -202,11 +202,11 @@ async function loginAuth(req, res) {
                     Operator: "OperatorID",
                     StallOwner: "OwnerID"
                 };
-
+                
                 // Sets the session userId
-                req.session.userId = user.result.recordset[0][userIdType[result.userType]];
+                req.session.userId = user.result.recordset[0][userIdType[user.userType]];
                 console.log(req.session.userId);
-                res.status(200).json({ "login status": true, "userType": result.userType });
+                res.status(200).json({ "loginStatus": true, "userType": user.userType, "userId": user.result.recordset[0][userIdType[user.userType]]});
 
             } else {
                 res.status(401).json({ "login status": false });
