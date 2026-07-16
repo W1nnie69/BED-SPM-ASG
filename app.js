@@ -47,6 +47,8 @@ app.post("/api/user/reset-password", userController.resetPassword);
 
 app.post("/api/login", userController.loginAuth);
 
+app.get("/api/user/get-dashboard/:id", userController.getDashboard);
+
 app.post("/api/logout", (req, res) => {
     req.session.destroy(() => {
         res.clearCookie('connect.sid');
@@ -76,10 +78,9 @@ app.get("/reset-password", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'reset-password.html'));
 });
 
-app.get("/dash", (req, res) => {
+app.get("/dashboard", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
-
 
 
 // start server
