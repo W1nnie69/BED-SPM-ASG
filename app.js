@@ -47,6 +47,8 @@ app.post("/api/user/reset-password", userController.resetPassword);
 
 app.post("/api/login", userController.loginAuth);
 
+app.get("/api/user/get-dashboard/:id", userController.getDashboard);
+
 app.post("/api/logout", (req, res) => {
     req.session.destroy(() => {
         res.clearCookie('connect.sid');
