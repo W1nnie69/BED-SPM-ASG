@@ -10,7 +10,7 @@ const path = require("path");
 
 // Controllers
 const userController = require("./controllers/userController");
-
+const custEngagementController = require("./controllers/custEngagementController")
 // create app
 const app = express();
 const port = process.env.PORT || 3000;
@@ -53,6 +53,9 @@ app.post("/api/logout", (req, res) => {
         res.status(200).json({ message: "Logged out"});
     });
 });
+
+// Route for liking a food item
+app.post('/likes', custEngagementController.likeFood);
 
 // TEST API ROUTES
 app.get("/api/operator", userController.getAllOperator);
