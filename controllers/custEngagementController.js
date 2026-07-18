@@ -40,7 +40,31 @@ async function getLikedFoods(req, res) {
     }
 }
 
+// Handles a customer's request to unlike a food item
+async function unlikeFood(req, res) {
+
+    const { customerId, stallId, itemCode } = req.body;
+
+    try {
+
+        await likeModel.unlikeFood(customerId, stallId, itemCode);
+
+        res.status(200).json({
+            message: "Food unliked successfully."
+        });
+
+    } catch (error) {
+
+        console.error("Controller error:", error);
+        res.status(500).json({
+            error: "Error unliking food."
+        });
+
+    }
+}
+
 module.exports = {
     likeFood,
-    getLikedFoods
+    getLikedFoods,
+    unlikeFood
 };

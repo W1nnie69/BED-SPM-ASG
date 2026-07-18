@@ -48,8 +48,30 @@ async function getLikedFoods(customerId) {
     return result.recordset;
 }
 
+// Removes a customer's liked food item from the Likes table
+async function unlikeFood(customerId, stallId, itemCode) {
+
+    const connection = await sql.connect(dbConfig);
+
+    const query = `
+        DELETE FROM Likes
+        WHERE CustomerID = @customerId
+        AND StallID = @stallId
+        AND ItemCode = @itemCode
+    `;
+
+    await connection.request()
+        .input('customerId', sql.Char(5), customerId)
+        .input('stallId', sql.Char(5), stallId)
+        .input('itemCode', sql.Char(5), itemCode)
+        .query(query);
+
+    connection.close();
+}
+
 
 module.exports = {
     likeFood,
-    getLikedFoods
+    getLikedFoods,
+    unlikeFood
 };

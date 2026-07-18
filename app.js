@@ -60,6 +60,9 @@ app.get('/likes/:customerId', custEngagementController.getLikedFoods);
 // Route for liking a food item
 app.post('/likes', custEngagementController.likeFood);
 
+// Unlike a food item
+app.delete('/likes', custEngagementController.unlikeFood);
+
 // TEST API ROUTES
 app.get("/api/operator", userController.getAllOperator);
 
