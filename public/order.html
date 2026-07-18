@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hawker Queue — Order</title>
+<link rel="stylesheet" href="order.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">🍜</span>
+      <div>
+        <h1>Hawker Queue</h1>
+        <p class="tagline">Order from your favourite stalls</p>
+      </div>
+    </div>
+
+    <div class="who">
+      <label for="customerSelect">Ordering as</label>
+      <select id="customerSelect"></select>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-view="order">Order</button>
+    <button class="tab" data-view="history">Order History</button>
+  </nav>
+
+  <main>
+    <!-- ORDER VIEW -->
+    <section id="view-order" class="view active">
+      <div class="menu-col">
+        <div id="menuGroups"></div>
+      </div>
+
+      <aside class="ticket-col">
+        <div class="ticket" id="ticket">
+          <div class="ticket-notch top"></div>
+          <div class="ticket-body">
+            <h2>Order Chit</h2>
+            <p class="ticket-sub">No.<span id="ticketNo">—</span></p>
+
+            <ul id="cartList" class="cart-list">
+              <li class="cart-empty">Your chit is empty. Tap items to add.</li>
+            </ul>
+
+            <div class="ticket-line"></div>
+
+            <div class="ticket-row total-row">
+              <span>Total</span>
+              <span id="cartTotal">$0.00</span>
+            </div>
+
+            <div class="payment-block">
+              <label>Payment method</label>
+              <div class="payment-options">
+                <button class="pay-btn active" data-method="PayNow">PayNow</button>
+                <button class="pay-btn" data-method="NETS">NETS</button>
+                <button class="pay-btn" data-method="Cash">Cash</button>
+              </div>
+            </div>
+
+            <button id="placeOrderBtn" class="place-order-btn" disabled>Place Order</button>
+            <p id="orderMsg" class="order-msg"></p>
+          </div>
+          <div class="ticket-notch bottom"></div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- HISTORY VIEW -->
+    <section id="view-history" class="view">
+      <h2 class="section-title">Past Orders</h2>
+      <div id="historyList" class="history-list"></div>
+    </section>
+  </main>
+
+  <script src="order.js"></script>
+</body>
+</html>

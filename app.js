@@ -10,6 +10,8 @@ const path = require("path");
 
 // Controllers
 const userController = require("./controllers/userController");
+const orderController = require("./controllers/orderController");
+const menuController = require("./controllers/menuController");
 
 // create app
 const app = express();
@@ -56,6 +58,15 @@ app.post("/api/logout", (req, res) => {
     });
 });
 
+// ORDER ROUTES (SHMS-7, SHMS-9)
+app.post("/api/order/create", orderController.createOrder);
+app.get("/api/order/history/:customerId", orderController.getOrderHistory);
+app.get("/api/order/byId/:orderId", orderController.getOrderDetail);
+app.get("/api/order/customers", orderController.getCustomersForOrdering);
+
+// MENU ROUTES (read-only helper for the order page)
+app.get("/api/menu", menuController.getAllMenuItems);
+
 // TEST API ROUTES
 app.get("/api/operator", userController.getAllOperator);
 
@@ -80,6 +91,10 @@ app.get("/reset-password", (req, res) => {
 
 app.get("/dashboard", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
+app.get("/order", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'order.html'));
 });
 
 
