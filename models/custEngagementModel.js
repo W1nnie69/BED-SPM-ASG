@@ -20,6 +20,36 @@ async function likeFood(customerId, stallId, itemCode) {
     connection.close();
 }
 
+// Retrieves all food items liked by a customer
+async function getLikedFoods(customerId) {
+
+    const connection = await sql.connect(dbConfig);
+
+    const query = `
+        SELECT
+            L.CustomerID,
+            M.ItemCode,
+            M.ItemDesc,
+            M.ItemPrice,
+            M.ItemCategory
+        FROM Likes L
+        INNER JOIN MenuItem M
+            ON L.StallID = M.StallID
+            AND L.ItemCode = M.ItemCode
+        WHERE L.CustomerID = @customerId
+    `;
+
+    const result = await connection.request()
+        .input('customerId', sql.Char(5), customerId)
+        .query(query);
+
+    connection.close();
+
+    return result.recordset;
+}
+
+
 module.exports = {
-    likeFood
+    likeFood,
+    getLikedFoods
 };

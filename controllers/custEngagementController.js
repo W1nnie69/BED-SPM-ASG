@@ -19,6 +19,28 @@ async function likeFood(req, res) {
     }
 }
 
+// Retrieves all food items liked by a customer
+async function getLikedFoods(req, res) {
+
+    const customerId = req.params.customerId;
+
+    try {
+
+        const likedFoods = await likeModel.getLikedFoods(customerId);
+
+        res.status(200).json(likedFoods);
+
+    } catch (error) {
+
+        console.error("Controller error:", error);
+        res.status(500).json({
+            error: "Error retrieving liked foods."
+        });
+
+    }
+}
+
 module.exports = {
-    likeFood
+    likeFood,
+    getLikedFoods
 };

@@ -54,6 +54,9 @@ app.post("/api/logout", (req, res) => {
     });
 });
 
+// Get all liked food items for a customer
+app.get('/likes/:customerId', custEngagementController.getLikedFoods);
+
 // Route for liking a food item
 app.post('/likes', custEngagementController.likeFood);
 
