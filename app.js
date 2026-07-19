@@ -12,8 +12,7 @@ const path = require("path");
 const userController = require("./controllers/userController");
 const orderController = require("./controllers/orderController");
 const menuController = require("./controllers/menuController");
-const custEngagementController = require("./controllers/custEngagementController")
-const menuController = require("./controllers/menuController");
+const custEngagementController = require("./controllers/custEngagementController");
 
 
 // create app
@@ -36,33 +35,14 @@ app.get("/", (req, res) => {
     res.redirect("https://www.youtube.com/watch?v=DLzxrzFCyOs");
 })
 
-// API ROUTES
+// API ROUTES...
+
+//=================================================== Dani's Routes ==============================================================
 app.get("/api/users", userController.getAllUsers);
 
 app.get("/api/user/byId/:id", userController.getUserById);
 
 app.get("/api/user/byEmail/:email", userController.getUserByEmail);
-
-
-app.get("/api/stall/:stallId/menu", menuController.getMenuByStall);
-
-app.post("/api/stall/:stallId/menu", menuController.addMenuItem);
-
-app.put("/api/stall/:stallId/menu/:code", menuController.updateMenuItem);
-
-app.delete("/api/stall/:stallId/menu/:code", menuController.deleteMenuItem);
-
-// Get all liked food items for a customer
-app.get('/likes/:customerId', custEngagementController.getLikedFoods);
-
-// Route for liking a food item
-app.post('/likes', custEngagementController.likeFood);
-
-// Unlike a food item
-app.delete('/likes', custEngagementController.unlikeFood);
-
-//reset password not fully implemented yet on the frontend
-// app.put("/api/user/updatepass/:id", userController.updatePassword); 
 
 app.post("/api/user/forgot-password", userController.forgotPassword);
 
@@ -79,12 +59,44 @@ app.post("/api/logout", (req, res) => {
     });
 });
 
-// TEST API ROUTES
+// Dani's TEST API ROUTES
 app.get("/api/operator", userController.getAllOperator);
 
 app.get("/api/stallowner", userController.getAllStallOwner);
 
-// WEBSITE ROUTES
+//=================================================== Jeff's Routes ================================================================
+// Get all liked food items for a customer
+app.get('/likes/:customerId', custEngagementController.getLikedFoods);
+
+// Route for liking a food item
+app.post('/likes', custEngagementController.likeFood);
+
+// Unlike a food item
+app.delete('/likes', custEngagementController.unlikeFood);
+
+//reset password not fully implemented yet on the frontend
+// app.put("/api/user/updatepass/:id", userController.updatePassword); 
+
+//=================================================== Shengle's Routes ===============================================================
+app.get("/api/stall/:stallId/menu", menuController.getMenuByStall);
+
+app.post("/api/stall/:stallId/menu", menuController.addMenuItem);
+
+app.put("/api/stall/:stallId/menu/:code", menuController.updateMenuItem);
+
+app.delete("/api/stall/:stallId/menu/:code", menuController.deleteMenuItem);
+
+//=================================================== LiangChen's Routes ==============================================================
+// ORDER ROUTES (SHMS-7, SHMS-9)
+app.post("/api/order/create", orderController.createOrder);
+app.get("/api/order/history/:customerId", orderController.getOrderHistory);
+app.get("/api/order/byId/:orderId", orderController.getOrderDetail);
+app.get("/api/order/customers", orderController.getCustomersForOrdering);
+
+// MENU ROUTES (read-only helper for the order page)
+app.get("/api/menu", menuController.getAllMenuItems);
+
+//=================================================== WEBSITE ROUTES ==================================================================
 app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
@@ -107,7 +119,6 @@ app.get("/dashboard", (req, res) => {
 app.get("/menu", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'menu.html'));
 });
-
 
 app.get("/order", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'order.html'));
