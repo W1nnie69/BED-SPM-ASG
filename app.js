@@ -12,7 +12,7 @@ const path = require("path");
 const userController = require("./controllers/userController");
 const orderController = require("./controllers/orderController");
 const menuController = require("./controllers/menuController");
-
+const custEngagementController = require("./controllers/custEngagementController")
 // create app
 const app = express();
 const port = process.env.PORT || 3000;
@@ -57,15 +57,6 @@ app.post("/api/logout", (req, res) => {
         res.status(200).json({ message: "Logged out"});
     });
 });
-
-// ORDER ROUTES (SHMS-7, SHMS-9)
-app.post("/api/order/create", orderController.createOrder);
-app.get("/api/order/history/:customerId", orderController.getOrderHistory);
-app.get("/api/order/byId/:orderId", orderController.getOrderDetail);
-app.get("/api/order/customers", orderController.getCustomersForOrdering);
-
-// MENU ROUTES (read-only helper for the order page)
-app.get("/api/menu", menuController.getAllMenuItems);
 
 // TEST API ROUTES
 app.get("/api/operator", userController.getAllOperator);
