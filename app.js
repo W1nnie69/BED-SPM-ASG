@@ -52,6 +52,15 @@ app.put("/api/stall/:stallId/menu/:code", menuController.updateMenuItem);
 
 app.delete("/api/stall/:stallId/menu/:code", menuController.deleteMenuItem);
 
+// Get all liked food items for a customer
+app.get('/likes/:customerId', custEngagementController.getLikedFoods);
+
+// Route for liking a food item
+app.post('/likes', custEngagementController.likeFood);
+
+// Unlike a food item
+app.delete('/likes', custEngagementController.unlikeFood);
+
 //reset password not fully implemented yet on the frontend
 // app.put("/api/user/updatepass/:id", userController.updatePassword); 
 
