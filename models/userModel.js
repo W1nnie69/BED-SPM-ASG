@@ -213,11 +213,87 @@ async function updatePassword(id, hashedPassword) {
     }
 }
 
+async function getDashboard(OwnerId) {
+    let connection;
+
+    const dashboardQuery = `
+        SELECT OwnerID, OwnerName
+        FROM StallOwner
+        WHERE OwnerID = @OwnerID;
+
+        SELECT 
+            fs.StallID, fs.StallName, fs.StallUnitNo, hc.HCName,
+            ra.RentalPrice, ra.AgrStartDate, ra.AgrEndDate, latest.HygieneGrade
+        FROM RentalAgreement ra
+        JOIN FoodStall fs ON fs.StallID = ra.StallID
+        JOIN HawkerCentre hc ON hc.HawkerCentreID = fs.HawkerCentreID
+        OUTER APPLY (
+            SELECT TOP 1 i.HygieneGrade
+            FROM Inspection i
+            WHERE i.StallID = fs.StallID
+            ORDER BY i.InspectionDate DESC
+        ) latest
+        WHERE ra.OwnerID = @OwnerID;
+
+        SELECT mi.StallID, mi.ItemCode, mi.ItemDesc, mi.ItemCategory, mi.ItemPrice
+        FROM MenuItem mi
+        WHERE mi.StallID IN (SELECT StallID FROM RentalAgreement WHERE OwnerID = @OwnerID);
+
+        SELECT f.FbkID, f.CustomerID, f.FbkDateTime, f.FbkRating, f.FbkComment, f.StallID
+        FROM Feedback f
+        WHERE f.StallID IN (SELECT StallID FROM RentalAgreement WHERE OwnerID = @OwnerID)
+        ORDER BY f.FbkDateTime DESC;
+
+        SELECT p.PromoID, p.PromoDesc, p.PromoStartDate, p.PromoEndDate, p.StallID
+        FROM Promotion p
+        WHERE p.StallID IN (SELECT StallID FROM RentalAgreement WHERE OwnerID = @OwnerID)
+        ORDER BY p.PromoStartDate DESC;
+
+        SELECT 
+            i.InspectionID, i.InspectionDate, i.HygieneGrade, i.OfficerID, i.StallID,
+            STRING_AGG(ir.InspectionRemark, ' | ') AS Remarks
+        FROM Inspection i
+        LEFT JOIN InspectionRemark ir ON ir.InspectionID = i.InspectionID
+        WHERE i.StallID IN (SELECT StallID FROM RentalAgreement WHERE OwnerID = @OwnerID)
+        GROUP BY i.InspectionID, i.InspectionDate, i.HygieneGrade, i.OfficerID, i.StallID
+        ORDER BY i.InspectionDate DESC;
+
+        SELECT
+            (SELECT COUNT(*) FROM RentalAgreement WHERE OwnerID = @OwnerID) AS stallCount,
+            (SELECT AVG(CAST(FbkRating AS FLOAT)) 
+            FROM Feedback 
+            WHERE StallID IN (SELECT StallID FROM RentalAgreement WHERE OwnerID = @OwnerID)) AS avgRating,
+            (SELECT COUNT(*) 
+            FROM Promotion 
+            WHERE StallID IN (SELECT StallID FROM RentalAgreement WHERE OwnerID = @OwnerID)
+                AND GETDATE() BETWEEN PromoStartDate AND PromoEndDate) AS activePromotions;
+        `;
+
+    try {
+        connection = await sql.connect(dbConfig);
+        const result = await connection.request()
+        .input('OwnerID', sql.Char(5), OwnerId)
+        .query(dashboardQuery);
+
+        console.log(result);
+        if (result.recordset.length > 0) {
+            return result;
+        }
+
+    } catch (error) {
+        console.error("DB error: ", error.stack);
+        throw error;
+    } finally {
+        safeClose(connection);
+    }
+}
+
 module.exports = {
     getAllUsers,
     getUserById,
     getUserByEmail,
     getAllOperator,
     getAllStallOwner,
-    updatePassword
+    updatePassword,
+    getDashboard
 }
