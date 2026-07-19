@@ -11,6 +11,9 @@ const path = require("path");
 // Controllers
 const userController = require("./controllers/userController");
 const custEngagementController = require("./controllers/custEngagementController")
+const menuController = require("./controllers/menuController");
+
+
 // create app
 const app = express();
 const port = process.env.PORT || 3000;
@@ -37,6 +40,15 @@ app.get("/api/users", userController.getAllUsers);
 app.get("/api/user/byId/:id", userController.getUserById);
 
 app.get("/api/user/byEmail/:email", userController.getUserByEmail);
+
+
+app.get("/api/stall/:stallId/menu", menuController.getMenuByStall);
+
+app.post("/api/stall/:stallId/menu", menuController.addMenuItem);
+
+app.put("/api/stall/:stallId/menu/:code", menuController.updateMenuItem);
+
+app.delete("/api/stall/:stallId/menu/:code", menuController.deleteMenuItem);
 
 //reset password not fully implemented yet on the frontend
 // app.put("/api/user/updatepass/:id", userController.updatePassword); 
@@ -90,6 +102,10 @@ app.get("/reset-password", (req, res) => {
 app.get("/dashboard", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
+app.get("/menu", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'menu.html'));
+});
+
 
 
 // start server
@@ -104,4 +120,3 @@ process.on("SIGINT", async () => {
     console.log("DB connection closed.");
     process.exit(0);
 });
-
