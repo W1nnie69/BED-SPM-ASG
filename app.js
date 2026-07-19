@@ -10,6 +10,8 @@ const path = require("path");
 
 // Controllers
 const userController = require("./controllers/userController");
+const orderController = require("./controllers/orderController");
+const menuController = require("./controllers/menuController");
 const custEngagementController = require("./controllers/custEngagementController")
 const menuController = require("./controllers/menuController");
 
@@ -68,15 +70,6 @@ app.post("/api/logout", (req, res) => {
     });
 });
 
-// Get all liked food items for a customer
-app.get('/likes/:customerId', custEngagementController.getLikedFoods);
-
-// Route for liking a food item
-app.post('/likes', custEngagementController.likeFood);
-
-// Unlike a food item
-app.delete('/likes', custEngagementController.unlikeFood);
-
 // TEST API ROUTES
 app.get("/api/operator", userController.getAllOperator);
 
@@ -106,6 +99,10 @@ app.get("/menu", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'menu.html'));
 });
 
+
+app.get("/order", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'order.html'));
+});
 
 
 // start server
