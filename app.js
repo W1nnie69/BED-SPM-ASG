@@ -10,7 +10,7 @@ const path = require("path");
 
 // Controllers
 const userController = require("./controllers/userController");
-
+const custEngagementController = require("./controllers/custEngagementController")
 const menuController = require("./controllers/menuController");
 
 
@@ -59,12 +59,23 @@ app.post("/api/user/reset-password", userController.resetPassword);
 
 app.post("/api/login", userController.loginAuth);
 
+app.get("/api/user/get-dashboard/:id", userController.getDashboard);
+
 app.post("/api/logout", (req, res) => {
     req.session.destroy(() => {
         res.clearCookie('connect.sid');
         res.status(200).json({ message: "Logged out"});
     });
 });
+
+// Get all liked food items for a customer
+app.get('/likes/:customerId', custEngagementController.getLikedFoods);
+
+// Route for liking a food item
+app.post('/likes', custEngagementController.likeFood);
+
+// Unlike a food item
+app.delete('/likes', custEngagementController.unlikeFood);
 
 // TEST API ROUTES
 app.get("/api/operator", userController.getAllOperator);
@@ -88,7 +99,7 @@ app.get("/reset-password", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'reset-password.html'));
 });
 
-app.get("/dash", (req, res) => {
+app.get("/dashboard", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 app.get("/menu", (req, res) => {

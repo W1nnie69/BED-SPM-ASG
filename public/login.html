@@ -156,16 +156,16 @@
           throw new Error('Login failed. Please check your username and password.');
         }
  
-        // const data = await response.json();
+        const data = await response.json();
  
-        // // Most APIs send back a token here. Save it so the browser
-        // // remembers the user is logged in on future page loads.
-        // if (data.token) {
-        //   localStorage.setItem('authToken', data.token);
-        // }
- 
+        // Most APIs send back a token here. Save it so the browser
+        // remembers the user is logged in on future page loads.
+        if (data.token) {
+          localStorage.setItem('authToken', data.token);
+        }
+        console.log(response);
         // Send the user to whatever page comes after login.
-        window.location.href = '/dash';
+        window.location.href = '/dashboard?userId=' + encodeURIComponent(data.userId);
  
       } catch (error) {
         alert(error.message);

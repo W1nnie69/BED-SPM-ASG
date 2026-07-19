@@ -2,6 +2,7 @@ const userModel = require("../models/userModel");
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const utils = require('../utils/email');
+const { get } = require("http");
 
 // VARIABLE TO STORE PASSWORD RESET TOKENS! DO NOT TOUCH!!
 // Might store the tokens in the db instead. We'll see.
@@ -202,11 +203,11 @@ async function loginAuth(req, res) {
                     Operator: "OperatorID",
                     StallOwner: "OwnerID"
                 };
-
+                
                 // Sets the session userId
-                req.session.userId = user.result.recordset[0][userIdType[result.userType]];
+                req.session.userId = user.result.recordset[0][userIdType[user.userType]];
                 console.log(req.session.userId);
-                res.status(200).json({ "login status": true, "userType": result.userType });
+                res.status(200).json({ "loginStatus": true, "userType": user.userType, "userId": user.result.recordset[0][userIdType[user.userType]]});
 
             } else {
                 res.status(401).json({ "login status": false });
@@ -224,6 +225,31 @@ async function loginAuth(req, res) {
     }
 }
 
+async function getDashboard(req, res) {
+    try {
+        const id = req.params.id;
+
+        const result = await userModel.getDashboard(id);
+
+        console.log(result);
+        if(!result) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const [ownerRows, stalls, menuItems, feedback, promotions, inspections, statsRows] = result.recordsets;
+
+        const owner = ownerRows[0] || null;
+        const stats = statsRows[0] || {};
+        stats.hygieneGrade = stalls[0]?.HygieneGrade || null;
+
+        res.status(200).json({ owner, stats, stalls, menuItems, feedback, promotions, inspections });
+        
+    } catch (error) {
+        console.error("Controller error: ", error);
+        res.status(500).json({error: "Error retrieving user"});
+    }
+}
+
 module.exports = {
     getAllUsers,
     getUserById,
@@ -232,5 +258,6 @@ module.exports = {
     getAllStallOwner,
     loginAuth,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    getDashboard
 }
