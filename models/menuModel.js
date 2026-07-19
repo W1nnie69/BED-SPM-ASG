@@ -116,4 +116,23 @@ async function deleteMenuItem(stallId, itemCode) {
     }
 }
 
-module.exports = { getMenuByStall, ownsStall, addMenuItem, updateMenuItem, deleteMenuItem };
+// LiangChen's api function
+async function getAllMenuItems() {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request().query(
+    `SELECT mi.StallID, fs.StallName, mi.ItemCode, mi.ItemDesc, mi.ItemPrice, mi.ItemCategory
+     FROM MenuItem mi
+     JOIN FoodStall fs ON fs.StallID = mi.StallID
+     ORDER BY fs.StallName, mi.ItemCategory, mi.ItemDesc`
+  );
+
+  return result.recordset;
+}
+
+module.exports = { 
+    getMenuByStall, 
+    ownsStall, 
+    addMenuItem, 
+    updateMenuItem, 
+    deleteMenuItem 
+}
