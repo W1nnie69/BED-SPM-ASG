@@ -2,6 +2,7 @@ const userModel = require("../models/userModel");
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const utils = require('../utils/email');
+const jwt = require('jsonwebtoken');
 const { get } = require("http");
 
 // VARIABLE TO STORE PASSWORD RESET TOKENS! DO NOT TOUCH!!
@@ -187,27 +188,34 @@ async function loginAuth(req, res) {
         // Find user in DB
         const user = await userModel.getUserByEmail(email);
 
-        // Horrible to look at but it works...
-        // Probably should just return the recordset instead of the whole result lol
-        if (user.result.recordset[0].Password && user.result.recordset[0].Password.length > 0) {
-            const match_result = await bcrypt.compare(password, user.result.recordset[0].Password);
-
-            if (match_result) {
-
-                // This is to get the stupid userID from the result below.
-                // Since both tables have different column names for the ID, i use the userType
-                // in the result to properly set the column name.
-                // However, I COULD JUST CHANGE THE COLUMN NAME IN THE dbINIT SCRIPT!!!!!!!!
-                // TODO: Maybe change the column name in the init script
-                const userIdType = {
+        const userIdType = {
                     Operator: "OperatorID",
                     StallOwner: "OwnerID"
                 };
+
+        // Horrible to look at but it works...
+        // Dirty fix. CBA to change the db column names.          
+        const userId = user.result.recordset[0][userIdType[user.userType]];
+        const hashedPassword = user.result.recordset[0].Password;
+
+        if (hashedPassword && hashedPassword.length > 0) {
+            const match_result = await bcrypt.compare(password, hashedPassword);
+
+            if (match_result) {
                 
-                // Sets the session userId
-                req.session.userId = user.result.recordset[0][userIdType[user.userType]];
-                console.log(req.session.userId);
-                res.status(200).json({ "loginStatus": true, "userType": user.userType, "userId": user.result.recordset[0][userIdType[user.userType]]});
+                // Generates a jwt for auth
+                const token = jwt.sign(
+                    { userId: userId, userType: user.userType },
+                    process.env.JWT_SECRET,
+                    { expiresIn: "1h" }
+                );
+                
+                res.status(200).json({ 
+                    "loginStatus": true, 
+                    "userType": user.userType,
+                    "userId": userId,
+                    "token": token
+                });
 
             } else {
                 res.status(401).json({ "login status": false });

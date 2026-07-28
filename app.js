@@ -21,14 +21,8 @@ const port = process.env.PORT || 3000;
 
 // middleware
 app.use(express.json());
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 2 // session lasts 2 hours
-  }
-}));
+const userMiddlewares = require("./middlewares/userMiddlewares");
+
 
 // test routes
 app.get("/", (req, res) => {
@@ -50,7 +44,7 @@ app.post("/api/user/reset-password", userController.resetPassword);
 
 app.post("/api/login", userController.loginAuth);
 
-app.get("/api/user/get-dashboard/:id", userController.getDashboard);
+app.get("/api/user/get-dashboard/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator']), userMiddlewares.checkIfUserQueryingMatchesID, userController.getDashboard);
 
 app.post("/api/logout", (req, res) => {
     req.session.destroy(() => {
