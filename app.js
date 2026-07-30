@@ -38,8 +38,6 @@ app.get("/api/users", userController.getAllUsers);
 
 // app.get("/api/user/byEmail/:email", userController.getUserByEmail);
 
-app.get("/api/get-profile/:id", userController.getUserProfile);
-
 app.post("/api/user/forgot-password", userController.forgotPassword);
 
 app.post("/api/user/reset-password", userController.resetPassword);
@@ -48,6 +46,9 @@ app.post("/api/login", userController.loginAuth);
 
 app.get("/api/:userType/get-dashboard/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator']), userMiddlewares.checkIfUserQueryingMatchesID, userController.getDashboard);
 
+app.get("/api/user/get-profile/:id", userMiddlewares.verifyToken, userMiddlewares.checkIfUserQueryingMatchesID, userController.getUserProfile);
+
+app.put("/api/user/update-profile/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator']), userMiddlewares.checkIfUserQueryingMatchesID, userController.updateUserProfile);
 
 app.post("/api/logout", (req, res) => {
     req.session.destroy(() => {

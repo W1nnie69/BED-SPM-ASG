@@ -98,6 +98,25 @@ async function getUserProfile(req, res) {
     }
 }
 
+async function updateUserProfile(req, res) {
+    try {
+        const userId = req.params.id;
+
+        console.log(req.body);
+        const result = await userModel.updateUserProfile(userId, req.body);
+
+        if (result === false) {
+            throw new Error("Model operation returned false.");
+        }
+
+        res.status(200).json({ status: "success!"});
+
+    } catch (error) {
+        console.error("Controller error: ", error);
+        res.status(500).json({error: "Error updating profile"});
+    }
+}
+
 // TODO: Move this function to a helper/ utils file
 async function hashPassword(plainPassword) {
     const saltRounds = 10;
@@ -167,38 +186,6 @@ async function resetPassword(req, res) {
     }
     
 }
-
-// updatePassword has been replaced by forgotPassword and resetPassword.
-// It is now deprecated...
-// async function updatePassword(req, res) {
-//     const hashedPassword = await hashPassword(req.body.password);
-
-//     console.log(hashedPassword);
-
-//     const loginDetails = {
-//         "id": req.params.id,
-//         "hashedPassword": hashedPassword
-//     }
-
-//     try {
-//         const result = await userModel.updatePassword(loginDetails);
-
-//         console.log(result);
-
-//         if (result) {
-//             res.status(200).json({
-//                     status: "Done"
-//                 });
-
-//         } else {
-//             res.status(500).json({error: "user not found?"});
-//         }
-    
-//     } catch (err) {
-//         console.error("Controller error: ", err);
-//         res.status(500).json({error: "Unable to update password"});
-//     }
-// }
 
 async function loginAuth(req, res) {
     const { email, password } = req.body;
@@ -305,5 +292,6 @@ module.exports = {
     forgotPassword,
     resetPassword,
     getDashboard,
-    getUserProfile
+    getUserProfile,
+    updateUserProfile
 }

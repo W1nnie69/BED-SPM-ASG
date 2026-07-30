@@ -209,7 +209,77 @@ async function updatePassword(id, hashedPassword) {
         throw err;
 
     } finally {
-        safeClose();
+        safeClose(connection);
+    }
+}
+
+async function updateUserProfile(id, userNewData) {
+    let connection;
+    let tableName;
+    let idColumn;
+    let nameColumn;
+    let contactColumn;
+    let contactType;
+
+    // FOR req.body
+    let name;
+    let email;
+    let contact;
+
+    
+    //Check user type from ID...
+    // Why didnt i do this before...
+    if (id.startsWith("OW")) {
+        //Stall owner
+        tableName = "StallOwner";
+        idColumn = "OwnerID";
+        nameColumn = "OwnerName";
+        contactColumn = "OwnerContactNo";
+        contactType = sql.Char(8);
+        ({ name, email, contact } = { name: userNewData.name, email: userNewData.email, contact: userNewData.contactNo });
+
+    } else if (id.startsWith("OP")) {
+        //Operator
+        tableName = "Operator";
+        idColumn = "OperatorID";
+        nameColumn = "OperatorName";
+        contactColumn = "ContactPerson";
+        contactType = sql.VarChar(50);
+        ({ name, email, contact } = { name: userNewData.name, email: userNewData.email, contact: userNewData.contactPerson });
+
+    } 
+
+    if (!tableName) {
+        throw new Error(`Unrecognized ID format: ${id}`);
+    }
+
+    try {
+        connection = await sql.connect(dbConfig);
+
+        const query = `
+        UPDATE ${tableName} 
+        SET 
+            ${nameColumn} = @name,
+            Email = @email,
+            ${contactColumn} = @contact
+        WHERE ${idColumn} = @id;`
+
+        const result = await connection.request()
+            .input('id', sql.VarChar, id)
+            .input('name', sql.VarChar, name)
+            .input('email', sql.VarChar, email)
+            .input('contact', contactType, contact)
+            .query(query);
+
+        return true;
+
+    } catch (err) {
+        console.error("Model error: " + err.stack);
+        throw err;
+        return false;
+
+    } finally {
+        safeClose(connection);
     }
 }
 
@@ -406,5 +476,6 @@ module.exports = {
     getAllStallOwner,
     updatePassword,
     getStallOwnerDashboard,
-    getOperatorDashboard
+    getOperatorDashboard,
+    updateUserProfile
 }

@@ -536,7 +536,7 @@
       document.getElementById('fieldNricWrap').style.display = isOperator ? 'none' : 'block';
 
       try {
-        const response = await fetch(`${API_BASE}/${userType}/get-profile/${id}`, {
+        const response = await fetch(`${API_BASE}/user/get-profile/${id}`, {
           headers: { 'Authorization': `Bearer ${jwtToken}` }
         });
 
@@ -597,7 +597,7 @@
       setStatus(status, 'Saving...', '');
 
       try {
-        const response = await fetch(`${API_BASE}/${userType}/update-profile/${id}`, {
+        const response = await fetch(`${API_BASE}/user/update-profile/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
