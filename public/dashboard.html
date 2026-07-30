@@ -681,18 +681,19 @@
     }
 
     document.getElementById('logoutBtn').addEventListener('click', async function() {
-      try {
-        console.log("logging out...");
-        const response = await fetch('http://localhost:3000/api/logout', {
-          method: 'POST'
-        });
-        if (!response.ok) {
-          showError('Something went wrong with logging out. Please try again.');
-        }
-        console.log("done");
-      } catch (error) {
-        showError(error.message, 'Something went wrong with logging out. Please try again.');
-      }
+      console.log("logging out...");
+      sessionStorage.clear("userId");
+      localStorage.clear("jwtToken");
+      //   const response = await fetch('http://localhost:3000/api/logout', {
+      //     method: 'POST'
+      //   });
+      //   if (!response.ok) {
+      //     showError('Something went wrong with logging out. Please try again.');
+      //   }
+      //   console.log("done");
+      // } catch (error) {
+      //   showError(error.message, 'Something went wrong with logging out. Please try again.');
+      // }
 
       window.location.href = '/login';
     });
