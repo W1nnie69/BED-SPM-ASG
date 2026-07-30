@@ -111,6 +111,11 @@ app.get("/reset-password", (req, res) => {
 app.get("/dashboard", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
+
+app.get("/profile", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+});
+
 app.get("/menu", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'menu.html'));
 });

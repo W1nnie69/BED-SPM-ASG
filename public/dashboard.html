@@ -113,13 +113,37 @@
     gap: 18px;
   }
 
-  #ownerLabel {
-    font-size: 13px;
-    color: var(--ink);
-    font-weight: 600;
-    background: var(--teal-tint);
-    padding: 7px 14px;
-    border-radius: 999px;
+  #ownerLabel,
+  .owner-pill {
+   font-size: 13px;
+   color: var(--ink);
+   font-weight: 600;
+   background: var(--teal-tint);
+   padding: 7px 14px;
+   border-radius: 999px;
+   border: none;
+   font-family: inherit;
+   cursor: pointer;
+   display: inline-flex;
+   align-items: center;
+   gap: 6px;
+   transition: background 0.15s ease, color 0.15s ease;
+ }
+
+ .owner-pill::after {
+   content: '';
+   width: 6px;
+   height: 6px;
+   border-right: 1.6px solid currentColor;
+   border-bottom: 1.6px solid currentColor;
+   transform: rotate(-45deg);
+   margin-left: 2px;
+   opacity: 0.6;
+  } 
+
+ .owner-pill:hover {
+   background: var(--teal);
+   color: #fff;
   }
 
   .logout-btn {
@@ -487,7 +511,7 @@
       </div>
     </div>
     <div class="topbar-right">
-      <span id="ownerLabel">Loading...</span>
+      <button id="ownerLabel" class="owner-pill">Loading...</button>
       <button class="logout-btn" id="logoutBtn">Log out</button>
     </div>
   </div>
@@ -1102,6 +1126,10 @@
         }
       }
     }
+
+    document.getElementById('ownerLabel').addEventListener('click', function() {
+      window.location.href = '/profile';
+    });
 
     document.getElementById('logoutBtn').addEventListener('click', async function() {
       console.log("logging out...");
