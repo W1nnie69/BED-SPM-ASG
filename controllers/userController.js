@@ -79,6 +79,25 @@ async function getAllStallOwner(req, res) {
     }
 }
 
+async function getUserProfile(req, res) {
+    try {
+        const userId = req.params.id;
+        console.log(userId);
+        const user = await userModel.getUserById(userId);
+
+        let data = user.result.recordset[0];
+        const { Password, ...dataCleaned } = data;
+
+        console.log(dataCleaned);
+
+        res.status(200).json(dataCleaned);
+
+    } catch (error) {
+        console.error("Controller error: ", error);
+        res.status(500).json({error: "Error retrieving users"});
+    }
+}
+
 // TODO: Move this function to a helper/ utils file
 async function hashPassword(plainPassword) {
     const saltRounds = 10;
@@ -285,5 +304,6 @@ module.exports = {
     loginAuth,
     forgotPassword,
     resetPassword,
-    getDashboard
+    getDashboard,
+    getUserProfile
 }

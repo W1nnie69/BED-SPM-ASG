@@ -34,9 +34,11 @@ app.get("/", (req, res) => {
 //=================================================== Dani's Routes ==============================================================
 app.get("/api/users", userController.getAllUsers);
 
-app.get("/api/user/byId/:id", userController.getUserById);
+// app.get("/api/user/byId/:id", userController.getUserById);
 
-app.get("/api/user/byEmail/:email", userController.getUserByEmail);
+// app.get("/api/user/byEmail/:email", userController.getUserByEmail);
+
+app.get("/api/get-profile/:id", userController.getUserProfile);
 
 app.post("/api/user/forgot-password", userController.forgotPassword);
 
