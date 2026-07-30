@@ -213,7 +213,7 @@ async function updatePassword(id, hashedPassword) {
     }
 }
 
-async function getDashboard(OwnerId) {
+async function getStallOwnerDashboard(OwnerId) {
     let connection;
 
     const dashboardQuery = `
@@ -276,6 +276,116 @@ async function getDashboard(OwnerId) {
         .query(dashboardQuery);
 
         console.log(result);
+        if (result.recordsets.length > 0) {
+            return result;
+        }
+
+    } catch (error) {
+        console.error("DB error: ", error.stack);
+        throw error;
+    } finally {
+        safeClose(connection);
+    }
+}
+
+async function getOperatorDashboard(OperatorId) {
+    let connection;
+
+    const dashboardQuery = `
+        SELECT OperatorID, OperatorName
+        FROM Operator
+        WHERE OperatorID = @OperatorID;
+
+        SELECT
+            hc.HawkerCentreID, hc.HCName, hc.HCAddress,
+            COUNT(fs.StallID) AS StallCount
+        FROM HawkerCentre hc
+        LEFT JOIN FoodStall fs ON fs.HawkerCentreID = hc.HawkerCentreID
+        WHERE hc.OperatorID = @OperatorID
+        GROUP BY hc.HawkerCentreID, hc.HCName, hc.HCAddress;
+
+        SELECT
+            fs.StallID, fs.StallName, hc.HCName,
+            owner_info.OwnerName, owner_info.AgrStartDate, owner_info.AgrEndDate,
+            latest_grade.HygieneGrade
+        FROM FoodStall fs
+        JOIN HawkerCentre hc ON hc.HawkerCentreID = fs.HawkerCentreID
+        OUTER APPLY (
+            SELECT TOP 1 so.OwnerName, ra.AgrStartDate, ra.AgrEndDate
+            FROM RentalAgreement ra
+            JOIN StallOwner so ON so.OwnerID = ra.OwnerID
+            WHERE ra.StallID = fs.StallID
+            ORDER BY ra.AgrEndDate DESC
+        ) owner_info
+        OUTER APPLY (
+            SELECT TOP 1 i.HygieneGrade
+            FROM Inspection i
+            WHERE i.StallID = fs.StallID
+            ORDER BY i.InspectionDate DESC
+        ) latest_grade
+        WHERE hc.OperatorID = @OperatorID;
+
+        SELECT
+            fs.StallName, c.Category, f.FbkComment, f.FbkDateTime
+        FROM Complaint c
+        JOIN Feedback f ON f.FbkID = c.FbkID
+        JOIN FoodStall fs ON fs.StallID = f.StallID
+        JOIN HawkerCentre hc ON hc.HawkerCentreID = fs.HawkerCentreID
+        WHERE hc.OperatorID = @OperatorID
+        ORDER BY f.FbkDateTime DESC;
+
+        SELECT
+            fs.StallName, i.InspectionDate, i.OfficerID, i.HygieneGrade
+        FROM Inspection i
+        JOIN FoodStall fs ON fs.StallID = i.StallID
+        JOIN HawkerCentre hc ON hc.HawkerCentreID = fs.HawkerCentreID
+        WHERE hc.OperatorID = @OperatorID
+        ORDER BY i.InspectionDate DESC;
+
+        SELECT
+            (SELECT COUNT(*) FROM HawkerCentre WHERE OperatorID = @OperatorID) AS hawkerCentreCount,
+            (SELECT COUNT(*)
+             FROM FoodStall fs
+             JOIN HawkerCentre hc ON hc.HawkerCentreID = fs.HawkerCentreID
+             WHERE hc.OperatorID = @OperatorID) AS stallCount,
+            (SELECT COUNT(*)
+             FROM Complaint c
+             JOIN Feedback f ON f.FbkID = c.FbkID
+             JOIN FoodStall fs ON fs.StallID = f.StallID
+             JOIN HawkerCentre hc ON hc.HawkerCentreID = fs.HawkerCentreID
+             WHERE hc.OperatorID = @OperatorID) AS activeComplaints,
+            (
+                SELECT
+                    CASE ROUND(AVG(CASE i.HygieneGrade
+                        WHEN 'A' THEN 4.0
+                        WHEN 'B' THEN 3.0
+                        WHEN 'C' THEN 2.0
+                        WHEN 'D' THEN 1.0
+                    END), 0)
+                        WHEN 4 THEN 'A'
+                        WHEN 3 THEN 'B'
+                        WHEN 2 THEN 'C'
+                        WHEN 1 THEN 'D'
+                    END
+                FROM (
+                    SELECT i.StallID, i.HygieneGrade,
+                           ROW_NUMBER() OVER (PARTITION BY i.StallID ORDER BY i.InspectionDate DESC) AS rn
+                    FROM Inspection i
+                    JOIN FoodStall fs ON fs.StallID = i.StallID
+                    JOIN HawkerCentre hc ON hc.HawkerCentreID = fs.HawkerCentreID
+                    WHERE hc.OperatorID = @OperatorID
+                ) i
+                WHERE i.rn = 1
+            ) AS avgHygieneScore;
+        `;
+
+    try {
+        connection = await sql.connect(dbConfig);
+        const result = await connection.request()
+        .input('OperatorID', sql.Char(5), OperatorId)
+        .query(dashboardQuery);
+
+        console.log(result);
         if (result.recordset.length > 0) {
             return result;
         }
@@ -295,5 +405,6 @@ module.exports = {
     getAllOperator,
     getAllStallOwner,
     updatePassword,
-    getDashboard
+    getStallOwnerDashboard,
+    getOperatorDashboard
 }

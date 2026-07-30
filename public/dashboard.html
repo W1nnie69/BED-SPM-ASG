@@ -313,6 +313,14 @@
   .error-banner.show {
     display: block;
   }
+
+  .view {
+    display: none;
+  }
+
+  .view.active {
+    display: block;
+  }
 </style>
 </head>
 <body>
@@ -320,7 +328,7 @@
   <div class="topbar">
     <div>
       <h1>Hawker Centre Portal</h1>
-      <p class="sub">Stall Owner Dashboard</p>
+      <p class="sub" id="portalSub">Stall Owner Dashboard</p>
     </div>
     <div class="topbar-right">
       <span style="font-size:13px; color:#374151;" id="ownerLabel">Loading...</span>
@@ -334,120 +342,217 @@
 
     <div class="greeting">
       <h2 id="greetingName">Welcome back</h2>
-      <p>Here is what is happening with your stalls today</p>
+      <p id="greetingSub">Here is what is happening with your stalls today</p>
     </div>
 
-    <!-- Stat cards -->
-    <div class="stats">
-      <div class="stat-card">
-        <div class="label">My Stalls</div>
-        <div class="value" id="statStallCount"><span class="skeleton"></span></div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Hygiene Grade</div>
-        <div class="value" id="statHygieneGrade"><span class="skeleton"></span></div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Average Rating</div>
-        <div class="value" id="statAvgRating"><span class="skeleton"></span></div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Active Promotions</div>
-        <div class="value" id="statActivePromos"><span class="skeleton"></span></div>
-      </div>
-    </div>
+    <!-- ============================================================ -->
+    <!-- STALL OWNER VIEW                                              -->
+    <!-- ============================================================ -->
+    <div class="view" id="stallOwnerView">
 
-    <!-- My Stalls & Rental Agreement -->
-    <div class="card">
-      <div class="card-header">
-        <h3>My Stalls & Rental Agreement</h3>
-        <span class="count" id="stallsCount"></span>
+      <!-- Stat cards -->
+      <div class="stats">
+        <div class="stat-card">
+          <div class="label">My Stalls</div>
+          <div class="value" id="statStallCount"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Hygiene Grade</div>
+          <div class="value" id="statHygieneGrade"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Average Rating</div>
+          <div class="value" id="statAvgRating"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Active Promotions</div>
+          <div class="value" id="statActivePromos"><span class="skeleton"></span></div>
+        </div>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Stall ID</th>
-            <th>Stall Name</th>
-            <th>Unit No</th>
-            <th>Hawker Centre</th>
-            <th>Rental Price</th>
-            <th>Agreement Period</th>
-            <th>Hygiene Grade</th>
-          </tr>
-        </thead>
-        <tbody id="stallsTableBody">
-          <tr><td colspan="7"><div class="skeleton"></div></td></tr>
-        </tbody>
-      </table>
-    </div>
 
-    <!-- Menu Items -->
-    <div class="card">
-      <div class="card-header">
-        <h3>Menu Items</h3>
-        <button class="add-btn">+ Add Item</button>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Item Code</th>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Price</th>
-          </tr>
-        </thead>
-        <tbody id="menuTableBody">
-          <tr><td colspan="4"><div class="skeleton"></div></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="two-col">
-
-      <!-- Recent Feedback -->
+      <!-- My Stalls & Rental Agreement -->
       <div class="card">
         <div class="card-header">
-          <h3>Recent Customer Feedback</h3>
-          <span class="count" id="feedbackAvg"></span>
+          <h3>My Stalls & Rental Agreement</h3>
+          <span class="count" id="stallsCount"></span>
         </div>
-        <div id="feedbackList">
-          <div class="feedback-item"><div class="skeleton"></div></div>
-        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Stall ID</th>
+              <th>Stall Name</th>
+              <th>Unit No</th>
+              <th>Hawker Centre</th>
+              <th>Rental Price</th>
+              <th>Agreement Period</th>
+              <th>Hygiene Grade</th>
+            </tr>
+          </thead>
+          <tbody id="stallsTableBody">
+            <tr><td colspan="7"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
       </div>
 
-      <!-- Promotions -->
+      <!-- Menu Items -->
       <div class="card">
         <div class="card-header">
-          <h3>Promotions</h3>
-          <button class="add-btn">+ New</button>
+          <h3>Menu Items</h3>
+          <button class="add-btn">+ Add Item</button>
         </div>
-        <div id="promoList">
-          <div class="promo-item"><div class="skeleton"></div></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Item Code</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody id="menuTableBody">
+            <tr><td colspan="4"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="two-col">
+
+        <!-- Recent Feedback -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent Customer Feedback</h3>
+            <span class="count" id="feedbackAvg"></span>
+          </div>
+          <div id="feedbackList">
+            <div class="feedback-item"><div class="skeleton"></div></div>
+          </div>
         </div>
+
+        <!-- Promotions -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Promotions</h3>
+            <button class="add-btn">+ New</button>
+          </div>
+          <div id="promoList">
+            <div class="promo-item"><div class="skeleton"></div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Inspection History -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Inspection History</h3>
+          <span class="count">Latest first</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Inspection ID</th>
+              <th>Date</th>
+              <th>Officer</th>
+              <th>Grade</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody id="inspectionTableBody">
+            <tr><td colspan="5"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
       </div>
 
     </div>
 
-    <!-- Inspection History -->
-    <div class="card">
-      <div class="card-header">
-        <h3>Inspection History</h3>
-        <span class="count">Latest first</span>
+    <!-- ============================================================ -->
+    <!-- OPERATOR VIEW                                                 -->
+    <!-- ============================================================ -->
+    <div class="view" id="operatorView">
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="label">Hawker Centres</div>
+          <div class="value" id="op-statHCCount"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Total Stalls</div>
+          <div class="value" id="op-statStallCount"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Open Complaints</div>
+          <div class="value" id="op-statComplaints"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Avg Hygiene Score</div>
+          <div class="value" id="op-statHygiene"><span class="skeleton"></span></div>
+        </div>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Inspection ID</th>
-            <th>Date</th>
-            <th>Officer</th>
-            <th>Grade</th>
-            <th>Remarks</th>
-          </tr>
-        </thead>
-        <tbody id="inspectionTableBody">
-          <tr><td colspan="5"><div class="skeleton"></div></td></tr>
-        </tbody>
-      </table>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>My Hawker Centres</h3>
+          <span class="count" id="op-hcCount"></span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Centre ID</th>
+              <th>Name</th>
+              <th>Address</th>
+              <th>Stalls</th>
+            </tr>
+          </thead>
+          <tbody id="op-hcTableBody">
+            <tr><td colspan="4"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Stalls Overview</h3>
+          <span class="count" id="op-stallsCount"></span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Stall ID</th>
+              <th>Stall Name</th>
+              <th>Hawker Centre</th>
+              <th>Owner</th>
+              <th>Rental Status</th>
+              <th>Hygiene Grade</th>
+            </tr>
+          </thead>
+          <tbody id="op-stallsTableBody">
+            <tr><td colspan="6"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent Complaints</h3>
+            <span class="count" id="op-complaintsCount"></span>
+          </div>
+          <div id="op-complaintsList">
+            <div class="feedback-item"><div class="skeleton"></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent Inspections</h3>
+            <span class="count">Across all centres</span>
+          </div>
+          <div id="op-inspectionsList">
+            <div class="promo-item"><div class="skeleton"></div></div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -470,6 +575,13 @@
     function getOwnerId() {
       const id = sessionStorage.getItem('userId');
       return id;
+    }
+
+    // Which dashboard to show: 'StallOwner' or 'Operator'.
+    // Set this in sessionStorage right after login succeeds, e.g.
+    // sessionStorage.setItem('userType', data.userType);
+    function getUserType() {
+      return sessionStorage.getItem('userType') || 'StallOwner';
     }
 
     function showError(message) {
@@ -507,16 +619,23 @@
       return now >= new Date(startDate) && now <= new Date(endDate);
     }
 
-    // ---------------------------------------------------------------
-    // RENDER FUNCTIONS
+    function isAgreementActive(startDate, endDate) {
+      const now = new Date();
+      return now >= new Date(startDate) && now <= new Date(endDate);
+    }
+
+    // =================================================================
+    // STALL OWNER DASHBOARD RENDER FUNCTIONS
     // Each one is defensive: if a field is missing it falls back
     // to a placeholder rather than throwing.
-    // ---------------------------------------------------------------
+    // =================================================================
     function renderOwner(owner) {
       const name = owner?.OwnerName || 'Stall Owner';
       const id = owner?.OwnerID || '';
+      document.getElementById('portalSub').textContent = 'Stall Owner Dashboard';
       document.getElementById('ownerLabel').textContent = id ? `${name} (${id})` : name;
       document.getElementById('greetingName').textContent = `Welcome back, ${name.split(' ')[0]}`;
+      document.getElementById('greetingSub').textContent = 'Here is what is happening with your stalls today';
     }
 
     function renderStats(stats, stallCountFallback, promoCountFallback) {
@@ -628,55 +747,203 @@
       `).join('');
     }
 
-    // ---------------------------------------------------------------
-    // LOAD
-    // Expects GET /api/stallowner/:ownerId/dashboard to return:
+    async function loadStallOwnerDashboard(ownerId) {
+      document.getElementById('stallOwnerView').classList.add('active');
+
+      const response = await fetch(`${API_BASE}/StallOwner/get-dashboard/${ownerId}`, {
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Could not load dashboard data (status ${response.status}).`);
+      }
+
+      const data = await response.json();
+
+      renderOwner(data.owner);
+      renderStalls(data.stalls || []);
+      renderMenuItems(data.menuItems || []);
+      renderFeedback(data.feedback || []);
+      renderPromotions(data.promotions || []);
+      renderInspections(data.inspections || []);
+      renderStats(
+        data.stats,
+        (data.stalls || []).length,
+        (data.promotions || []).filter(p => isPromoActive(p.PromoStartDate, p.PromoEndDate)).length
+      );
+    }
+
+    // =================================================================
+    // OPERATOR DASHBOARD RENDER FUNCTIONS
+    // Expects GET /api/Operator/get-dashboard/:id to return:
     // {
-    //   owner: { OwnerID, OwnerName },
-    //   stats: { stallCount, hygieneGrade, avgRating, activePromotions },
-    //   stalls: [...], menuItems: [...], feedback: [...],
-    //   promotions: [...], inspections: [...]
+    //   operator: { OperatorID, OperatorName },
+    //   stats: { hawkerCentreCount, stallCount, activeComplaints, avgHygieneScore },
+    //   hawkerCentres: [...], stalls: [...], complaints: [...], inspections: [...]
     // }
-    // Adjust the URL and the field names below to match your real API.
+    // =================================================================
+    function renderOperator(operator) {
+      const name = operator?.OperatorName || 'Operator';
+      const id = operator?.OperatorID || '';
+      document.getElementById('portalSub').textContent = 'Operator Dashboard';
+      document.getElementById('ownerLabel').textContent = id ? `${name} (${id})` : name;
+      document.getElementById('greetingName').textContent = `Welcome back, ${name.split(' ')[0]}`;
+      document.getElementById('greetingSub').textContent = 'Here is an overview of your hawker centres today';
+    }
+
+    function renderOperatorStats(stats, hcCountFallback, stallCountFallback) {
+      document.getElementById('op-statHCCount').textContent = stats?.hawkerCentreCount ?? hcCountFallback ?? '0';
+      document.getElementById('op-statStallCount').textContent = stats?.stallCount ?? stallCountFallback ?? '0';
+      document.getElementById('op-statComplaints').textContent = stats?.activeComplaints ?? '0';
+      document.getElementById('op-statHygiene').textContent = stats?.avgHygieneScore || '-';
+    }
+
+    function renderHawkerCentres(centres) {
+      const body = document.getElementById('op-hcTableBody');
+      document.getElementById('op-hcCount').textContent = `${centres.length} centre${centres.length === 1 ? '' : 's'}`;
+
+      if (!centres.length) {
+        body.innerHTML = '<tr class="empty-row"><td colspan="4">No hawker centres found for this account.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = centres.map(c => `
+        <tr>
+          <td>${c.HawkerCentreID ?? ''}</td>
+          <td>${c.HCName ?? ''}</td>
+          <td>${c.HCAddress ?? ''}</td>
+          <td>${c.StallCount ?? 0}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderOperatorStalls(stalls) {
+      const body = document.getElementById('op-stallsTableBody');
+      document.getElementById('op-stallsCount').textContent = `${stalls.length} stall${stalls.length === 1 ? '' : 's'}`;
+
+      if (!stalls.length) {
+        body.innerHTML = '<tr class="empty-row"><td colspan="6">No stalls found across your hawker centres.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = stalls.map(s => {
+        const active = s.AgrStartDate && s.AgrEndDate ? isAgreementActive(s.AgrStartDate, s.AgrEndDate) : false;
+        return `
+        <tr>
+          <td>${s.StallID ?? ''}</td>
+          <td>${s.StallName ?? ''}</td>
+          <td>${s.HCName ?? ''}</td>
+          <td>${s.OwnerName ?? 'Vacant'}</td>
+          <td><span class="badge ${s.OwnerName ? (active ? 'active' : 'expired') : ''}">${s.OwnerName ? (active ? 'Rented' : 'Lapsed') : 'Vacant'}</span></td>
+          <td><span class="badge ${gradeBadgeClass(s.HygieneGrade)}">${s.HygieneGrade ?? '-'}</span></td>
+        </tr>
+      `;
+      }).join('');
+    }
+
+    function renderComplaints(complaints) {
+      const list = document.getElementById('op-complaintsList');
+      document.getElementById('op-complaintsCount').textContent = `${complaints.length} open`;
+
+      if (!complaints.length) {
+        list.innerHTML = '<p class="empty-note">No complaints on record.</p>';
+        return;
+      }
+
+      list.innerHTML = complaints.map(c => `
+        <div class="feedback-item">
+          <div class="top-row">
+            <span class="cust">${c.StallName ?? c.StallID ?? ''} &middot; ${c.Category ?? ''}</span>
+            <span class="date">${formatDate(c.FbkDateTime)}</span>
+          </div>
+          <div class="comment">${c.FbkComment ?? ''}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderOperatorInspections(inspections) {
+      const list = document.getElementById('op-inspectionsList');
+      if (!inspections.length) {
+        list.innerHTML = '<p class="empty-note">No inspections on record.</p>';
+        return;
+      }
+      list.innerHTML = inspections.map(i => `
+        <div class="promo-item">
+          <div class="desc">${i.StallName ?? i.StallID ?? ''} &middot; ${formatDate(i.InspectionDate)}</div>
+          <div class="range">Officer ${i.OfficerID ?? ''} &middot;
+            <span class="badge ${gradeBadgeClass(i.HygieneGrade)}">${i.HygieneGrade ?? '-'}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function loadOperatorDashboard(operatorId) {
+      document.getElementById('operatorView').classList.add('active');
+
+      const response = await fetch(`${API_BASE}/Operator/get-dashboard/${operatorId}`, {
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Could not load dashboard data (status ${response.status}).`);
+      }
+
+      const data = await response.json();
+
+      renderOperator(data.operator);
+      renderHawkerCentres(data.hawkerCentres || []);
+      renderOperatorStalls(data.stalls || []);
+      renderComplaints(data.complaints || []);
+      renderOperatorInspections(data.inspections || []);
+      renderOperatorStats(
+        data.stats,
+        (data.hawkerCentres || []).length,
+        (data.stalls || []).length
+      );
+    }
+
+    // ---------------------------------------------------------------
+    // LOAD / ROUTER
+    // Checks userType (set in sessionStorage right after login) and
+    // calls the matching loader. Defaults to Stall Owner if unset.
     // ---------------------------------------------------------------
     async function loadDashboard() {
-      const ownerId = getOwnerId();
+      const id = getOwnerId();
+      const userType = getUserType();
 
       try {
-        const response = await fetch(`${API_BASE}/user/get-dashboard/${ownerId}`, {
-          headers: {
-            'Authorization': `Bearer ${jwtToken}`
-          }
+        if (userType === 'Operator') {
+          await loadOperatorDashboard(id);
+        } else {
+          document.getElementById('stallOwnerView').classList.add('active');
+          await loadStallOwnerDashboard(id);
         }
-        );
-
-        if (!response.ok) {
-          alert(`Could not load dashboard data (status ${response.status}).`);
-          // throw new Error(`Could not load dashboard data (status ${response.status}).`);
-          // const storedOwnerId = sessionStorage.getItem('userId');
-          window.location.href = `http://localhost:3000/dashboard`;
-        }
-
-        const data = await response.json();
-
-        renderOwner(data.owner);
-        renderStalls(data.stalls || []);
-        renderMenuItems(data.menuItems || []);
-        renderFeedback(data.feedback || []);
-        renderPromotions(data.promotions || []);
-        renderInspections(data.inspections || []);
-        renderStats(data.stats, (data.stalls || []).length, (data.promotions || []).filter(p => isPromoActive(p.PromoStartDate, p.PromoEndDate)).length);
 
       } catch (error) {
         showError(error.message || 'Something went wrong loading your dashboard. Please try again.');
-        document.getElementById('ownerLabel').textContent = 'Stall Owner';
-        document.getElementById('greetingName').textContent = 'Welcome back';
-        renderStalls([]);
-        renderMenuItems([]);
-        renderFeedback([]);
-        renderPromotions([]);
-        renderInspections([]);
-        renderStats({});
+
+        if (userType === 'Operator') {
+          document.getElementById('ownerLabel').textContent = 'Operator';
+          document.getElementById('greetingName').textContent = 'Welcome back';
+          renderHawkerCentres([]);
+          renderOperatorStalls([]);
+          renderComplaints([]);
+          renderOperatorInspections([]);
+          renderOperatorStats({});
+        } else {
+          document.getElementById('ownerLabel').textContent = 'Stall Owner';
+          document.getElementById('greetingName').textContent = 'Welcome back';
+          renderStalls([]);
+          renderMenuItems([]);
+          renderFeedback([]);
+          renderPromotions([]);
+          renderInspections([]);
+          renderStats({});
+        }
       }
     }
 
@@ -684,16 +951,6 @@
       console.log("logging out...");
       sessionStorage.clear("userId");
       localStorage.clear("jwtToken");
-      //   const response = await fetch('http://localhost:3000/api/logout', {
-      //     method: 'POST'
-      //   });
-      //   if (!response.ok) {
-      //     showError('Something went wrong with logging out. Please try again.');
-      //   }
-      //   console.log("done");
-      // } catch (error) {
-      //   showError(error.message, 'Something went wrong with logging out. Please try again.');
-      // }
 
       window.location.href = '/login';
     });

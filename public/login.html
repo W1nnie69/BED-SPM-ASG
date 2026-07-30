@@ -163,6 +163,7 @@
         if (data.token) {
           localStorage.setItem('jwtToken', data.token);
           sessionStorage.setItem('userId', data.userId);
+          sessionStorage.setItem('userType', data.userType);
         }
         console.log(response);
         // Send the user to whatever page comes after login.

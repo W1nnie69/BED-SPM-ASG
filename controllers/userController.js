@@ -235,26 +235,44 @@ async function loginAuth(req, res) {
 
 async function getDashboard(req, res) {
     try {
-        const id = req.params.id;
+        const { userType, id } = req.params;
 
-        const result = await userModel.getDashboard(id);
+        if (userType === 'Operator') {
+            const result = await userModel.getOperatorDashboard(id);
 
-        console.log(result);
-        if(!result) {
-            return res.status(404).json({ error: "User not found" });
+            if (!result) {
+                return res.status(404).json({ error: "User not found" });
+            }
+
+            const [operatorRows, hawkerCentres, stalls, complaints, inspections, statsRows] = result.recordsets;
+
+            const operator = operatorRows[0] || null;
+            const stats = statsRows[0] || {};
+
+            return res.status(200).json({ operator, stats, hawkerCentres, stalls, complaints, inspections });
         }
 
-        const [ownerRows, stalls, menuItems, feedback, promotions, inspections, statsRows] = result.recordsets;
+        if (userType === 'StallOwner') {
+            const result = await userModel.getStallOwnerDashboard(id);
 
-        const owner = ownerRows[0] || null;
-        const stats = statsRows[0] || {};
-        stats.hygieneGrade = stalls[0]?.HygieneGrade || null;
+            if (!result) {
+                return res.status(404).json({ error: "User not found" });
+            }
 
-        res.status(200).json({ owner, stats, stalls, menuItems, feedback, promotions, inspections });
-        
+            const [ownerRows, stalls, menuItems, feedback, promotions, inspections, statsRows] = result.recordsets;
+
+            const owner = ownerRows[0] || null;
+            const stats = statsRows[0] || {};
+            stats.hygieneGrade = stalls[0]?.HygieneGrade || null;
+
+            return res.status(200).json({ owner, stats, stalls, menuItems, feedback, promotions, inspections });
+        }
+
+        return res.status(400).json({ error: "Unknown user type" });
+
     } catch (error) {
         console.error("Controller error: ", error);
-        res.status(500).json({error: "Error retrieving user"});
+        res.status(500).json({ error: "Error retrieving user" });
     }
 }
 

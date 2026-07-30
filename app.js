@@ -44,7 +44,8 @@ app.post("/api/user/reset-password", userController.resetPassword);
 
 app.post("/api/login", userController.loginAuth);
 
-app.get("/api/user/get-dashboard/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator']), userMiddlewares.checkIfUserQueryingMatchesID, userController.getDashboard);
+app.get("/api/:userType/get-dashboard/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator']), userMiddlewares.checkIfUserQueryingMatchesID, userController.getDashboard);
+
 
 app.post("/api/logout", (req, res) => {
     req.session.destroy(() => {
