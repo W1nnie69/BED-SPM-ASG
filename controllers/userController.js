@@ -49,7 +49,7 @@ async function getUserByEmail(req, res) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        res.json(user.result.recordset[0]);
+        res.json(user);
         
     } catch (error) {
         console.error("Controller error: ", error);
@@ -82,13 +82,9 @@ async function getAllStallOwner(req, res) {
 async function getUserProfile(req, res) {
     try {
         const userId = req.params.id;
-        console.log(userId);
         const user = await userModel.getUserById(userId);
 
-        let data = user.result.recordset[0];
-        const { Password, ...dataCleaned } = data;
-
-        console.log(dataCleaned);
+        const { Password, ...dataCleaned } = user;
 
         res.status(200).json(dataCleaned);
 
@@ -133,9 +129,9 @@ async function forgotPassword(req, res) {
     try {
         const user = await userModel.getUserByEmail(email);
 
-        console.log(user.result);
+        console.log(user);
 
-        if (!user || user.result.recordset.length < 0) {
+        if (!user || user.length < 0) {
             return res.json({ message: "If that email exists, a reset link has been sent." });
         }
 
@@ -148,11 +144,11 @@ async function forgotPassword(req, res) {
                         StallOwner: "OwnerID"
                     };
 
-        resetTokens.set(token, { userId: user.result.recordset[0][userIdType[user.userType]], expiresAt });
+        resetTokens.set(token, { userId: user[userIdType[user.userType]], expiresAt });
 
         const resetLink = `http://localhost:3000/reset-password?token=${token}`;
 
-        await utils.sendResetEmail(user.result.recordset[0].Email, resetLink);
+        await utils.sendResetEmail(user.Email, resetLink);
 
         res.json({ message: "If that email exists, a reset link has been sent." });
 
@@ -187,6 +183,37 @@ async function resetPassword(req, res) {
     
 }
 
+async function updatePassword(req, res) {
+    const { id, currentPassword, newPassword } = req.body;
+
+    try {
+        const result = await userModel.getUserById(id);
+        
+        if (currentPassword && currentPassword.length > 0) {
+            const compare_result = await bcrypt.compare(currentPassword, result.Password);
+
+            if (compare_result) {
+                const hashedNewPassword = await hashPassword(currentPassword);
+                const status = await userModel.updatePassword(id, hashedNewPassword);
+
+                if (status) {
+                    res.status(200).json({ status: "success!" });
+
+                } else {
+                    throw new Error("Password change unsuccessful");
+                }
+
+            } else {
+                throw new Error("Password did not match");
+            }
+        }
+        
+    } catch (error) {
+        console.error("Controller error: ", error.stack);
+        res.status(500).json({ error: "Something went wrong" });
+    }
+}
+
 async function loginAuth(req, res) {
     const { email, password } = req.body;
 
@@ -201,8 +228,8 @@ async function loginAuth(req, res) {
 
         // Horrible to look at but it works...
         // Dirty fix. CBA to change the db column names.          
-        const userId = user.result.recordset[0][userIdType[user.userType]];
-        const hashedPassword = user.result.recordset[0].Password;
+        const userId = user[userIdType[user.userType]];
+        const hashedPassword = user.Password;
 
         if (hashedPassword && hashedPassword.length > 0) {
             const match_result = await bcrypt.compare(password, hashedPassword);
@@ -293,5 +320,6 @@ module.exports = {
     resetPassword,
     getDashboard,
     getUserProfile,
-    updateUserProfile
+    updateUserProfile,
+    updatePassword
 }

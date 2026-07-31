@@ -45,32 +45,32 @@ async function getAllUsers() {
 async function getUserById(id) {
     let connection;
 
+    let tableName;
+    let columnName;
+
+    if (id.startsWith("OW")) {
+        tableName = "StallOwner";
+        columnName = "OwnerID";
+
+    } else if (id.startsWith("OP")) {
+        tableName = "Operator";
+        columnName = "OperatorID";
+    }
+
     try {
         connection = await sql.connect(dbConfig);
 
+        let query = `SELECT * FROM ${tableName} WHERE ${columnName} = @id`
         // Check StallOwner
         const result = await connection.request()
             .input('id', sql.VarChar, id)
-            .query('SELECT * FROM StallOwner WHERE OwnerID = @id');
+            .query(query);
 
         if (result.recordset.length > 0) {
             // console.log(result);
-            return { result, "userType": "StallOwner" };
-
-        } else {
-            // Check Operator
-            const result = await connection.request()
-                .input('id', sql.VarChar, id)
-                .query('SELECT * FROM Operator WHERE OperatorID = @id');
-
-            if (result.recordset.length > 0) {
-                // console.log(result2);  
-                return { result, "userType": "Operator" };
-            
-            } else {
-                console.error("testModel: No user found")
-                return;
-            }
+            let data = result.recordset[0];
+            data.userType = tableName;
+            return data;
         }
         
     } catch (error) {
@@ -85,7 +85,7 @@ async function getUserById(id) {
 // get a specific user by their email
 async function getUserByEmail(email) {
     let connection;
-
+    
     try {
         connection = await sql.connect(dbConfig);
 
@@ -96,7 +96,11 @@ async function getUserByEmail(email) {
 
         if (result.recordset.length > 0) {
             // console.log(result);
-            return { result, "userType": "StallOwner" };
+            let data = result.recordset[0];
+            data.userType = "StallOwner";
+            console.log(data);
+            
+            return data;
 
         } else {
             // Check Operator
@@ -106,7 +110,11 @@ async function getUserByEmail(email) {
 
             if (result.recordset.length > 0) {
                 // console.log(result2);  
-                return { result, "userType": "Operator" };
+                let data = result.recordset[0];
+                data.userType = "Operator";
+                console.log(data);
+
+                return data;
             
             } else {
                 console.error("testModel: No user found");
@@ -174,10 +182,11 @@ async function updatePassword(id, hashedPassword) {
         // Since the check it done on the controller now, this can be removed.
         
         // ===================== TODO: Remove the section below ==================================================
-        const result = await getUserById(id);                                                   
-        if (result.result.recordset.length > 0) {                                             
+        const result = await getUserById(id); 
+                                                  
+        if (result) {                                             
             // update password                                                               
-            console.log("User found: ", result.result.recordset[0]);                          
+            console.log("User found: ", result);                          
                                                                                              
             // Checks whether is userType is a valid table name                                 
             // This is done to prevent sql injections as im using string interpolation below,    

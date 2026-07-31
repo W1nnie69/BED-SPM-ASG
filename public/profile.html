@@ -659,13 +659,13 @@
       setStatus(status, 'Saving...', '');
 
       try {
-        const response = await fetch(`${API_BASE}/${userType}/update-password/${id}`, {
+        const response = await fetch(`${API_BASE}/user/update-password/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${jwtToken}`
           },
-          body: JSON.stringify({ currentPassword, newPassword })
+          body: JSON.stringify({ id, currentPassword, newPassword })
         });
 
         if (!response.ok) {
