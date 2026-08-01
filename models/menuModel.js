@@ -60,8 +60,9 @@ async function addMenuItem(stallId, itemCode, item) {
             .input('itemDesc', sql.VarChar, item.ItemDesc)
             .input('itemPrice', sql.SmallMoney, item.ItemPrice)
             .input('itemCategory', sql.VarChar, item.ItemCategory)
-            .query(`INSERT INTO MenuItem (StallID, ItemCode, ItemDesc, ItemPrice, ItemCategory)
-                    VALUES (@stallId, @itemCode, @itemDesc, @itemPrice, @itemCategory)`);
+            .input('imagePath', sql.VarChar, item.ImagePath || null)
+            .query(`INSERT INTO MenuItem (StallID, ItemCode, ItemDesc, ItemPrice, ItemCategory, ImagePath)
+                    VALUES (@stallId, @itemCode, @itemDesc, @itemPrice, @itemCategory, @imagePath)`);
 
         return true;
 
