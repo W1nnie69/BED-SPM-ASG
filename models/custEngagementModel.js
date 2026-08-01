@@ -1,6 +1,7 @@
 const sql = require('mssql');
 const dbConfig = require('../dbConfig');
 
+//LIKES
 // Inserts a customer's liked food item into the Likes table in the database.
 async function likeFood(customerId, stallId, itemCode) {
 
@@ -70,8 +71,35 @@ async function unlikeFood(customerId, stallId, itemCode) {
 }
 
 
+
+//RATINGS & COMMENTS
+// Adds a customer's rating and comment for a food stall
+async function addFeedback(fbkID, fbkComment, fbkRating, fbkDateTime, customerId, stallId) {
+
+    const connection = await sql.connect(dbConfig);
+
+    const query = `
+        INSERT INTO Feedback
+        (FbkID, FbkComment, FbkRating, FbkDateTime, CustomerID, StallID)
+        VALUES
+        (@fbkID, @fbkComment, @fbkRating, @fbkDateTime, @customerId, @stallId)
+    `;
+
+    await connection.request()
+        .input('fbkID', sql.Char(5), fbkID)
+        .input('fbkComment', sql.VarChar(1000), fbkComment)
+        .input('fbkRating', sql.Int, fbkRating)
+        .input('fbkDateTime', sql.DateTime, fbkDateTime)
+        .input('customerId', sql.Char(5), customerId)
+        .input('stallId', sql.Char(5), stallId)
+        .query(query);
+
+    connection.close();
+}
+
 module.exports = {
     likeFood,
     getLikedFoods,
-    unlikeFood
+    unlikeFood,
+    addFeedback
 };

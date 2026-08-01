@@ -74,6 +74,15 @@ app.post('/likes', custEngagementController.likeFood);
 // Unlike a food item
 app.delete('/likes', custEngagementController.unlikeFood);
 
+//Submit a rating and comment
+app.post('/feedback', custEngagementController.addFeedback);
+
+//Edit their rating and comment
+app.put('/feedback/:fbkID', custEngagementController.updateFeedback);
+
+//Delete their rating and comment
+app.delete('/feedback/:fbkID', custEngagementController.deleteFeedback);
+
 //reset password not fully implemented yet on the frontend
 // app.put("/api/user/updatepass/:id", userController.updatePassword); 
 
