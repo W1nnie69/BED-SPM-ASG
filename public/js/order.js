@@ -3,9 +3,9 @@ let menuItems = [];
 let cart = []; // { itemCode, itemName, unitPrice, quantity }
 let paymentMethod = "PayNow";
 let ticketCounter = Math.floor(100 + Math.random() * 900);
- 
+
 // ---------- Elements ----------
-const customerSelect = document.getElementById("customerSelect");
+const whoBtn = document.getElementById("whoBtn");
 const menuGroupsEl = document.getElementById("menuGroups");
 const cartListEl = document.getElementById("cartList");
 const cartTotalEl = document.getElementById("cartTotal");
@@ -16,7 +16,7 @@ const historyListEl = document.getElementById("historyList");
 const tabs = document.querySelectorAll(".tab");
 const views = document.querySelectorAll(".view");
 const payButtons = document.querySelectorAll(".pay-btn");
- 
+
 // ---------- Tabs ----------
 tabs.forEach((tab) => {
   tab.addEventListener("click", () => {
@@ -28,7 +28,7 @@ tabs.forEach((tab) => {
     if (target === "history") loadHistory();
   });
 });
- 
+
 // ---------- Payment method ----------
 payButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -37,34 +37,47 @@ payButtons.forEach((btn) => {
     paymentMethod = btn.dataset.method;
   });
 });
- 
-// ---------- Load customers (dropdown "ordering as") ----------
-async function loadCustomers() {
-  try {
-    const res = await fetch("/api/order/customers");
-    const data = await res.json();
-    customerSelect.innerHTML = "";
-    (data.customers || []).forEach((c) => {
-      const opt = document.createElement("option");
-      opt.value = c.CustomerID;
-      opt.textContent = c.CustName;
-      customerSelect.appendChild(opt);
+
+// ---------- Who's ordering (guest vs logged-in customer) ----------
+// Mirrors the same login pattern as dashboard.html: JWT in localStorage,
+// userId/userType in sessionStorage after a successful login.
+// Guests can still browse the menu - this only controls the pill in the
+// top bar and whether currentCustomerId gets set.
+async function initWho() {
+  const jwtToken = localStorage.getItem("jwtToken");
+  const userType = sessionStorage.getItem("userType");
+  const userId = sessionStorage.getItem("userId");
+
+  const isLoggedInCustomer = Boolean(jwtToken && userType === "Customer" && userId);
+
+  if (!isLoggedInCustomer) {
+    currentCustomerId = null;
+    whoBtn.textContent = "Guest";
+    whoBtn.addEventListener("click", () => {
+      window.location.href = "/login";
     });
-    if (data.customers && data.customers.length > 0) {
-      currentCustomerId = data.customers[0].CustomerID;
-    }
+    return;
+  }
+
+  currentCustomerId = userId;
+  whoBtn.textContent = "Loading...";
+
+  whoBtn.addEventListener("click", () => {
+    window.location.href = "/profile";
+  });
+
+  try {
+    const res = await fetch(`/api/Customer/get-profile/${userId}`, {
+      headers: { "Authorization": `Bearer ${jwtToken}` }
+    });
+    const data = await res.json();
+    whoBtn.textContent = data.CustName || userId;
   } catch (err) {
-    customerSelect.innerHTML = "<option>Unable to load</option>";
+    whoBtn.textContent = userId;
     console.error(err);
   }
 }
- 
-customerSelect.addEventListener("change", (e) => {
-  currentCustomerId = e.target.value;
-  const historyView = document.getElementById("view-history");
-  if (historyView.classList.contains("active")) loadHistory();
-});
- 
+
 // ---------- Load menu ----------
 async function loadMenu() {
   try {
@@ -77,7 +90,7 @@ async function loadMenu() {
     console.error(err);
   }
 }
- 
+
 function renderMenu() {
   const byStall = {};
   menuItems.forEach((item) => {
@@ -86,20 +99,20 @@ function renderMenu() {
     }
     byStall[item.StallID].items.push(item);
   });
- 
+
   menuGroupsEl.innerHTML = "";
   Object.values(byStall).forEach((stall) => {
     const group = document.createElement("div");
     group.className = "stall-group";
- 
+
     const heading = document.createElement("div");
     heading.className = "stall-heading";
     heading.innerHTML = `<h3>${escapeHtml(stall.name)}</h3>`;
     group.appendChild(heading);
- 
+
     const grid = document.createElement("div");
     grid.className = "item-grid";
- 
+
     stall.items.forEach((item) => {
       const card = document.createElement("div");
       card.className = "menu-item";
@@ -112,12 +125,12 @@ function renderMenu() {
       card.querySelector(".add-btn").addEventListener("click", () => addToCart(item));
       grid.appendChild(card);
     });
- 
+
     group.appendChild(grid);
     menuGroupsEl.appendChild(group);
   });
 }
- 
+
 // ---------- Cart ----------
 function addToCart(item) {
   const existing = cart.find((c) => c.itemCode === item.ItemCode);
@@ -135,7 +148,7 @@ function addToCart(item) {
   }
   renderCart();
 }
- 
+
 function changeQty(itemCode, delta) {
   const line = cart.find((c) => c.itemCode === itemCode);
   if (!line) return;
@@ -145,7 +158,7 @@ function changeQty(itemCode, delta) {
   }
   renderCart();
 }
- 
+
 function renderCart() {
   cartListEl.innerHTML = "";
   if (cart.length === 0) {
@@ -154,7 +167,7 @@ function renderCart() {
     cartTotalEl.textContent = "$0.00";
     return;
   }
- 
+
   let total = 0;
   cart.forEach((line) => {
     total += line.unitPrice * line.quantity;
@@ -172,22 +185,28 @@ function renderCart() {
     li.querySelectorAll(".qty-btn")[1].addEventListener("click", () => changeQty(line.itemCode, 1));
     cartListEl.appendChild(li);
   });
- 
+
   cartTotalEl.textContent = `$${total.toFixed(2)}`;
   placeOrderBtn.disabled = false;
 }
- 
+
 // ---------- Place order (SHMS-7) ----------
 placeOrderBtn.addEventListener("click", async () => {
-  if (cart.length === 0 || !currentCustomerId) return;
- 
+  if (cart.length === 0) return;
+
+  if (!currentCustomerId) {
+    orderMsgEl.textContent = "Please log in to place an order.";
+    orderMsgEl.className = "order-msg error";
+    return;
+  }
+
   const stallId = cart[0].stallId; // one order = one stall
- 
+
   placeOrderBtn.disabled = true;
   placeOrderBtn.textContent = "Placing order…";
   orderMsgEl.textContent = "";
   orderMsgEl.className = "order-msg";
- 
+
   try {
     const res = await fetch("/api/order/create", {
       method: "POST",
@@ -200,9 +219,9 @@ placeOrderBtn.addEventListener("click", async () => {
       })
     });
     const data = await res.json();
- 
+
     if (!res.ok) throw new Error(data.error || "Order failed");
- 
+
     orderMsgEl.textContent = `Order #${data.order.orderId} placed — paid ${paymentMethod}.`;
     orderMsgEl.className = "order-msg success";
     cart = [];
@@ -216,22 +235,25 @@ placeOrderBtn.addEventListener("click", async () => {
     placeOrderBtn.disabled = cart.length === 0;
   }
 });
- 
+
 // ---------- Order history (SHMS-9) ----------
 async function loadHistory() {
-  if (!currentCustomerId) return;
+  if (!currentCustomerId) {
+    historyListEl.innerHTML = '<p class="history-empty">Log in to view your order history.</p>';
+    return;
+  }
   historyListEl.innerHTML = '<p class="history-empty">Loading…</p>';
- 
+
   try {
     const res = await fetch(`/api/order/history/${currentCustomerId}`);
     const data = await res.json();
     const orders = data.orders || [];
- 
+
     if (orders.length === 0) {
       historyListEl.innerHTML = '<p class="history-empty">No past orders yet for this customer.</p>';
       return;
     }
- 
+
     historyListEl.innerHTML = "";
     orders.forEach((order) => {
       const card = document.createElement("div");
@@ -255,17 +277,16 @@ async function loadHistory() {
     console.error(err);
   }
 }
- 
+
 // ---------- Utils ----------
 function escapeHtml(str) {
   const div = document.createElement("div");
   div.textContent = str ?? "";
   return div.innerHTML;
 }
- 
+
 // ---------- Init ----------
 (async function init() {
-  await loadCustomers();
+  await initWho();
   await loadMenu();
 })();
- 
