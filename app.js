@@ -34,9 +34,9 @@ app.get("/", (req, res) => {
 //=================================================== Dani's Routes ==============================================================
 app.get("/api/users", userController.getAllUsers);
 
-app.get("/api/user/byId/:id", userController.getUserById);
+// app.get("/api/user/byId/:id", userController.getUserById);
 
-app.get("/api/user/byEmail/:email", userController.getUserByEmail);
+// app.get("/api/user/byEmail/:email", userController.getUserByEmail);
 
 app.post("/api/user/forgot-password", userController.forgotPassword);
 
@@ -54,17 +54,6 @@ app.put("/api/user/update-password/:id", userController.updatePassword);
 
 app.post("/api/:userType/signup", userController.registerUser);
 
-app.post("/api/logout", (req, res) => {
-    req.session.destroy(() => {
-        res.clearCookie('connect.sid');
-        res.status(200).json({ message: "Logged out"});
-    });
-});
-
-// Dani's TEST API ROUTES
-app.get("/api/operator", userController.getAllOperator);
-
-app.get("/api/stallowner", userController.getAllStallOwner);
 
 //=================================================== Jeff's Routes ================================================================
 // Get all liked food items for a customer
