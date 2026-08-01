@@ -93,6 +93,7 @@ CREATE TABLE MenuItem (
     ItemDesc VARCHAR(1000),
     ItemPrice SMALLMONEY NOT NULL,
     ItemCategory VARCHAR(50) NOT NULL,
+    ImagePath VARCHAR(255) NULL,
     PRIMARY KEY (StallID, ItemCode),
     FOREIGN KEY (StallID) REFERENCES FoodStall(StallID),
     CONSTRAINT chk_item_price CHECK (ItemPrice > 0.00)
