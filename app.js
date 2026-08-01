@@ -88,10 +88,10 @@ app.delete("/api/stall/:stallId/menu/:code", menuController.deleteMenuItem);
 
 //=================================================== LiangChen's Routes ==============================================================
 // ORDER ROUTES (SHMS-7, SHMS-9)
-app.post("/api/order/create", orderController.createOrder);
-app.get("/api/order/history/:customerId", orderController.getOrderHistory);
-app.get("/api/order/byId/:orderId", orderController.getOrderDetail);
-app.get("/api/order/customers", orderController.getCustomersForOrdering);
+app.post("/api/order/create", userMiddlewares.verifyToken, orderController.createOrder);
+app.get("/api/order/history/:customerId", userMiddlewares.verifyToken, orderController.getOrderHistory);
+app.get("/api/order/byId/:orderId", userMiddlewares.verifyToken, orderController.getOrderDetail);
+app.get("/api/order/customers", userMiddlewares.verifyToken, orderController.getCustomersForOrdering);
 
 // MENU ROUTES (read-only helper for the order page)
 app.get("/api/menu", menuController.getAllMenuItems);

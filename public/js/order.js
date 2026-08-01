@@ -210,7 +210,10 @@ placeOrderBtn.addEventListener("click", async () => {
   try {
     const res = await fetch("/api/order/create", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${jwtToken}`
+       },
       body: JSON.stringify({
         customerId: currentCustomerId,
         stallId,
@@ -245,7 +248,11 @@ async function loadHistory() {
   historyListEl.innerHTML = '<p class="history-empty">Loading…</p>';
 
   try {
-    const res = await fetch(`/api/order/history/${currentCustomerId}`);
+    const res = await fetch(`/api/order/history/${currentCustomerId}`, {
+      headers: {
+        "Authorization": `Bearer ${jwtToken}`
+      }
+    });
     const data = await res.json();
     const orders = data.orders || [];
 
