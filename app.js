@@ -8,6 +8,7 @@ const session = require("express-session");
 const sql = require("mssql")
 const path = require("path");
 
+
 // Controllers
 const userController = require("./controllers/userController");
 const orderController = require("./controllers/orderController");
@@ -21,6 +22,7 @@ const port = process.env.PORT || 3000;
 
 // middleware
 app.use(express.static(path.join(__dirname, "public")));
+const upload = require("./middleware/upload");
 app.use(express.json());
 const userMiddlewares = require("./middlewares/userMiddlewares");
 
@@ -68,7 +70,7 @@ app.delete('/likes', custEngagementController.unlikeFood);
 //=================================================== Shengle's Routes ===============================================================
 app.get("/api/stall/:stallId/menu", menuController.getMenuByStall);
 
-app.post("/api/stall/:stallId/menu", menuController.addMenuItem);
+app.post("/api/stall/:stallId/menu", upload.single("photo"), menuController.addMenuItem);
 
 app.put("/api/stall/:stallId/menu/:code", menuController.updateMenuItem);
 
@@ -122,6 +124,7 @@ app.get("/order", (req, res) => {
     res.sendFile(path.join(__dirname, 'public/html', 'order.html'));
 });
 
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // start server
 app.listen(port, async () => {

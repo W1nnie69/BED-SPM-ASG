@@ -27,9 +27,13 @@ async function addMenuItem(req, res) {
         }
 
         const { itemCode, ItemDesc, ItemPrice, ItemCategory } = req.body;
-        await menuModel.addMenuItem(stallId, itemCode, { ItemDesc, ItemPrice, ItemCategory });
 
-        res.status(201).json({ message: "Menu item added" });
+        // multer puts the uploaded file info on req.file when using upload.single()
+        const ImagePath = req.file ? `/uploads/menu-items/${req.file.filename}` : null;
+
+        await menuModel.addMenuItem(stallId, itemCode, { ItemDesc, ItemPrice, ItemCategory, ImagePath });
+
+        res.status(201).json({ message: "Menu item added", imagePath: ImagePath });
 
     } catch (error) {
         console.error("Controller error: ", error);
