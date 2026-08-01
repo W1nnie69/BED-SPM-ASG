@@ -52,6 +52,8 @@ app.put("/api/user/update-profile/:id", userMiddlewares.verifyToken, userMiddlew
 
 app.put("/api/user/update-password/:id", userController.updatePassword);
 
+app.post("/api/:userType/signup", userController.registerUser);
+
 app.post("/api/logout", (req, res) => {
     req.session.destroy(() => {
         res.clearCookie('connect.sid');
@@ -101,8 +103,8 @@ app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-app.get("/signup", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'signup.html'));
+app.get("/sign-up", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'sign-up.html'));
 });
 
 app.get("/forgot-password", (req, res) => {

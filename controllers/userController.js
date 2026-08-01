@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const utils = require('../utils/email');
 const jwt = require('jsonwebtoken');
 const { get } = require("http");
+const { user } = require("../dbConfig");
 
 // VARIABLE TO STORE PASSWORD RESET TOKENS! DO NOT TOUCH!!
 // Might store the tokens in the db instead. We'll see.
@@ -141,7 +142,8 @@ async function forgotPassword(req, res) {
         // using the stupid method of selecting the ID from below...
         const userIdType = {
                         Operator: "OperatorID",
-                        StallOwner: "OwnerID"
+                        StallOwner: "OwnerID",
+                        Customer: "CustomerID"
                     };
 
         resetTokens.set(token, { userId: user[userIdType[user.userType]], expiresAt });
@@ -197,7 +199,7 @@ async function updatePassword(req, res) {
                 const status = await userModel.updatePassword(id, hashedNewPassword);
 
                 if (status) {
-                    res.status(200).json({ status: "success!" });
+                    res.status(200).json({ status: "success" });
 
                 } else {
                     throw new Error("Password change unsuccessful");
@@ -223,7 +225,8 @@ async function loginAuth(req, res) {
 
         const userIdType = {
                     Operator: "OperatorID",
-                    StallOwner: "OwnerID"
+                    StallOwner: "OwnerID",
+                    Customer: "CustomerID"
                 };
 
         // Horrible to look at but it works...
@@ -251,7 +254,7 @@ async function loginAuth(req, res) {
                 });
 
             } else {
-                res.status(401).json({ "login status": false });
+                res.status(401).json({ "loginStatus": false });
             }
 
         } else {
@@ -262,6 +265,63 @@ async function loginAuth(req, res) {
     } catch (error) {
         console.error("Controller error: ", error.stack);
         // Top 10 error messages...
+        res.status(500).json({error: "Something wrong"});
+    }
+}
+
+async function registerUser(req, res) {
+    const userType = req.params.userType;
+
+    const { name, password, email } = req.body;
+    const hashedPassword = await hashPassword(password);
+
+    //StallOwner vars
+    let nric;
+    let contactNo; // Customer too
+    //Operator vars
+    let contactPerson;
+
+    // data package
+    let userData = {
+                userType: userType,
+                name: name,
+                password: hashedPassword,
+                email: email
+            };
+    
+    switch (userType) {
+        case "StallOwner":
+            ({ nric, contactNo } = req.body);
+            userData.nric = nric;
+            userData.contactNo = contactNo;
+            break;
+        
+        case "Operator":
+            ({ contactPerson } = req.body);
+            userData.contactPerson = contactPerson;
+            break;
+
+        case "Customer":
+            ({ contactNo } = req.body);
+            userData.contactNo = contactNo;
+            break;
+        
+        default:
+            console.error("Unknown user type");
+            return;
+    }
+
+    try {
+        const status = await userModel.signUpUser(userData);
+
+        if (status === false) {
+            throw new Error("userModel returned false as status");
+        }   
+
+        res.status(200).json({ status: "success" });
+
+    } catch (error) {
+        console.error("Controller error: ", error.stack);
         res.status(500).json({error: "Something wrong"});
     }
 }
@@ -321,5 +381,6 @@ module.exports = {
     getDashboard,
     getUserProfile,
     updateUserProfile,
-    updatePassword
+    updatePassword,
+    registerUser
 }
