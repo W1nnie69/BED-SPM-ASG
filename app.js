@@ -8,6 +8,7 @@ const session = require("express-session");
 const sql = require("mssql")
 const path = require("path");
 
+
 // Controllers
 const userController = require("./controllers/userController");
 const orderController = require("./controllers/orderController");
@@ -20,6 +21,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // middleware
+const upload = require("./middleware/upload");
 app.use(express.json());
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -31,6 +33,7 @@ app.use(session({
 }));
 
 // test routes
+
 app.get("/", (req, res) => {
     res.redirect("https://www.youtube.com/watch?v=DLzxrzFCyOs");
 })
@@ -80,7 +83,7 @@ app.delete('/likes', custEngagementController.unlikeFood);
 //=================================================== Shengle's Routes ===============================================================
 app.get("/api/stall/:stallId/menu", menuController.getMenuByStall);
 
-app.post("/api/stall/:stallId/menu", menuController.addMenuItem);
+app.post("/api/stall/:stallId/menu", upload.single("photo"), menuController.addMenuItem);
 
 app.put("/api/stall/:stallId/menu/:code", menuController.updateMenuItem);
 
@@ -124,6 +127,7 @@ app.get("/order", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'order.html'));
 });
 
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // start server
 app.listen(port, async () => {
