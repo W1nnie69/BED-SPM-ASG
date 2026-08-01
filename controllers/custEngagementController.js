@@ -1,5 +1,6 @@
 const likeModel = require('../models/custEngagementModel');
 
+//LIKES
 // Processes the customer's like request and returns a success or error response.
 async function likeFood(req, res) {
     const { customerId, stallId, itemCode } = req.body;
@@ -63,8 +64,106 @@ async function unlikeFood(req, res) {
     }
 }
 
+
+
+//RATINGS & COMMENTS
+// Handles a customer's request to submit a rating and comment
+async function addFeedback(req, res) {
+
+    const {
+        fbkID,
+        fbkComment,
+        fbkRating,
+        fbkDateTime,
+        customerId,
+        stallId
+    } = req.body;
+
+    try {
+
+        await likeModel.addFeedback(
+            fbkID,
+            fbkComment,
+            fbkRating,
+            fbkDateTime,
+            customerId,
+            stallId
+        );
+
+        res.status(200).json({
+            message: "Rating and comment submitted successfully."
+        });
+
+    } catch (error) {
+
+        console.error("Controller error:", error);
+
+        res.status(500).json({
+            error: "Error submitting rating and comment."
+        });
+
+    }
+}
+
+// Handles a customer's request to edit their rating and comment
+async function updateFeedback(req, res) {
+
+    const fbkID = req.params.fbkID;
+    const { fbkComment, fbkRating } = req.body;
+
+    try {
+
+        await likeModel.updateFeedback(
+            fbkID,
+            fbkComment,
+            fbkRating
+        );
+
+        res.status(200).json({
+            message: "Rating and comment updated successfully."
+        });
+
+    } catch (error) {
+
+        console.error("Controller error:", error);
+
+        res.status(500).json({
+            error: "Error updating rating and comment."
+        });
+
+    }
+}
+
+// Handles a customer's request to delete their rating and comment
+async function deleteFeedback(req, res) {
+
+    const fbkID = req.params.fbkID;
+
+    try {
+
+        await likeModel.deleteFeedback(fbkID);
+
+        res.status(200).json({
+            message: "Rating and comment deleted successfully."
+        });
+
+    } catch (error) {
+
+        console.error("Controller error:", error);
+
+        res.status(500).json({
+            error: "Error deleting rating and comment."
+        });
+
+    }
+}
+
+
 module.exports = {
     likeFood,
     getLikedFoods,
-    unlikeFood
+    unlikeFood,
+    addFeedback,
+    updateFeedback,
+    deleteFeedback
 };
