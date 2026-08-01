@@ -25,10 +25,6 @@ app.use(express.json());
 const userMiddlewares = require("./middlewares/userMiddlewares");
 
 
-// test routes
-app.get("/", (req, res) => {
-    res.redirect("https://www.youtube.com/watch?v=DLzxrzFCyOs");
-})
 
 // API ROUTES...
 
@@ -89,11 +85,16 @@ app.get("/api/order/customers", orderController.getCustomersForOrdering);
 app.get("/api/menu", menuController.getAllMenuItems);
 
 //=================================================== WEBSITE ROUTES ==================================================================
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/html', 'index.html'));
+})
+
 app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-app.get("/sign-up", (req, res) => {
+app.get("/signup", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'sign-up.html'));
 });
 
@@ -118,7 +119,7 @@ app.get("/menu", (req, res) => {
 });
 
 app.get("/order", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'order.html'));
+    res.sendFile(path.join(__dirname, 'public/html', 'order.html'));
 });
 
 
