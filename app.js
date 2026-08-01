@@ -83,6 +83,9 @@ app.put('/feedback/:fbkID', custEngagementController.updateFeedback);
 //Delete their rating and comment
 app.delete('/feedback/:fbkID', custEngagementController.deleteFeedback);
 
+//Submit a complaint
+app.post('/complaint', custEngagementController.addComplaint);
+
 //reset password not fully implemented yet on the frontend
 // app.put("/api/user/updatepass/:id", userController.updatePassword); 
 
