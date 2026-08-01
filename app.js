@@ -103,31 +103,31 @@ app.get("/", (req, res) => {
 })
 
 app.get("/login", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    res.sendFile(path.join(__dirname, 'public/html', 'login.html'));
 });
 
 app.get("/signup", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'sign-up.html'));
+    res.sendFile(path.join(__dirname, 'public/html', 'sign-up.html'));
 });
 
 app.get("/forgot-password", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'forgot-password.html'));
+    res.sendFile(path.join(__dirname, 'public/html', 'forgot-password.html'));
 });
 
 app.get("/reset-password", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'reset-password.html'));
+    res.sendFile(path.join(__dirname, 'public/html', 'reset-password.html'));
 });
 
 app.get("/dashboard", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+    res.sendFile(path.join(__dirname, 'public/html', 'dashboard.html'));
 });
 
 app.get("/profile", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+    res.sendFile(path.join(__dirname, 'public/html', 'profile.html'));
 });
 
 app.get("/menu", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'menu.html'));
+    res.sendFile(path.join(__dirname, 'public/html', 'menu.html'));
 });
 
 app.get("/order", (req, res) => {

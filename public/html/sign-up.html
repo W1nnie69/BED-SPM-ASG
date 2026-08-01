@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Sign Up</title>
+<link rel="stylesheet" href="../css/sign-up.css">
+</head>
+<body>
+
+  <div class="card">
+    <div class="brand-row">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 10L12 4L20 10V19C20 19.5523 19.5523 20 19 20H5C4.44772 20 4 19.5523 4 19V10Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M9 20V14H15V20" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1>Hawker Centre Portal</h1>
+    </div>
+
+    <h2>Create your account</h2>
+    <p class="subtitle">Choose an account type to get started</p>
+
+    <div class="banner error" id="errorBanner"></div>
+    <div class="banner success" id="successBanner"></div>
+
+    <div class="type-tabs" id="typeTabs">
+      <button type="button" class="type-tab active" data-type="Customer">Customer</button>
+      <button type="button" class="type-tab" data-type="StallOwner">Stall Owner</button>
+      <button type="button" class="type-tab" data-type="Operator">Operator</button>
+    </div>
+
+    <form id="signupForm">
+
+      <div class="field">
+        <label for="fieldName">Full Name</label>
+        <input type="text" id="fieldName" name="name" required>
+      </div>
+
+      <!-- Customer only: contact number and email (at least one required) -->
+      <div id="customerFields">
+        <div class="field-row">
+          <div class="field">
+            <label for="custContactNo">Contact Number</label>
+            <input type="text" id="custContactNo" name="custContactNo" maxlength="8">
+          </div>
+          <div class="field">
+            <label for="custEmail">Email</label>
+            <input type="email" id="custEmail" name="custEmail">
+          </div>
+        </div>
+        <!-- <p class="contact-note">Please provide at least a contact number or an email.</p> -->
+      </div>
+
+      <!-- Stall Owner only -->
+      <div id="stallOwnerFields" style="display:none;">
+        <div class="field-row">
+          <div class="field">
+            <label for="ownerNric">NRIC</label>
+            <input type="text" id="ownerNric" name="ownerNric" maxlength="9">
+          </div>
+          <div class="field">
+            <label for="ownerContactNo">Contact Number</label>
+            <input type="text" id="ownerContactNo" name="ownerContactNo" maxlength="8">
+          </div>
+        </div>
+        <div class="field">
+          <label for="ownerEmail">Email</label>
+          <input type="email" id="ownerEmail" name="ownerEmail">
+        </div>
+      </div>
+
+      <!-- Operator only -->
+      <div id="operatorFields" style="display:none;">
+        <div class="field">
+          <label for="opContactPerson">Contact Person</label>
+          <input type="text" id="opContactPerson" name="opContactPerson">
+        </div>
+        <div class="field">
+          <label for="opEmail">Email</label>
+          <input type="email" id="opEmail" name="opEmail">
+        </div>
+      </div>
+
+      <!-- Password fields: shown for Stall Owner / Operator only, since Customer has no password column -->
+      <div id="passwordFields" style="display:none;">
+        <div class="field-row">
+          <div class="field">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" minlength="8" autocomplete="new-password">
+          </div>
+          <div class="field">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" autocomplete="new-password">
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" id="signupBtn">Create account</button>
+    </form>
+
+    <p class="login-link">Already have an account? <a href="/login">Log in</a></p>
+  </div>
+
+  <script src="../js/sign-up.js"></script>
+
+</body>
+</html>
