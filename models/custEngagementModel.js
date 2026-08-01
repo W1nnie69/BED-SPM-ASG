@@ -135,24 +135,6 @@ async function deleteFeedback(fbkID) {
     connection.close();
 }
 
-//Complaint
-// Adds a customer's complaint for existing feedback
-async function addComplaint(fbkID, category) {
-
-    const connection = await sql.connect(dbConfig);
-
-    const query = `
-        INSERT INTO Complaint (FbkID, Category)
-        VALUES (@fbkID, @category)
-    `;
-
-    await connection.request()
-        .input('fbkID', sql.Char(5), fbkID)
-        .input('category', sql.VarChar(50), category)
-        .query(query);
-
-    connection.close();
-}
 
 module.exports = {
     likeFood,
@@ -160,6 +142,5 @@ module.exports = {
     unlikeFood,
     addFeedback,
     updateFeedback,
-    deleteFeedback,
-    addComplaint
+    deleteFeedback
 };

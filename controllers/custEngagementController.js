@@ -158,33 +158,6 @@ async function deleteFeedback(req, res) {
     }
 }
 
-//Complaint
-// Handles a customer's request to submit a complaint
-async function addComplaint(req, res) {
-
-    const { fbkID, category } = req.body;
-
-    try {
-
-        await likeModel.addComplaint(
-            fbkID,
-            category
-        );
-
-        res.status(200).json({
-            message: "Complaint submitted successfully."
-        });
-
-    } catch (error) {
-
-        console.error("Controller error:", error);
-
-        res.status(500).json({
-            error: "Error submitting complaint."
-        });
-
-    }
-}
 
 module.exports = {
     likeFood,
@@ -192,6 +165,5 @@ module.exports = {
     unlikeFood,
     addFeedback,
     updateFeedback,
-    deleteFeedback,
-    addComplaint
+    deleteFeedback
 };
