@@ -118,10 +118,28 @@ async function updateFeedback(fbkID, fbkComment, fbkRating) {
     connection.close();
 }
 
+// Deletes existing feedback from the Feedback table
+async function deleteFeedback(fbkID) {
+
+    const connection = await sql.connect(dbConfig);
+
+    const query = `
+        DELETE FROM Feedback
+        WHERE FbkID = @fbkID
+    `;
+
+    await connection.request()
+        .input('fbkID', sql.Char(5), fbkID)
+        .query(query);
+
+    connection.close();
+}
+
 module.exports = {
     likeFood,
     getLikedFoods,
     unlikeFood,
     addFeedback,
-    updateFeedback
+    updateFeedback,
+    deleteFeedback
 };

@@ -134,10 +134,35 @@ async function updateFeedback(req, res) {
     }
 }
 
+// Handles a customer's request to delete their rating and comment
+async function deleteFeedback(req, res) {
+
+    const fbkID = req.params.fbkID;
+
+    try {
+
+        await likeModel.deleteFeedback(fbkID);
+
+        res.status(200).json({
+            message: "Rating and comment deleted successfully."
+        });
+
+    } catch (error) {
+
+        console.error("Controller error:", error);
+
+        res.status(500).json({
+            error: "Error deleting rating and comment."
+        });
+
+    }
+}
+
 module.exports = {
     likeFood,
     getLikedFoods,
     unlikeFood,
     addFeedback,
-    updateFeedback
+    updateFeedback,
+    deleteFeedback
 };
