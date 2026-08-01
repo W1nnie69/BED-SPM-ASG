@@ -13,10 +13,10 @@ GO
 
 CREATE TABLE Customer (
     CustomerID CHAR(5) PRIMARY KEY,
-    CustNRIC CHAR(9) UNIQUE,
     CustName VARCHAR(100) NOT NULL,
     CustContactNo CHAR(8) UNIQUE,
     CustEmail VARCHAR(256) UNIQUE,
+    Password VARCHAR(255) NOT NULL,
     CONSTRAINT chk_contact CHECK (
         CustContactNo IS NOT NULL OR CustEmail IS NOT NULL
     )
@@ -216,17 +216,17 @@ SELECT 'All tables created successfully!' AS Status;
 -- ============================================
 
 -- Customer (10 rows)
-INSERT INTO Customer (CustomerID, CustNRIC, CustName, CustContactNo, CustEmail) VALUES
-('C0001', 'S1234567A', 'Tan Wei Ming', '91234567', 'weiming.tan@email.com'),
-('C0002', 'S2345678B', 'Lim Hui Ling', '92345678', 'huiling.lim@email.com'),
-('C0003', 'S3456789C', 'Kumar Rajesh', '93456789', 'rajesh.kumar@email.com'),
-('C0004', 'S4567890D', 'Chen Xiao Hong', '94567890', 'xiaohong.chen@email.com'),
-('C0005', 'S5678901E', 'Muhammad Faizal', '95678901', 'faizal.m@email.com'),
-('C0006', 'S6789012F', 'Wong Mei Ling', '96789012', 'meiling.wong@email.com'),
-('C0007', 'S7890123G', 'Ravi Shankar', NULL, 'ravi.shankar@email.com'),
-('C0008', 'S8901234H', 'Siti Nurhaliza', '98901234', NULL),
-('C0009', 'S9012345I', 'David Tan', '99012345', 'david.tan@email.com'),
-('C0010', NULL, 'Sarah Lim', '90123456', 'sarah.lim@email.com');
+INSERT INTO Customer (CustomerID, CustName, CustContactNo, CustEmail, Password) VALUES
+('C0001', 'Tan Wei Ming', '91234567', 'weiming.tan@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0002', 'Lim Hui Ling', '92345678', 'huiling.lim@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0003', 'Kumar Rajesh', '93456789', 'rajesh.kumar@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0004', 'Chen Xiao Hong', '94567890', 'xiaohong.chen@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0005', 'Muhammad Faizal', '95678901', 'faizal.m@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0006', 'Wong Mei Ling', '96789012', 'meiling.wong@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0007', 'Ravi Shankar', '93231515', 'ravi.shankar@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0008', 'Siti Nurhaliza', '98901234', 'siti.n@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0009', 'David Tan', '99012345', 'david.tan@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0010', 'Sarah Lim', '90123456', 'sarah.lim@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK');
 
 -- Cuisine (8 rows)
 INSERT INTO Cuisine (CuisineID, CuisineDesc) VALUES

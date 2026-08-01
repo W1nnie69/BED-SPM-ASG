@@ -2,7 +2,9 @@ const userModel = require("../models/userModel");
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const utils = require('../utils/email');
+const jwt = require('jsonwebtoken');
 const { get } = require("http");
+const { user } = require("../dbConfig");
 
 // VARIABLE TO STORE PASSWORD RESET TOKENS! DO NOT TOUCH!!
 // Might store the tokens in the db instead. We'll see.
@@ -48,7 +50,7 @@ async function getUserByEmail(req, res) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        res.json(user.result.recordset[0]);
+        res.json(user);
         
     } catch (error) {
         console.error("Controller error: ", error);
@@ -78,6 +80,40 @@ async function getAllStallOwner(req, res) {
     }
 }
 
+async function getUserProfile(req, res) {
+    try {
+        const userId = req.params.id;
+        const user = await userModel.getUserById(userId);
+
+        const { Password, ...dataCleaned } = user;
+
+        res.status(200).json(dataCleaned);
+
+    } catch (error) {
+        console.error("Controller error: ", error);
+        res.status(500).json({error: "Error retrieving users"});
+    }
+}
+
+async function updateUserProfile(req, res) {
+    try {
+        const userId = req.params.id;
+
+        console.log(req.body);
+        const result = await userModel.updateUserProfile(userId, req.body);
+
+        if (result === false) {
+            throw new Error("Model operation returned false.");
+        }
+
+        res.status(200).json({ status: "success!"});
+
+    } catch (error) {
+        console.error("Controller error: ", error);
+        res.status(500).json({error: "Error updating profile"});
+    }
+}
+
 // TODO: Move this function to a helper/ utils file
 async function hashPassword(plainPassword) {
     const saltRounds = 10;
@@ -94,9 +130,9 @@ async function forgotPassword(req, res) {
     try {
         const user = await userModel.getUserByEmail(email);
 
-        console.log(user.result);
+        console.log(user);
 
-        if (!user || user.result.recordset.length < 0) {
+        if (!user || user.length < 0) {
             return res.json({ message: "If that email exists, a reset link has been sent." });
         }
 
@@ -106,14 +142,15 @@ async function forgotPassword(req, res) {
         // using the stupid method of selecting the ID from below...
         const userIdType = {
                         Operator: "OperatorID",
-                        StallOwner: "OwnerID"
+                        StallOwner: "OwnerID",
+                        Customer: "CustomerID"
                     };
 
-        resetTokens.set(token, { userId: user.result.recordset[0][userIdType[user.userType]], expiresAt });
+        resetTokens.set(token, { userId: user[userIdType[user.userType]], expiresAt });
 
         const resetLink = `http://localhost:3000/reset-password?token=${token}`;
 
-        await utils.sendResetEmail(user.result.recordset[0].Email, resetLink);
+        await utils.sendResetEmail(user.Email, resetLink);
 
         res.json({ message: "If that email exists, a reset link has been sent." });
 
@@ -148,37 +185,36 @@ async function resetPassword(req, res) {
     
 }
 
-// updatePassword has been replaced by forgotPassword and resetPassword.
-// It is now deprecated...
-// async function updatePassword(req, res) {
-//     const hashedPassword = await hashPassword(req.body.password);
+async function updatePassword(req, res) {
+    const { id, currentPassword, newPassword } = req.body;
 
-//     console.log(hashedPassword);
+    try {
+        const result = await userModel.getUserById(id);
+        
+        if (currentPassword && currentPassword.length > 0) {
+            const compare_result = await bcrypt.compare(currentPassword, result.Password);
 
-//     const loginDetails = {
-//         "id": req.params.id,
-//         "hashedPassword": hashedPassword
-//     }
+            if (compare_result) {
+                const hashedNewPassword = await hashPassword(currentPassword);
+                const status = await userModel.updatePassword(id, hashedNewPassword);
 
-//     try {
-//         const result = await userModel.updatePassword(loginDetails);
+                if (status) {
+                    res.status(200).json({ status: "success" });
 
-//         console.log(result);
+                } else {
+                    throw new Error("Password change unsuccessful");
+                }
 
-//         if (result) {
-//             res.status(200).json({
-//                     status: "Done"
-//                 });
-
-//         } else {
-//             res.status(500).json({error: "user not found?"});
-//         }
-    
-//     } catch (err) {
-//         console.error("Controller error: ", err);
-//         res.status(500).json({error: "Unable to update password"});
-//     }
-// }
+            } else {
+                throw new Error("Password did not match");
+            }
+        }
+        
+    } catch (error) {
+        console.error("Controller error: ", error.stack);
+        res.status(500).json({ error: "Something went wrong" });
+    }
+}
 
 async function loginAuth(req, res) {
     const { email, password } = req.body;
@@ -187,30 +223,38 @@ async function loginAuth(req, res) {
         // Find user in DB
         const user = await userModel.getUserByEmail(email);
 
+        const userIdType = {
+                    Operator: "OperatorID",
+                    StallOwner: "OwnerID",
+                    Customer: "CustomerID"
+                };
+
         // Horrible to look at but it works...
-        // Probably should just return the recordset instead of the whole result lol
-        if (user.result.recordset[0].Password && user.result.recordset[0].Password.length > 0) {
-            const match_result = await bcrypt.compare(password, user.result.recordset[0].Password);
+        // Dirty fix. CBA to change the db column names.          
+        const userId = user[userIdType[user.userType]];
+        const hashedPassword = user.Password;
+
+        if (hashedPassword && hashedPassword.length > 0) {
+            const match_result = await bcrypt.compare(password, hashedPassword);
 
             if (match_result) {
-
-                // This is to get the stupid userID from the result below.
-                // Since both tables have different column names for the ID, i use the userType
-                // in the result to properly set the column name.
-                // However, I COULD JUST CHANGE THE COLUMN NAME IN THE dbINIT SCRIPT!!!!!!!!
-                // TODO: Maybe change the column name in the init script
-                const userIdType = {
-                    Operator: "OperatorID",
-                    StallOwner: "OwnerID"
-                };
                 
-                // Sets the session userId
-                req.session.userId = user.result.recordset[0][userIdType[user.userType]];
-                console.log(req.session.userId);
-                res.status(200).json({ "loginStatus": true, "userType": user.userType, "userId": user.result.recordset[0][userIdType[user.userType]]});
+                // Generates a jwt for auth
+                const token = jwt.sign(
+                    { userId: userId, userType: user.userType },
+                    process.env.JWT_SECRET,
+                    { expiresIn: "1h" }
+                );
+                
+                res.status(200).json({ 
+                    "loginStatus": true, 
+                    "userType": user.userType,
+                    "userId": userId,
+                    "token": token
+                });
 
             } else {
-                res.status(401).json({ "login status": false });
+                res.status(401).json({ "loginStatus": false });
             }
 
         } else {
@@ -225,28 +269,103 @@ async function loginAuth(req, res) {
     }
 }
 
+async function registerUser(req, res) {
+    const userType = req.params.userType;
+
+    const { name, password, email } = req.body;
+    const hashedPassword = await hashPassword(password);
+
+    //StallOwner vars
+    let nric;
+    let contactNo; // Customer too
+    //Operator vars
+    let contactPerson;
+
+    // data package
+    let userData = {
+                userType: userType,
+                name: name,
+                password: hashedPassword,
+                email: email
+            };
+    
+    switch (userType) {
+        case "StallOwner":
+            ({ nric, contactNo } = req.body);
+            userData.nric = nric;
+            userData.contactNo = contactNo;
+            break;
+        
+        case "Operator":
+            ({ contactPerson } = req.body);
+            userData.contactPerson = contactPerson;
+            break;
+
+        case "Customer":
+            ({ contactNo } = req.body);
+            userData.contactNo = contactNo;
+            break;
+        
+        default:
+            console.error("Unknown user type");
+            return;
+    }
+
+    try {
+        const status = await userModel.signUpUser(userData);
+
+        if (status === false) {
+            throw new Error("userModel returned false as status");
+        }   
+
+        res.status(200).json({ status: "success" });
+
+    } catch (error) {
+        console.error("Controller error: ", error.stack);
+        res.status(500).json({error: "Something wrong"});
+    }
+}
+
 async function getDashboard(req, res) {
     try {
-        const id = req.params.id;
+        const { userType, id } = req.params;
 
-        const result = await userModel.getDashboard(id);
+        if (userType === 'Operator') {
+            const result = await userModel.getOperatorDashboard(id);
 
-        console.log(result);
-        if(!result) {
-            return res.status(404).json({ error: "User not found" });
+            if (!result) {
+                return res.status(404).json({ error: "User not found" });
+            }
+
+            const [operatorRows, hawkerCentres, stalls, complaints, inspections, statsRows] = result.recordsets;
+
+            const operator = operatorRows[0] || null;
+            const stats = statsRows[0] || {};
+
+            return res.status(200).json({ operator, stats, hawkerCentres, stalls, complaints, inspections });
         }
 
-        const [ownerRows, stalls, menuItems, feedback, promotions, inspections, statsRows] = result.recordsets;
+        if (userType === 'StallOwner') {
+            const result = await userModel.getStallOwnerDashboard(id);
 
-        const owner = ownerRows[0] || null;
-        const stats = statsRows[0] || {};
-        stats.hygieneGrade = stalls[0]?.HygieneGrade || null;
+            if (!result) {
+                return res.status(404).json({ error: "User not found" });
+            }
 
-        res.status(200).json({ owner, stats, stalls, menuItems, feedback, promotions, inspections });
-        
+            const [ownerRows, stalls, menuItems, feedback, promotions, inspections, statsRows] = result.recordsets;
+
+            const owner = ownerRows[0] || null;
+            const stats = statsRows[0] || {};
+            stats.hygieneGrade = stalls[0]?.HygieneGrade || null;
+
+            return res.status(200).json({ owner, stats, stalls, menuItems, feedback, promotions, inspections });
+        }
+
+        return res.status(400).json({ error: "Unknown user type" });
+
     } catch (error) {
         console.error("Controller error: ", error);
-        res.status(500).json({error: "Error retrieving user"});
+        res.status(500).json({ error: "Error retrieving user" });
     }
 }
 
@@ -259,5 +378,9 @@ module.exports = {
     loginAuth,
     forgotPassword,
     resetPassword,
-    getDashboard
+    getDashboard,
+    getUserProfile,
+    updateUserProfile,
+    updatePassword,
+    registerUser
 }
