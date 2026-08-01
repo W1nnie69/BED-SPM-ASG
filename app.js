@@ -22,7 +22,7 @@ const port = process.env.PORT || 3000;
 
 // middleware
 app.use(express.static(path.join(__dirname, "public")));
-const upload = require("./middleware/upload");
+// const upload = require("./middleware/upload");
 app.use(express.json());
 const userMiddlewares = require("./middlewares/userMiddlewares");
 
@@ -80,7 +80,7 @@ app.delete('/feedback/:fbkID', custEngagementController.deleteFeedback);
 //=================================================== Shengle's Routes ===============================================================
 app.get("/api/stall/:stallId/menu", menuController.getMenuByStall);
 
-app.post("/api/stall/:stallId/menu", upload.single("photo"), menuController.addMenuItem);
+// app.post("/api/stall/:stallId/menu", upload.single("photo"), menuController.addMenuItem);
 
 app.put("/api/stall/:stallId/menu/:code", menuController.updateMenuItem);
 
