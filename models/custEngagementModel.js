@@ -97,9 +97,31 @@ async function addFeedback(fbkID, fbkComment, fbkRating, fbkDateTime, customerId
     connection.close();
 }
 
+// Updates a customer's rating and comment for existing feedback
+async function updateFeedback(fbkID, fbkComment, fbkRating) {
+
+    const connection = await sql.connect(dbConfig);
+
+    const query = `
+        UPDATE Feedback
+        SET FbkComment = @fbkComment,
+            FbkRating = @fbkRating
+        WHERE FbkID = @fbkID
+    `;
+
+    await connection.request()
+        .input('fbkID', sql.Char(5), fbkID)
+        .input('fbkComment', sql.VarChar(1000), fbkComment)
+        .input('fbkRating', sql.Int, fbkRating)
+        .query(query);
+
+    connection.close();
+}
+
 module.exports = {
     likeFood,
     getLikedFoods,
     unlikeFood,
-    addFeedback
+    addFeedback,
+    updateFeedback
 };

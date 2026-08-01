@@ -105,9 +105,39 @@ async function addFeedback(req, res) {
     }
 }
 
+// Handles a customer's request to edit their rating and comment
+async function updateFeedback(req, res) {
+
+    const fbkID = req.params.fbkID;
+    const { fbkComment, fbkRating } = req.body;
+
+    try {
+
+        await likeModel.updateFeedback(
+            fbkID,
+            fbkComment,
+            fbkRating
+        );
+
+        res.status(200).json({
+            message: "Rating and comment updated successfully."
+        });
+
+    } catch (error) {
+
+        console.error("Controller error:", error);
+
+        res.status(500).json({
+            error: "Error updating rating and comment."
+        });
+
+    }
+}
+
 module.exports = {
     likeFood,
     getLikedFoods,
     unlikeFood,
-    addFeedback
+    addFeedback,
+    updateFeedback
 };
