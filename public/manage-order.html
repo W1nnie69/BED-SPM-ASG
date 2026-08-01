@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hawker Queue — Manage Order</title>
+<link rel="stylesheet" href="order.css" />
+<link rel="stylesheet" href="manage-order.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">🍜</span>
+      <div>
+        <h1>Hawker Queue</h1>
+        <p class="tagline">Manage an existing order</p>
+      </div>
+    </div>
+    <a href="/order" class="back-link">← Back to Order</a>
+  </header>
+
+  <main class="manage-main">
+    <div class="lookup-row">
+      <label for="orderIdInput">Order ID</label>
+      <input type="text" id="orderIdInput" placeholder="e.g. OR001" maxlength="5" />
+      <button id="lookupBtn" type="button">Look up</button>
+    </div>
+
+    <p id="lookupMsg" class="lookup-msg"></p>
+
+    <section id="orderDetail" class="order-detail hidden">
+      <h2>Order <span id="orderIdLabel"></span></h2>
+      <p class="order-meta">
+        <span id="orderStallLabel"></span> · <span id="orderDateLabel"></span> · <span id="orderPmtLabel"></span>
+      </p>
+
+      <ul id="editItemsList" class="edit-items-list"></ul>
+
+      <div class="add-item-row">
+        <select id="addItemSelect"></select>
+        <button id="addItemBtn" type="button">Add item</button>
+      </div>
+
+      <div class="edit-total-row">
+        <span>New total</span>
+        <span id="editTotal">$0.00</span>
+      </div>
+
+      <div class="action-row">
+        <button id="saveBtn" class="save-btn" type="button">Save Changes</button>
+        <button id="cancelOrderBtn" class="cancel-btn" type="button">Cancel Order</button>
+      </div>
+
+      <p id="actionMsg" class="action-msg"></p>
+    </section>
+  </main>
+
+  <script src="manage-order.js"></script>
+</body>
+</html>
