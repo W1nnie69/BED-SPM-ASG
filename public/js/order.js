@@ -97,7 +97,7 @@ function renderMenu() {
   const byStall = {};
   menuItems.forEach((item) => {
     if (!byStall[item.StallID]) {
-      byStall[item.StallID] = { name: item.StallName, items: [] };
+      byStall[item.StallID] = { stallId: item.StallID, name: item.StallName, items: [] };
     }
     byStall[item.StallID].items.push(item);
   });
@@ -109,8 +109,15 @@ function renderMenu() {
 
     const heading = document.createElement("div");
     heading.className = "stall-heading";
-    heading.innerHTML = `<h3>${escapeHtml(stall.name)}</h3>`;
+    heading.innerHTML = `<h3>${escapeHtml(stall.name)}</h3>
+     <span class="stall-stars" data-stall-id="${stall.stallId}">☆☆☆☆☆</span>
+      <span class="stall-rating-count">(0)</span>
+      <a class="rate-btn" href="/rating.html?stallId=${encodeURIComponent(stall.stallId)}" 
+      title="Rate this stall">⭐ Rate</a>`;
     group.appendChild(heading);
+
+    // Load and display this stall's average rating
+    loadStallRating(stall.stallId, heading);
 
     const grid = document.createElement("div");
     grid.className = "item-grid";
@@ -335,7 +342,7 @@ async function toggleLike(item, likeBtn) {
 
     likeBtn.disabled = true;
 
-    const res = await fetch("/likes", {
+    const res = await fetch("/api/likes", {
       method: isLiked ? "DELETE" : "POST",
       headers: {
         "Content-Type": "application/json",
@@ -359,7 +366,7 @@ async function toggleLike(item, likeBtn) {
 
     // Get latest like count
     const countRes = await fetch(
-      `/likes/count/${item.StallID}/${item.ItemCode}`
+      `/api/likes/count/${item.StallID}/${item.ItemCode}`
     );
 
     const countData = await countRes.json();
@@ -391,7 +398,7 @@ async function loadLikeCount(item, likeCounter) {
   try {
 
     const res = await fetch(
-      `/likes/count/${item.StallID}/${item.ItemCode}`
+      `/api/likes/count/${item.StallID}/${item.ItemCode}`
     );
 
     const data = await res.json();
@@ -436,7 +443,7 @@ async function loadLikeStatus(item, likeBtn, likeCounter) {
   try {
 
     const res = await fetch(
-      `/likes/status/${currentCustomerId}/${item.StallID}/${item.ItemCode}`
+      `/api/likes/status/${currentCustomerId}/${item.StallID}/${item.ItemCode}`
     );
 
     const data = await res.json();
@@ -471,7 +478,7 @@ async function loadLikedFoods() {
   likedListEl.innerHTML = '<p class="history-empty">Loading…</p>';
   try {
     const jwtToken = localStorage.getItem("jwtToken");
-    const res = await fetch(`/likes/${currentCustomerId}`, {
+    const res = await fetch(`/api/likes/${currentCustomerId}`, {
       headers: { "Authorization": `Bearer ${jwtToken}` }
     });
     const likedFoods = await res.json();
@@ -504,3 +511,33 @@ async function loadLikedFoods() {
     console.error(err);
   }
 }
+
+// ---------- Stall ratings ----------
+
+// Converts an average rating number into a filled/empty star string
+function renderStars(avgRating) {
+  const rounded = Math.round(avgRating);
+  return "★".repeat(rounded) + "☆".repeat(5 - rounded);
+}
+
+// Fetches and displays a stall's average rating next to its name
+async function loadStallRating(stallId, headingEl) {
+  try {
+    const res = await fetch(`/api/feedback/stall/${stallId}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Unable to load rating.");
+    }
+
+    headingEl.querySelector(".stall-stars").textContent =
+      renderStars(data.avgRating);
+
+    headingEl.querySelector(".stall-rating-count").textContent =
+      `(${Math.round(data.avgRating)})`;
+
+  } catch (err) {
+    console.error("Load stall rating error:", err);
+  }
+}
+

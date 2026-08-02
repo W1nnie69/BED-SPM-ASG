@@ -126,23 +126,17 @@ async function hasLikedFood(req, res) {
 //RATINGS & COMMENTS
 // Handles a customer's request to submit a rating and comment
 async function addFeedback(req, res) {
-
     const {
-        fbkID,
         fbkComment,
         fbkRating,
-        fbkDateTime,
         customerId,
         stallId
     } = req.body;
 
     try {
-
         await likeModel.addFeedback(
-            fbkID,
             fbkComment,
             fbkRating,
-            fbkDateTime,
             customerId,
             stallId
         );
@@ -152,13 +146,11 @@ async function addFeedback(req, res) {
         });
 
     } catch (error) {
-
         console.error("Controller error:", error);
 
         res.status(500).json({
             error: "Error submitting rating and comment."
         });
-
     }
 }
 
@@ -215,6 +207,30 @@ async function deleteFeedback(req, res) {
     }
 }
 
+// Retrieves the average rating and total number of ratings for a stall
+async function getStallRating(req, res) {
+
+    const stallId = req.params.stallId;
+
+    try {
+
+        const ratingData = await likeModel.getStallRating(stallId);
+
+        res.status(200).json({
+            avgRating: Number(ratingData.avgRating),
+            count: ratingData.count
+        });
+
+    } catch (error) {
+
+        console.error("Controller error:", error);
+
+        res.status(500).json({
+            error: "Error retrieving stall rating."
+        });
+
+    }
+}
 
 module.exports = {
     likeFood,
@@ -224,5 +240,6 @@ module.exports = {
     hasLikedFood,
     addFeedback,
     updateFeedback,
-    deleteFeedback
+    deleteFeedback,
+    getStallRating
 };

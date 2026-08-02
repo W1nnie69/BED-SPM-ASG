@@ -131,7 +131,7 @@ async function hasLikedFood(customerId, stallId, itemCode) {
 
 //RATINGS & COMMENTS
 // Adds a customer's rating and comment for a food stall
-async function addFeedback(fbkID, fbkComment, fbkRating, fbkDateTime, customerId, stallId) {
+async function addFeedback(fbkComment, fbkRating, customerId, stallId) {
     try {
         const pool = await poolPromise;
 
@@ -139,17 +139,29 @@ async function addFeedback(fbkID, fbkComment, fbkRating, fbkDateTime, customerId
             INSERT INTO Feedback
             (FbkID, FbkComment, FbkRating, FbkDateTime, CustomerID, StallID)
             VALUES
-            (@fbkID, @fbkComment, @fbkRating, @fbkDateTime, @customerId, @stallId)
+            (@fbkID, @fbkComment, @fbkRating, GETDATE(), @customerId, @stallId)
         `;
+
+        const result = await pool.request()
+            .input('fbkComment', sql.VarChar(1000), fbkComment)
+            .input('fbkRating', sql.Int, fbkRating)
+            .input('customerId', sql.Char(5), customerId)
+            .input('stallId', sql.Char(5), stallId)
+            .query(`
+                SELECT 'FB' + RIGHT('000' + CAST(ISNULL(MAX(CAST(RIGHT(FbkID, 3) AS INT)), 0) + 1 AS VARCHAR), 3) AS NewFbkID
+                FROM Feedback
+            `);
+
+        const fbkID = result.recordset[0].NewFbkID;
 
         await pool.request()
             .input('fbkID', sql.Char(5), fbkID)
             .input('fbkComment', sql.VarChar(1000), fbkComment)
             .input('fbkRating', sql.Int, fbkRating)
-            .input('fbkDateTime', sql.DateTime, fbkDateTime)
             .input('customerId', sql.Char(5), customerId)
             .input('stallId', sql.Char(5), stallId)
             .query(query);
+
     } catch (error) {
         console.error("Model error in addFeedback:", error);
         throw error;
@@ -198,6 +210,32 @@ async function deleteFeedback(fbkID) {
     }
 }
 
+
+// Retrieves the average rating and total number of ratings for a stall
+async function getStallRating(stallId) {
+    try {
+        const pool = await poolPromise;
+
+        const query = `
+            SELECT
+                ISNULL(AVG(CAST(FbkRating AS DECIMAL(10,2))), 0) AS avgRating,
+                COUNT(*) AS count
+            FROM Feedback
+            WHERE StallID = @stallId
+        `;
+
+        const result = await pool.request()
+            .input('stallId', sql.Char(5), stallId)
+            .query(query);
+
+        return result.recordset[0];
+
+    } catch (error) {
+        console.error("Model error in getStallRating:", error);
+        throw error;
+    }
+}
+
 module.exports = {
     likeFood,
     getLikedFoods,
@@ -206,5 +244,6 @@ module.exports = {
     hasLikedFood,
     addFeedback,
     updateFeedback,
-    deleteFeedback
+    deleteFeedback,
+    getStallRating
 };

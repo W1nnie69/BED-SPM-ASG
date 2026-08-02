@@ -56,30 +56,31 @@ app.post("/api/:userType/signup", userController.registerUser);
 
 //=================================================== Jeff's Routes ================================================================
 // Get all liked food items for a customer
-app.get('/likes/:customerId', custEngagementController.getLikedFoods);
+app.get('/api/likes/:customerId', custEngagementController.getLikedFoods);
 
 // Route for liking a food item
-app.post('/likes', custEngagementController.likeFood);
+app.post('/api/likes', custEngagementController.likeFood);
 
 // Unlike a food item
-app.delete('/likes', custEngagementController.unlikeFood);
+app.delete('/api/likes', custEngagementController.unlikeFood);
 
 // Get total like count for a food item
-app.get('/likes/count/:stallId/:itemCode',custEngagementController.getLikeCount);
+app.get('/api/likes/count/:stallId/:itemCode',custEngagementController.getLikeCount);
 
 // Check if a customer has liked a food item
-app.get('/likes/status/:customerId/:stallId/:itemCode',custEngagementController.hasLikedFood);
+app.get('/api/likes/status/:customerId/:stallId/:itemCode',custEngagementController.hasLikedFood);
 
 //Submit a rating and comment
-app.post('/feedback', custEngagementController.addFeedback);
+app.post('/api/feedback', custEngagementController.addFeedback);
 
 //Edit their rating and comment
-app.put('/feedback/:fbkID', custEngagementController.updateFeedback);
+app.put('/api/feedback/:fbkID', custEngagementController.updateFeedback);
 
 //Delete their rating and comment
-app.delete('/feedback/:fbkID', custEngagementController.deleteFeedback);
+app.delete('/api/feedback/:fbkID', custEngagementController.deleteFeedback);
 
-
+// Get average rating and number of ratings for a stall
+app.get('/api/feedback/stall/:stallId',custEngagementController.getStallRating);
 
 //reset password not fully implemented yet on the frontend
 // app.put("/api/user/updatepass/:id", userController.updatePassword); 
