@@ -376,3 +376,39 @@ main { padding: 24px 32px 60px; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* ---------- Food Action Buttons ---------- */
+
+.food-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.food-actions .add-btn {
+  flex: 1;
+}
+
+.like-btn {
+  border: 1.5px solid var(--chili);
+  background: var(--chili-tint);
+  color: var(--chili-dark);
+  font-weight: 700;
+  font-size: 12.5px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.like-btn:hover {
+  background: var(--chili);
+  color: #fff;
+}
+
+.like-btn:focus-visible {
+  outline: 2px solid var(--chili-dark);
+  outline-offset: 2px;
+}

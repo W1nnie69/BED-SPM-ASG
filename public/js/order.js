@@ -120,10 +120,18 @@ function renderMenu() {
         <span class="category">${escapeHtml(item.ItemCategory)}</span>
         <span class="name">${escapeHtml(item.ItemDesc)}</span>
         <span class="price">$${Number(item.ItemPrice).toFixed(2)}</span>
-        <button class="add-btn" type="button">Add to chit</button>
+
+        <div class="food-actions">
+          <button class="add-btn" type="button">Add to chit</button>
+          <button class="like-btn" type="button">♡ Like</button>
+        </div>
       `;
       card.querySelector(".add-btn").addEventListener("click", () => addToCart(item));
       grid.appendChild(card);
+
+      card.querySelector(".like-btn").addEventListener("click", () => {
+        likeFood(item);
+      });
     });
 
     group.appendChild(grid);
@@ -297,3 +305,41 @@ function escapeHtml(str) {
   await initWho();
   await loadMenu();
 })();
+
+
+// ---------- Like Food ----------
+async function likeFood(item) {
+  if (!currentCustomerId) {
+    alert("Please log in to like a food item.");
+    return;
+  }
+
+  const jwtToken = localStorage.getItem("jwtToken");
+
+  try {
+    const res = await fetch("/api/likes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${jwtToken}`
+      },
+      body: JSON.stringify({
+        customerId: currentCustomerId,
+        stallId: item.StallID,
+        itemCode: item.ItemCode
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Unable to like food.");
+    }
+
+    alert("Food item liked!");
+
+  } catch (err) {
+    console.error("Like error:", err);
+    alert(err.message);
+  }
+}
