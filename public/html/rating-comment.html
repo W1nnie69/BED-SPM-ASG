@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Rate & Comment</title>
+
+  <!-- Google Fonts -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <!-- External CSS -->
+
+  <link rel="stylesheet" href="../css/rating-comment.css">
+</head>
+
+<body>
+
+  <!-- ============================================================
+       TOP BAR
+       ============================================================ -->
+
+  <div class="topbar">
+
+
+<div class="topbar-brand">
+
+  <div class="brand-mark">
+    ★
+  </div>
+
+  <div>
+    <h1>Hawker Centre Portal</h1>
+
+    <p class="sub">
+      Customer Feedback
+    </p>
+  </div>
+
+</div>
+
+
+  </div>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+
+  <div class="container">
+
+<!-- Back button -->
+<button
+  class="back-btn"
+  id="backBtn"
+>
+  ← Back to Menu
+</button>
+
+
+<!-- ==========================================================
+     SELECTED FOOD INFORMATION
+     ========================================================== -->
+
+<div class="food-card">
+
+  <div class="food-label">
+    You are reviewing
+  </div>
+
+  <h1
+    class="stall-name-title"
+    id="stallName"
+  >
+    Stall
+  </h1>
+
+  <p
+    class="stall-id"
+    id="stallIdDisplay"
+  ></p>
+
+</div>
+
+
+<!-- ==========================================================
+     RATING & COMMENT FORM
+     ========================================================== -->
+
+<div class="feedback-card">
+
+  <div class="feedback-header">
+
+    <h2>
+      Rate & Comment
+    </h2>
+
+    <p>
+      Share your experience with this food item to help
+      other customers make better choices.
+    </p>
+
+  </div>
+
+
+  <!-- Success / Error Message -->
+  <div
+    id="message"
+    class="message"
+  ></div>
+
+
+  <!-- Feedback Form -->
+  <form id="feedbackForm">
+
+
+    <!-- ======================================================
+         STAR RATING
+         ====================================================== -->
+
+    <div class="form-group">
+
+      <label class="form-label">
+        Your Rating
+      </label>
+
+      <div class="star-rating">
+
+        <input
+          type="radio"
+          id="star5"
+          name="rating"
+          value="5"
+        >
+
+        <label for="star5">
+          ★
+        </label>
+
+
+        <input
+          type="radio"
+          id="star4"
+          name="rating"
+          value="4"
+        >
+
+        <label for="star4">
+          ★
+        </label>
+
+
+        <input
+          type="radio"
+          id="star3"
+          name="rating"
+          value="3"
+        >
+
+        <label for="star3">
+          ★
+        </label>
+
+
+        <input
+          type="radio"
+          id="star2"
+          name="rating"
+          value="2"
+        >
+
+        <label for="star2">
+          ★
+        </label>
+
+
+        <input
+          type="radio"
+          id="star1"
+          name="rating"
+          value="1"
+        >
+
+        <label for="star1">
+          ★
+        </label>
+
+      </div>
+
+    </div>
+
+
+    <!-- ======================================================
+         COMMENT
+         ====================================================== -->
+
+    <div class="form-group">
+
+      <label
+        class="form-label"
+        for="comment"
+      >
+        Your Comment
+      </label>
+
+      <textarea
+        id="comment"
+        class="comment-input"
+        placeholder="Tell us what you think about this food..."
+        maxlength="500"
+        required
+      ></textarea>
+
+    </div>
+
+
+    <!-- ======================================================
+         SUBMIT BUTTON
+         ====================================================== -->
+
+    <button
+      type="submit"
+      class="submit-btn"
+    >
+      Submit Rating & Comment
+    </button>
+
+  </form>
+
+</div>
+<!-- ==========================================================
+     STALL RATINGS & COMMENTS
+     ========================================================== -->
+
+<div class="reviews-card">
+
+  <div class="reviews-header">
+
+    <h2>
+      Customer Ratings & Comments
+    </h2>
+
+    <p>
+      See what other customers have said about this stall.
+    </p>
+
+  </div>
+
+  <!-- Average Rating -->
+  <div class="average-rating">
+
+    <div
+      class="average-rating-number"
+      id="averageRating"
+    >
+      0.0
+    </div>
+
+    <div>
+
+      <div
+        class="average-stars"
+        id="averageStars"
+      >
+        ☆☆☆☆☆
+      </div>
+
+      <div
+        class="rating-count"
+        id="ratingCount"
+      >
+        0 ratings
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Customer Reviews -->
+  <div id="reviewsList">
+
+    <p class="reviews-empty">
+      No ratings or comments yet.
+    </p>
+
+  </div>
+
+</div>
+
+  </div>
+
+  <!-- External JavaScript -->
+
+  <script src="../js/rating-comment.js"></script>
+
+</body>
+
+</html>

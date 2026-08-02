@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>My Profile</title>
+<link rel="stylesheet" href="../css/profile.css">
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 10L12 4L20 10V19C20 19.5523 19.5523 20 19 20H5C4.44772 20 4 19.5523 4 19V10Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M9 20V14H15V20" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Hawker Centre Portal</h1>
+        <p class="sub">My Profile</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="back-btn" id="backBtn">Back</button>
+      <button class="logout-btn" id="logoutBtn">Log out</button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <div class="banner error" id="errorBanner"></div>
+    <div class="banner success" id="successBanner"></div>
+
+    <div class="greeting">
+      <h2 id="greetingName">Your Profile</h2>
+      <p>Update your personal information and password</p>
+    </div>
+
+    <!-- Profile information -->
+    <form class="card" id="profileForm">
+      <div class="card-header">
+        <h3>Profile Information</h3>
+        <p>These details are visible on your account and used for contact.</p>
+      </div>
+
+      <div class="field">
+        <label for="fieldName">Full Name</label>
+        <input type="text" id="fieldName" name="name" required>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="fieldEmail">Email</label>
+          <input type="email" id="fieldEmail" name="email" required>
+        </div>
+
+        <!-- Stall owners and customers see a contact number field -->
+        <div class="field" id="fieldContactNoWrap">
+          <label for="fieldContactNo">Contact Number</label>
+          <input type="text" id="fieldContactNo" name="contactNo" maxlength="8">
+        </div>
+
+        <!-- Operators see a contact person field instead -->
+        <div class="field" id="fieldContactPersonWrap" style="display:none;">
+          <label for="fieldContactPerson">Contact Person</label>
+          <input type="text" id="fieldContactPerson" name="contactPerson">
+        </div>
+      </div>
+
+      <!-- Stall owners only: NRIC is an identity field, shown but not editable -->
+      <div class="field" id="fieldNricWrap">
+        <label for="fieldNric">NRIC <span class="hint">Cannot be changed</span></label>
+        <input type="text" id="fieldNric" name="nric" disabled>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="save-btn" id="saveProfileBtn">Save changes</button>
+        <span class="save-status" id="profileSaveStatus"></span>
+      </div>
+    </form>
+
+    <!-- Change password -->
+    <form class="card" id="passwordForm">
+      <div class="card-header">
+        <h3>Change Password</h3>
+        <p>Leave these blank if you don't want to change your password.</p>
+      </div>
+
+      <div class="field">
+        <label for="currentPassword">Current Password</label>
+        <input type="password" id="currentPassword" name="currentPassword" autocomplete="current-password">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="newPassword">New Password</label>
+          <input type="password" id="newPassword" name="newPassword" autocomplete="new-password" minlength="8">
+        </div>
+        <div class="field">
+          <label for="confirmPassword">Confirm New Password</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" minlength="8">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="save-btn" id="savePasswordBtn">Update password</button>
+        <span class="save-status" id="passwordSaveStatus"></span>
+      </div>
+    </form>
+
+  </div>
+
+  <script src="../js/profile.js"></script>
+
+</body>
+</html>

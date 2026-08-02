@@ -1,21 +1,13 @@
 const sql = require("mssql");
 const dbConfig = require("../dbConfig");
 
-async function safeClose(connection) {
-    if (!connection) return;
-    try {
-        await connection.close();
-    } catch (err) {
-        console.error("Error closing connection: ", err);
-    }
-}
+const poolPromise = sql.connect(dbConfig);
 
 // Anyone can view — no ownership check needed
 async function getMenuByStall(stallId) {
-    let connection;
+    const pool = await poolPromise;
     try {
-        connection = await sql.connect(dbConfig);
-        const result = await connection.request()
+        const result = await pool.request()
             .input('stallId', sql.Char, stallId)
             .query('SELECT * FROM MenuItem WHERE StallID = @stallId');
 
@@ -24,17 +16,14 @@ async function getMenuByStall(stallId) {
     } catch (error) {
         console.error("DB error: ", error.stack);
         throw error;
-    } finally {
-        safeClose(connection);
-    }
+    } 
 }
 
 // Checks whether OwnerID has an active rental agreement for StallID
 async function ownsStall(ownerId, stallId) {
-    let connection;
+    const pool = await poolPromise;
     try {
-        connection = await sql.connect(dbConfig);
-        const result = await connection.request()
+        const result = await pool.request()
             .input('ownerId', sql.Char, ownerId)
             .input('stallId', sql.Char, stallId)
             .query(`SELECT 1 FROM RentalAgreement 
@@ -45,16 +34,13 @@ async function ownsStall(ownerId, stallId) {
     } catch (error) {
         console.error("DB error: ", error.stack);
         throw error;
-    } finally {
-        safeClose(connection);
-    }
+    } 
 }
 
 async function addMenuItem(stallId, itemCode, item) {
-    let connection;
+    const pool = await poolPromise;
     try {
-        connection = await sql.connect(dbConfig);
-        await connection.request()
+        const result = await pool.request()
             .input('stallId', sql.Char, stallId)
             .input('itemCode', sql.Char, itemCode)
             .input('itemDesc', sql.VarChar, item.ItemDesc)
@@ -68,16 +54,13 @@ async function addMenuItem(stallId, itemCode, item) {
     } catch (error) {
         console.error("DB error: ", error.stack);
         throw error;
-    } finally {
-        safeClose(connection);
-    }
+    } 
 }
 
 async function updateMenuItem(stallId, itemCode, item) {
-    let connection;
+    const pool = await poolPromise;
     try {
-        connection = await sql.connect(dbConfig);
-        const result = await connection.request()
+        const result = await pool.request()
             .input('stallId', sql.Char, stallId)
             .input('itemCode', sql.Char, itemCode)
             .input('itemDesc', sql.VarChar, item.ItemDesc)
@@ -92,16 +75,13 @@ async function updateMenuItem(stallId, itemCode, item) {
     } catch (error) {
         console.error("DB error: ", error.stack);
         throw error;
-    } finally {
-        safeClose(connection);
-    }
+    } 
 }
 
 async function deleteMenuItem(stallId, itemCode) {
-    let connection;
+    const pool = await poolPromise;
     try {
-        connection = await sql.connect(dbConfig);
-        const result = await connection.request()
+        const result = await pool.request()
             .input('stallId', sql.Char, stallId)
             .input('itemCode', sql.Char, itemCode)
             .query('DELETE FROM MenuItem WHERE StallID = @stallId AND ItemCode = @itemCode');
@@ -111,22 +91,20 @@ async function deleteMenuItem(stallId, itemCode) {
     } catch (error) {
         console.error("DB error: ", error.stack);
         throw error;
-    } finally {
-        safeClose(connection);
-    }
+    } 
 }
 
 // LiangChen's api function
 async function getAllMenuItems() {
-  const pool = await sql.connect(dbConfig);
-  const result = await pool.request().query(
+    const pool = await poolPromise;
+    const result = await pool.request().query(
     `SELECT mi.StallID, fs.StallName, mi.ItemCode, mi.ItemDesc, mi.ItemPrice, mi.ItemCategory
-     FROM MenuItem mi
-     JOIN FoodStall fs ON fs.StallID = mi.StallID
-     ORDER BY fs.StallName, mi.ItemCategory, mi.ItemDesc`
-  );
+        FROM MenuItem mi
+        JOIN FoodStall fs ON fs.StallID = mi.StallID
+        ORDER BY fs.StallName, mi.ItemCategory, mi.ItemDesc`
+    );
 
-  return result.recordset;
+    return result.recordset;
 }
 
 module.exports = { 
@@ -134,5 +112,7 @@ module.exports = {
     ownsStall, 
     addMenuItem, 
     updateMenuItem, 
-    deleteMenuItem 
+    deleteMenuItem,
+    getAllMenuItems,
+    deleteMenuItem
 }

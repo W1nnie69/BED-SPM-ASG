@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Stall Owner Dashboard</title>
+<link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 10L12 4L20 10V19C20 19.5523 19.5523 20 19 20H5C4.44772 20 4 19.5523 4 19V10Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M9 20V14H15V20" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Hawker Centre Portal</h1>
+        <p class="sub" id="portalSub">Stall Owner Dashboard</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button id="ownerLabel" class="owner-pill">Loading...</button>
+      <button class="logout-btn" id="logoutBtn">Log out</button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <div class="error-banner" id="errorBanner"></div>
+
+    <div class="greeting">
+      <h2 id="greetingName">Welcome back</h2>
+      <p id="greetingSub">Here is what is happening with your stalls today</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- STALL OWNER VIEW                                              -->
+    <!-- ============================================================ -->
+    <div class="view" id="stallOwnerView">
+
+      <!-- Stat cards -->
+      <div class="stats">
+        <div class="stat-card">
+          <div class="label">My Stalls</div>
+          <div class="value" id="statStallCount"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Hygiene Grade</div>
+          <div class="value" id="statHygieneGrade"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Average Rating</div>
+          <div class="value" id="statAvgRating"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Active Promotions</div>
+          <div class="value" id="statActivePromos"><span class="skeleton"></span></div>
+        </div>
+      </div>
+
+      <!-- My Stalls & Rental Agreement -->
+      <div class="card">
+        <div class="card-header">
+          <h3>My Stalls & Rental Agreement</h3>
+          <span class="count" id="stallsCount"></span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Stall ID</th>
+              <th>Stall Name</th>
+              <th>Unit No</th>
+              <th>Hawker Centre</th>
+              <th>Rental Price</th>
+              <th>Agreement Period</th>
+              <th>Hygiene Grade</th>
+            </tr>
+          </thead>
+          <tbody id="stallsTableBody">
+            <tr><td colspan="7"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Menu Items -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Menu Items</h3>
+          <a href="/menu" class="add-btn">+ Add Item</a>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Item Code</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody id="menuTableBody">
+            <tr><td colspan="4"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="two-col">
+
+        <!-- Recent Feedback -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent Customer Feedback</h3>
+            <span class="count" id="feedbackAvg"></span>
+          </div>
+          <div id="feedbackList">
+            <div class="feedback-item"><div class="skeleton"></div></div>
+          </div>
+        </div>
+
+        <!-- Promotions -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Promotions</h3>
+            <button class="add-btn">+ New</button>
+          </div>
+          <div id="promoList">
+            <div class="promo-item"><div class="skeleton"></div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Inspection History -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Inspection History</h3>
+          <span class="count">Latest first</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Inspection ID</th>
+              <th>Date</th>
+              <th>Officer</th>
+              <th>Grade</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody id="inspectionTableBody">
+            <tr><td colspan="5"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- OPERATOR VIEW                                                 -->
+    <!-- ============================================================ -->
+    <div class="view" id="operatorView">
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="label">Hawker Centres</div>
+          <div class="value" id="op-statHCCount"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Total Stalls</div>
+          <div class="value" id="op-statStallCount"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Open Complaints</div>
+          <div class="value" id="op-statComplaints"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Avg Hygiene Score</div>
+          <div class="value" id="op-statHygiene"><span class="skeleton"></span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>My Hawker Centres</h3>
+          <span class="count" id="op-hcCount"></span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Centre ID</th>
+              <th>Name</th>
+              <th>Address</th>
+              <th>Stalls</th>
+            </tr>
+          </thead>
+          <tbody id="op-hcTableBody">
+            <tr><td colspan="4"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Stalls Overview</h3>
+          <span class="count" id="op-stallsCount"></span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Stall ID</th>
+              <th>Stall Name</th>
+              <th>Hawker Centre</th>
+              <th>Owner</th>
+              <th>Rental Status</th>
+              <th>Hygiene Grade</th>
+            </tr>
+          </thead>
+          <tbody id="op-stallsTableBody">
+            <tr><td colspan="6"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent Complaints</h3>
+            <span class="count" id="op-complaintsCount"></span>
+          </div>
+          <div id="op-complaintsList">
+            <div class="feedback-item"><div class="skeleton"></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent Inspections</h3>
+            <span class="count">Across all centres</span>
+          </div>
+          <div id="op-inspectionsList">
+            <div class="promo-item"><div class="skeleton"></div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="../js/dashboard.js"></script>
+
+</body>
+</html>

@@ -13,10 +13,10 @@ GO
 
 CREATE TABLE Customer (
     CustomerID CHAR(5) PRIMARY KEY,
-    CustNRIC CHAR(9) UNIQUE,
     CustName VARCHAR(100) NOT NULL,
     CustContactNo CHAR(8) UNIQUE,
     CustEmail VARCHAR(256) UNIQUE,
+    Password VARCHAR(255) NOT NULL,
     CONSTRAINT chk_contact CHECK (
         CustContactNo IS NOT NULL OR CustEmail IS NOT NULL
     )
@@ -27,10 +27,12 @@ CREATE TABLE Cuisine (
     CuisineDesc VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE NEA_Officer (
+CREATE TABLE NeaOfficer (
     OfficerID CHAR(5) PRIMARY KEY,
     OfficerName VARCHAR(100) NOT NULL,
-    OfficerContactNo CHAR(8) UNIQUE NOT NULL
+    OfficerContactNo CHAR(8) UNIQUE NOT NULL,
+    Email VARCHAR(50) UNIQUE NOT NULL,
+    Password VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE Operator (
@@ -93,6 +95,7 @@ CREATE TABLE MenuItem (
     ItemDesc VARCHAR(1000),
     ItemPrice SMALLMONEY NOT NULL,
     ItemCategory VARCHAR(50) NOT NULL,
+    ImagePath VARCHAR(255) NULL,
     PRIMARY KEY (StallID, ItemCode),
     FOREIGN KEY (StallID) REFERENCES FoodStall(StallID),
     CONSTRAINT chk_item_price CHECK (ItemPrice > 0.00)
@@ -117,7 +120,7 @@ CREATE TABLE Inspection (
     GradeExpiry DATE NOT NULL,
     OfficerID CHAR(5) NOT NULL,
     StallID CHAR(5) NOT NULL,
-    FOREIGN KEY (OfficerID) REFERENCES NEA_Officer(OfficerID),
+    FOREIGN KEY (OfficerID) REFERENCES NeaOfficer(OfficerID),
     FOREIGN KEY (StallID) REFERENCES FoodStall(StallID),
     CONSTRAINT chk_hygiene_grade CHECK (HygieneGrade IN ('A', 'B', 'C', 'D')),
     CONSTRAINT chk_grade_expiry CHECK (GradeExpiry > InspectionDate)
@@ -215,17 +218,17 @@ SELECT 'All tables created successfully!' AS Status;
 -- ============================================
 
 -- Customer (10 rows)
-INSERT INTO Customer (CustomerID, CustNRIC, CustName, CustContactNo, CustEmail) VALUES
-('C0001', 'S1234567A', 'Tan Wei Ming', '91234567', 'weiming.tan@email.com'),
-('C0002', 'S2345678B', 'Lim Hui Ling', '92345678', 'huiling.lim@email.com'),
-('C0003', 'S3456789C', 'Kumar Rajesh', '93456789', 'rajesh.kumar@email.com'),
-('C0004', 'S4567890D', 'Chen Xiao Hong', '94567890', 'xiaohong.chen@email.com'),
-('C0005', 'S5678901E', 'Muhammad Faizal', '95678901', 'faizal.m@email.com'),
-('C0006', 'S6789012F', 'Wong Mei Ling', '96789012', 'meiling.wong@email.com'),
-('C0007', 'S7890123G', 'Ravi Shankar', NULL, 'ravi.shankar@email.com'),
-('C0008', 'S8901234H', 'Siti Nurhaliza', '98901234', NULL),
-('C0009', 'S9012345I', 'David Tan', '99012345', 'david.tan@email.com'),
-('C0010', NULL, 'Sarah Lim', '90123456', 'sarah.lim@email.com');
+INSERT INTO Customer (CustomerID, CustName, CustContactNo, CustEmail, Password) VALUES
+('C0001', 'Tan Wei Ming', '91234567', 'weiming.tan@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0002', 'Lim Hui Ling', '92345678', 'huiling.lim@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0003', 'Kumar Rajesh', '93456789', 'rajesh.kumar@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0004', 'Chen Xiao Hong', '94567890', 'xiaohong.chen@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0005', 'Muhammad Faizal', '95678901', 'faizal.m@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0006', 'Wong Mei Ling', '96789012', 'meiling.wong@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0007', 'Ravi Shankar', '93231515', 'ravi.shankar@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0008', 'Siti Nurhaliza', '98901234', 'siti.n@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0009', 'David Tan', '99012345', 'david.tan@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('C0010', 'Sarah Lim', '90123456', 'sarah.lim@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK');
 
 -- Cuisine (8 rows)
 INSERT INTO Cuisine (CuisineID, CuisineDesc) VALUES
@@ -239,13 +242,13 @@ INSERT INTO Cuisine (CuisineID, CuisineDesc) VALUES
 ('CU008', 'Vietnamese');
 
 -- NEA_Officer (6 rows)
-INSERT INTO NEA_Officer (OfficerID, OfficerName, OfficerContactNo) VALUES
-('O0001', 'Tan Boon Huat', '67001234'),
-('O0002', 'Lee Siew Lan', '67001235'),
-('O0003', 'Krishnan Muthu', '67001236'),
-('O0004', 'Ahmad bin Hassan', '67001237'),
-('O0005', 'Chong Wei Jie', '67001238'),
-('O0006', 'Fatimah binti Ali', '67001239');
+INSERT INTO NeaOfficer (OfficerID, OfficerName, OfficerContactNo, Email, Password) VALUES
+('O0001', 'Tan Boon Huat', '67001234', 'tanboonhuat@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('O0002', 'Lee Siew Lan', '67001235', 'leesiewlan@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('O0003', 'Krishnan Muthu', '67001236', 'krishnan@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('O0004', 'Ahmad bin Hassan', '67001237', 'ahmadbinhassan@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('O0005', 'Chong Wei Jie', '67001238', 'chongweijie@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('O0006', 'Fatimah binti Ali', '67001239', 'fatimahbintiali@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK');
 
 -- Operator (5 rows) - Password left NULL, to be set later
 INSERT INTO Operator (OperatorID, OperatorName, ContactPerson, Email, Password) VALUES
@@ -344,37 +347,38 @@ INSERT INTO CustOrder (OrderID, OrderDate, PmtType, CustomerID) VALUES
 -- ============================================
 
 -- MenuItem (30 rows - 2 items per stall)
-INSERT INTO MenuItem (StallID, ItemCode, ItemDesc, ItemPrice, ItemCategory) VALUES
-('ST001', 'IT001', 'Chicken Rice (Roasted)', 4.50, 'Main'),
-('ST001', 'IT002', 'Chicken Rice (Steamed)', 4.00, 'Main'),
-('ST002', 'IT003', 'Plain Prata', 1.50, 'Main'),
-('ST002', 'IT004', 'Egg Prata', 2.00, 'Main'),
-('ST003', 'IT005', 'Char Kway Teow', 5.00, 'Main'),
-('ST003', 'IT006', 'Fried Hokkien Prawn Mee', 5.50, 'Main'),
-('ST004', 'IT007', 'Laksa', 5.00, 'Main'),
-('ST004', 'IT008', 'Laksa with Cockles', 6.00, 'Main'),
-('ST005', 'IT009', 'Nasi Lemak', 3.50, 'Main'),
-('ST005', 'IT010', 'Nasi Lemak with Fried Chicken', 5.50, 'Main'),
-('ST006', 'IT011', 'Hokkien Mee (Small)', 4.00, 'Main'),
-('ST006', 'IT012', 'Hokkien Mee (Large)', 5.50, 'Main'),
-('ST007', 'IT013', 'Hainanese Chicken Rice', 4.50, 'Main'),
-('ST007', 'IT014', 'Roasted Pork Rice', 5.00, 'Main'),
-('ST008', 'IT015', 'Chicken Satay (10 sticks)', 8.00, 'Main'),
-('ST008', 'IT016', 'Mutton Satay (10 sticks)', 9.00, 'Main'),
-('ST009', 'IT017', 'Mixed Vegetable Rice', 3.50, 'Main'),
-('ST009', 'IT018', 'Vegetarian Bee Hoon', 3.00, 'Main'),
-('ST010', 'IT019', 'BBQ Chicken Wings (5 pcs)', 6.00, 'Main'),
-('ST010', 'IT020', 'BBQ Chicken Wings (10 pcs)', 11.00, 'Main'),
-('ST011', 'IT021', 'Fried Carrot Cake (White)', 4.00, 'Main'),
-('ST011', 'IT022', 'Fried Carrot Cake (Black)', 4.00, 'Main'),
-('ST012', 'IT023', 'Mixed Veg Rice (2 veg 1 meat)', 4.00, 'Main'),
-('ST012', 'IT024', 'Mixed Veg Rice (3 veg 2 meat)', 5.50, 'Main'),
-('ST013', 'IT025', 'Teochew Porridge Set A', 5.00, 'Main'),
-('ST013', 'IT026', 'Teochew Porridge Set B', 6.50, 'Main'),
-('ST014', 'IT027', 'Wanton Mee (Dry)', 4.50, 'Main'),
-('ST014', 'IT028', 'Wanton Mee (Soup)', 4.50, 'Main'),
-('ST015', 'IT029', 'Oyster Omelette (Small)', 5.00, 'Main'),
-('ST015', 'IT030', 'Oyster Omelette (Large)', 7.00, 'Main');
+INSERT INTO MenuItem (StallID, ItemCode, ItemDesc, ItemPrice, ItemCategory, ImagePath) VALUES
+('ST001', 'IT001', 'Chicken Rice (Roasted)', 4.50, 'Main', '\uploads\menu-items\chicken_rice_roasted.jpg'),
+('ST001', 'IT002', 'Chicken Rice (Steamed)', 4.00, 'Main', '\uploads\menu-items\chicken_rice_steamed.jpg'),
+('ST002', 'IT003', 'Plain Prata', 1.50, 'Main', '\uploads\menu-items\plain_prata.jpg'),
+('ST002', 'IT004', 'Egg Prata', 2.00, 'Main', '\uploads\menu-items\egg_prata.jpg'),
+('ST003', 'IT005', 'Char Kway Teow', 5.00, 'Main', '\uploads\menu-items\char_kway_teow.jpg'),
+--==================================================================================================
+('ST003', 'IT006', 'Fried Hokkien Prawn Mee', 5.50, 'Main', Null),
+('ST004', 'IT007', 'Laksa', 5.00, 'Main', Null),
+('ST004', 'IT008', 'Laksa with Cockles', 6.00, 'Main',Null),
+('ST005', 'IT009', 'Nasi Lemak', 3.50, 'Main', Null),
+('ST005', 'IT010', 'Nasi Lemak with Fried Chicken', 5.50, 'Main',Null),
+('ST006', 'IT011', 'Hokkien Mee (Small)', 4.00, 'Main',Null),
+('ST006', 'IT012', 'Hokkien Mee (Large)', 5.50, 'Main',Null),
+('ST007', 'IT013', 'Hainanese Chicken Rice', 4.50, 'Main',Null),
+('ST007', 'IT014', 'Roasted Pork Rice', 5.00, 'Main',Null),
+('ST008', 'IT015', 'Chicken Satay (10 sticks)', 8.00, 'Main',Null),
+('ST008', 'IT016', 'Mutton Satay (10 sticks)', 9.00, 'Main',Null),
+('ST009', 'IT017', 'Mixed Vegetable Rice', 3.50, 'Main',Null),
+('ST009', 'IT018', 'Vegetarian Bee Hoon', 3.00, 'Main',Null),
+('ST010', 'IT019', 'BBQ Chicken Wings (5 pcs)', 6.00, 'Main',Null),
+('ST010', 'IT020', 'BBQ Chicken Wings (10 pcs)', 11.00, 'Main',Null),
+('ST011', 'IT021', 'Fried Carrot Cake (White)', 4.00, 'Main',Null),
+('ST011', 'IT022', 'Fried Carrot Cake (Black)', 4.00, 'Main',Null),
+('ST012', 'IT023', 'Mixed Veg Rice (2 veg 1 meat)', 4.00, 'Main',Null),
+('ST012', 'IT024', 'Mixed Veg Rice (3 veg 2 meat)', 5.50, 'Main',Null),
+('ST013', 'IT025', 'Teochew Porridge Set A', 5.00, 'Main',Null),
+('ST013', 'IT026', 'Teochew Porridge Set B', 6.50, 'Main',Null),
+('ST014', 'IT027', 'Wanton Mee (Dry)', 4.50, 'Main',Null),
+('ST014', 'IT028', 'Wanton Mee (Soup)', 4.50, 'Main',Null),
+('ST015', 'IT029', 'Oyster Omelette (Small)', 5.00, 'Main',Null),
+('ST015', 'IT030', 'Oyster Omelette (Large)', 7.00, 'Main',Null);
 
 -- Add some drinks and desserts
 INSERT INTO MenuItem (StallID, ItemCode, ItemDesc, ItemPrice, ItemCategory) VALUES

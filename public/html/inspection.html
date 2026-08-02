@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hawker Queue — Inspection</title>
+<link rel="stylesheet" href="../css/order.css" />
+<link rel="stylesheet" href="../css/manage-order.css" />
+<link rel="stylesheet" href="../css/compliance.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">🧪</span>
+      <div>
+        <h1>Hawker Queue</h1>
+        <p class="tagline">NEA Inspection & Hygiene Grading</p>
+      </div>
+    </div>
+    <div class="who">
+      <label>Inspecting as</label>
+      <button id="whoBtn" class="who-pill">Loading...</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-view="record">Record Inspection</button>
+    <button class="tab" data-view="grade">Update Grade</button>
+  </nav>
+
+  <main class="manage-main">
+
+    <!-- RECORD INSPECTION VIEW -->
+    <section id="view-record" class="view active">
+      <div class="form-card">
+        <h2>New Inspection</h2>
+
+        <label for="stallSelect">Stall</label>
+        <select id="stallSelect"></select>
+
+        <label for="gradeSelect">Hygiene Grade</label>
+        <select id="gradeSelect">
+          <option value="A">A — Excellent</option>
+          <option value="B">B — Good</option>
+          <option value="C">C — Fair</option>
+          <option value="D">D — Poor</option>
+        </select>
+
+        <label for="expiryInput">Grade Expiry Date</label>
+        <input type="date" id="expiryInput" />
+
+        <label for="remarksInput">Remarks (one per line)</label>
+        <textarea id="remarksInput" rows="4" placeholder="Kitchen surfaces clean and well maintained.&#10;All food handling certificates up to date."></textarea>
+
+        <button id="submitInspectionBtn" class="save-btn" type="button">Submit Inspection</button>
+        <p id="inspectionMsg" class="action-msg"></p>
+      </div>
+    </section>
+
+    <!-- UPDATE GRADE VIEW -->
+    <section id="view-grade" class="view">
+      <div class="lookup-row">
+        <label for="inspectionIdInput">Inspection ID</label>
+        <input type="text" id="inspectionIdInput" placeholder="e.g. IN001" maxlength="5" />
+        <button id="lookupInspectionBtn" type="button">Look up</button>
+      </div>
+      <p id="gradeLookupMsg" class="lookup-msg"></p>
+
+      <div id="gradeDetail" class="order-detail hidden">
+        <h2>Inspection <span id="inspectionIdLabel"></span></h2>
+        <p class="order-meta"><span id="inspectionStallLabel"></span> · <span id="inspectionDateLabel"></span></p>
+
+        <label for="updateGradeSelect">Hygiene Grade</label>
+        <select id="updateGradeSelect">
+          <option value="A">A — Excellent</option>
+          <option value="B">B — Good</option>
+          <option value="C">C — Fair</option>
+          <option value="D">D — Poor</option>
+        </select>
+
+        <label for="updateExpiryInput">Grade Expiry Date</label>
+        <input type="date" id="updateExpiryInput" />
+
+        <button id="saveGradeBtn" class="save-btn" type="button">Save Grade</button>
+        <p id="gradeMsg" class="action-msg"></p>
+      </div>
+    </section>
+
+  </main>
+
+<script src="../js/compliance.js"></script>
+</body>
+</html>

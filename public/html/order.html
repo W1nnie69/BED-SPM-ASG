@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <title>Hawker Queue — Order</title>
-<link rel="stylesheet" href="order.css" />
+<link rel="stylesheet" href="../css/order.css" />
 </head>
 <body>
 
@@ -18,14 +20,15 @@
     </div>
 
     <div class="who">
-      <label for="customerSelect">Ordering as</label>
-      <select id="customerSelect"></select>
+      <label>Ordering as</label>
+      <button id="whoBtn" class="who-pill">Loading...</button>
     </div>
   </header>
 
   <nav class="tabs">
     <button class="tab active" data-view="order">Order</button>
     <button class="tab" data-view="history">Order History</button>
+    <button class="tab" data-view="liked">Liked</button>
   </nav>
 
   <main>
@@ -75,8 +78,14 @@
       <h2 class="section-title">Past Orders</h2>
       <div id="historyList" class="history-list"></div>
     </section>
+
+    <!-- LIKED VIEW -->
+    <section id="view-liked" class="view">
+      <h2 class="section-title">Liked Food Items</h2>
+      <div id="likedList" class="history-list"></div>
+    </section>
   </main>
 
-  <script src="order.js"></script>
+  <script src="../js/order.js"></script>
 </body>
 </html>

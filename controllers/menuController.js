@@ -1,4 +1,5 @@
 const menuModel = require("../models/menuModel");
+const jwt = require("jsonwebtoken");
 
 async function getMenuByStall(req, res) {
     try {
@@ -12,14 +13,11 @@ async function getMenuByStall(req, res) {
     }
 }
 
+// Protected by verifyToken in app.js — req.user is set by that middleware
 async function addMenuItem(req, res) {
     try {
         const { stallId } = req.params;
-        const ownerId = req.session.userId;
-
-        if (!ownerId) {
-            return res.status(401).json({ error: "Not logged in" });
-        }
+        const ownerId = req.user.userId;
 
         const owns = await menuModel.ownsStall(ownerId, stallId);
         if (!owns) {
@@ -27,9 +25,13 @@ async function addMenuItem(req, res) {
         }
 
         const { itemCode, ItemDesc, ItemPrice, ItemCategory } = req.body;
-        await menuModel.addMenuItem(stallId, itemCode, { ItemDesc, ItemPrice, ItemCategory });
 
-        res.status(201).json({ message: "Menu item added" });
+        // multer puts the uploaded file info on req.file when using upload.single()
+        const ImagePath = req.file ? `/uploads/menu-items/${req.file.filename}` : null;
+
+        await menuModel.addMenuItem(stallId, itemCode, { ItemDesc, ItemPrice, ItemCategory, ImagePath });
+
+        res.status(201).json({ message: "Menu item added", imagePath: ImagePath });
 
     } catch (error) {
         console.error("Controller error: ", error);
@@ -37,14 +39,11 @@ async function addMenuItem(req, res) {
     }
 }
 
+// Protected by verifyToken in app.js — req.user is set by that middleware
 async function updateMenuItem(req, res) {
     try {
         const { stallId, code } = req.params;
-        const ownerId = req.session.userId;
-
-        if (!ownerId) {
-            return res.status(401).json({ error: "Not logged in" });
-        }
+        const ownerId = req.user.userId;
 
         const owns = await menuModel.ownsStall(ownerId, stallId);
         if (!owns) {
@@ -66,14 +65,11 @@ async function updateMenuItem(req, res) {
     }
 }
 
+// Protected by verifyToken in app.js — req.user is set by that middleware
 async function deleteMenuItem(req, res) {
     try {
         const { stallId, code } = req.params;
-        const ownerId = req.session.userId;
-
-        if (!ownerId) {
-            return res.status(401).json({ error: "Not logged in" });
-        }
+        const ownerId = req.user.userId;
 
         const owns = await menuModel.ownsStall(ownerId, stallId);
         if (!owns) {
@@ -91,6 +87,42 @@ async function deleteMenuItem(req, res) {
     } catch (error) {
         console.error("Controller error: ", error);
         res.status(500).json({ error: "Error deleting menu item" });
+    }
+}
+
+/**
+ * GET /api/stall/:stallId/owns
+ * NOT behind verifyToken — needs to work gracefully whether the visitor is
+ * logged in or not (frontend calls this just to decide whether to show the
+ * "add item" form). Manually decodes the token if one is present.
+ */
+async function checkOwnership(req, res) {
+    try {
+        const { stallId } = req.params;
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+
+        if (!token) {
+            return res.json({ owns: false });
+        }
+
+        jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+            if (err) {
+                return res.json({ owns: false });
+            }
+
+            try {
+                const owns = await menuModel.ownsStall(decoded.userId, stallId);
+                res.json({ owns });
+            } catch (error) {
+                console.error("Controller error: ", error);
+                res.status(500).json({ error: "Error checking ownership" });
+            }
+        });
+
+    } catch (error) {
+        console.error("Controller error: ", error);
+        res.status(500).json({ error: "Error checking ownership" });
     }
 }
 
@@ -113,9 +145,10 @@ async function getAllMenuItems(req, res) {
 }
 
 module.exports = {
-    getMenuByStall, 
-    addMenuItem, 
-    updateMenuItem, 
+    getMenuByStall,
+    addMenuItem,
+    updateMenuItem,
     deleteMenuItem,
-    getAllMenuItems 
+    checkOwnership,
+    getAllMenuItems
 }

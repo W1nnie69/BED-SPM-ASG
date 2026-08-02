@@ -1,7 +1,7 @@
 const sql = require("mssql");
 const dbConfig = require("../dbConfig");
 const orderModel = require("../models/orderModel");
-
+ 
 /**
  * POST /api/order/create
  * SHMS-7: Add multiple items in one order as Customer
@@ -10,7 +10,7 @@ const orderModel = require("../models/orderModel");
 async function createOrder(req, res) {
   try {
     const { customerId, stallId, paymentMethod, items } = req.body;
-
+ 
     if (!customerId || !stallId) {
       return res.status(400).json({ error: "customerId and stallId are required." });
     }
@@ -32,21 +32,21 @@ async function createOrder(req, res) {
         .status(400)
         .json({ error: `paymentMethod must be one of: ${validMethods.join(", ")}` });
     }
-
+ 
     const newOrder = await orderModel.createOrderWithItems({
       customerId,
       stallId,
       paymentMethod,
       items
     });
-
+ 
     return res.status(201).json({ message: "Order created successfully", order: newOrder });
   } catch (err) {
     console.error("createOrder error:", err.message);
     return res.status(500).json({ error: "Failed to create order.", details: err.message });
   }
 }
-
+ 
 /**
  * GET /api/order/history/:customerId
  * SHMS-9: Check order history as Customer
@@ -57,13 +57,13 @@ async function getOrderHistory(req, res) {
     if (!customerId) {
       return res.status(400).json({ error: "customerId is required." });
     }
-
+ 
     const history = await orderModel.getOrderHistoryByCustomer(customerId);
-
+ 
     if (history.length === 0) {
       return res.status(200).json({ message: "No orders found for this customer.", orders: [] });
     }
-
+ 
     return res.status(200).json({ orders: history });
   } catch (err) {
     console.error("getOrderHistory error:", err.message);
@@ -72,7 +72,7 @@ async function getOrderHistory(req, res) {
       .json({ error: "Failed to retrieve order history.", details: err.message });
   }
 }
-
+ 
 /**
  * GET /api/order/byId/:orderId
  * Supporting endpoint used to verify a single order (useful for Postman/demo)
@@ -83,19 +83,19 @@ async function getOrderDetail(req, res) {
     if (!orderId) {
       return res.status(400).json({ error: "orderId is required." });
     }
-
+ 
     const order = await orderModel.getOrderById(orderId);
     if (!order) {
       return res.status(404).json({ error: `Order ${orderId} not found.` });
     }
-
+ 
     return res.status(200).json({ order });
   } catch (err) {
     console.error("getOrderDetail error:", err.message);
     return res.status(500).json({ error: "Failed to retrieve order.", details: err.message });
   }
 }
-
+ 
 /**
  * GET /api/order/customers
  * Minimal read-only helper for the order page's "ordering as" dropdown.
@@ -116,5 +116,66 @@ async function getCustomersForOrdering(req, res) {
     return res.status(500).json({ error: "Failed to retrieve customers.", details: err.message });
   }
 }
-
-module.exports = { createOrder, getOrderHistory, getOrderDetail, getCustomersForOrdering };
+ 
+/**
+ * PUT /api/order/update/:orderId
+ * Replace the item list on an existing order (change quantities, add/remove items).
+ * body: { items: [{ itemCode, quantity }] }
+ */
+async function updateOrder(req, res) {
+  try {
+    const { orderId } = req.params;
+    const { items } = req.body;
+ 
+    if (!orderId) {
+      return res.status(400).json({ error: "orderId is required." });
+    }
+    if (!Array.isArray(items) || items.length === 0) {
+      return res
+        .status(400)
+        .json({ error: "items must be a non-empty array of { itemCode, quantity }." });
+    }
+    for (const item of items) {
+      if (!item.itemCode || !item.quantity || item.quantity <= 0) {
+        return res.status(400).json({
+          error: "Each item requires a valid itemCode and a quantity greater than 0."
+        });
+      }
+    }
+ 
+    const updatedOrder = await orderModel.updateOrderItems(orderId, items);
+    return res.status(200).json({ message: "Order updated successfully", order: updatedOrder });
+  } catch (err) {
+    console.error("updateOrder error:", err.message);
+    return res.status(500).json({ error: "Failed to update order.", details: err.message });
+  }
+}
+ 
+/**
+ * DELETE /api/order/cancel/:orderId
+ * Cancels (deletes) an order and its items.
+ */
+async function cancelOrder(req, res) {
+  try {
+    const { orderId } = req.params;
+    if (!orderId) {
+      return res.status(400).json({ error: "orderId is required." });
+    }
+ 
+    const result = await orderModel.cancelOrder(orderId);
+    return res.status(200).json({ message: `Order ${orderId} cancelled successfully.`, result });
+  } catch (err) {
+    console.error("cancelOrder error:", err.message);
+    return res.status(500).json({ error: "Failed to cancel order.", details: err.message });
+  }
+}
+ 
+module.exports = {
+  createOrder,
+  getOrderHistory,
+  getOrderDetail,
+  getCustomersForOrdering,
+  updateOrder,
+  cancelOrder
+};
+ 
