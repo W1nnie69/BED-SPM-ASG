@@ -15,7 +15,7 @@ const stallIdInput = document.getElementById("stallId");
 
     // ---- Auth helpers ----
     function getToken() {
-      return localStorage.getItem("token");
+      return localStorage.getItem("jwtToken");
     }
 
     function authHeaders() {
