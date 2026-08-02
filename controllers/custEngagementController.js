@@ -64,28 +64,79 @@ async function unlikeFood(req, res) {
     }
 }
 
+// Retrieves the total number of likes for a food item
+async function getLikeCount(req, res) {
+
+    const { stallId, itemCode } = req.params;
+
+    try {
+
+        const likeCount = await likeModel.getLikeCount(
+            stallId,
+            itemCode
+        );
+
+        res.status(200).json({
+            stallId,
+            itemCode,
+            likeCount
+        });
+
+    } catch (error) {
+
+        console.error("Controller error:", error);
+
+        res.status(500).json({
+            error: "Error retrieving like count."
+        });
+
+    }
+}
+
+// Checks whether a customer has liked a food item
+async function hasLikedFood(req, res) {
+
+    const { customerId, stallId, itemCode } = req.params;
+
+    try {
+
+        const liked = await likeModel.hasLikedFood(
+            customerId,
+            stallId,
+            itemCode
+        );
+
+        res.status(200).json({
+            liked
+        });
+
+    } catch (error) {
+
+        console.error("Controller error:", error);
+
+        res.status(500).json({
+            error: "Error checking like status."
+        });
+
+    }
+}
+
 
 
 //RATINGS & COMMENTS
 // Handles a customer's request to submit a rating and comment
 async function addFeedback(req, res) {
-
     const {
-        fbkID,
         fbkComment,
         fbkRating,
-        fbkDateTime,
         customerId,
         stallId
     } = req.body;
 
     try {
-
         await likeModel.addFeedback(
-            fbkID,
             fbkComment,
             fbkRating,
-            fbkDateTime,
             customerId,
             stallId
         );
@@ -95,13 +146,11 @@ async function addFeedback(req, res) {
         });
 
     } catch (error) {
-
         console.error("Controller error:", error);
 
         res.status(500).json({
             error: "Error submitting rating and comment."
         });
-
     }
 }
 
@@ -158,12 +207,39 @@ async function deleteFeedback(req, res) {
     }
 }
 
+// Retrieves the average rating and total number of ratings for a stall
+async function getStallRating(req, res) {
+
+    const stallId = req.params.stallId;
+
+    try {
+
+        const ratingData = await likeModel.getStallRating(stallId);
+
+        res.status(200).json({
+            avgRating: Number(ratingData.avgRating),
+            count: ratingData.count
+        });
+
+    } catch (error) {
+
+        console.error("Controller error:", error);
+
+        res.status(500).json({
+            error: "Error retrieving stall rating."
+        });
+
+    }
+}
 
 module.exports = {
     likeFood,
     getLikedFoods,
     unlikeFood,
+    getLikeCount,
+    hasLikedFood,
     addFeedback,
     updateFeedback,
-    deleteFeedback
+    deleteFeedback,
+    getStallRating
 };

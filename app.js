@@ -14,6 +14,7 @@ const userController = require("./controllers/userController");
 const orderController = require("./controllers/orderController");
 const menuController = require("./controllers/menuController");
 const custEngagementController = require("./controllers/custEngagementController");
+const complianceController = require("./controllers/complianceController");
 
 
 // create app
@@ -31,7 +32,7 @@ const userMiddlewares = require("./middlewares/userMiddlewares");
 // API ROUTES...
 
 //=================================================== Dani's Routes ==============================================================
-app.get("/api/users", userController.getAllUsers);
+// app.get("/api/users", userController.getAllUsers);
 
 // app.get("/api/user/byId/:id", userController.getUserById);
 
@@ -47,32 +48,40 @@ app.get("/api/:userType/get-dashboard/:id", userMiddlewares.verifyToken, userMid
 
 app.get("/api/user/get-profile/:id", userMiddlewares.verifyToken, userMiddlewares.checkIfUserQueryingMatchesID, userController.getUserProfile);
 
-app.put("/api/user/update-profile/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator']), userMiddlewares.checkIfUserQueryingMatchesID, userController.updateUserProfile);
+app.put("/api/user/update-profile/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator', 'Customer', 'NeaOfficer']), userMiddlewares.checkIfUserQueryingMatchesID, userController.updateUserProfile);
 
-app.put("/api/user/update-password/:id", userController.updatePassword);
+app.put("/api/user/update-password/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator', 'Customer', 'NeaOfficer']), userMiddlewares.checkIfUserQueryingMatchesID, userController.updatePassword);
 
 app.post("/api/:userType/signup", userController.registerUser);
 
 
 //=================================================== Jeff's Routes ================================================================
 // Get all liked food items for a customer
-app.get('/likes/:customerId', custEngagementController.getLikedFoods);
+app.get('/api/likes/:customerId', custEngagementController.getLikedFoods);
 
 // Route for liking a food item
-app.post('/likes', custEngagementController.likeFood);
+app.post('/api/likes', custEngagementController.likeFood);
 
 // Unlike a food item
-app.delete('/likes', custEngagementController.unlikeFood);
+app.delete('/api/likes', custEngagementController.unlikeFood);
+
+// Get total like count for a food item
+app.get('/api/likes/count/:stallId/:itemCode',custEngagementController.getLikeCount);
+
+// Check if a customer has liked a food item
+app.get('/api/likes/status/:customerId/:stallId/:itemCode',custEngagementController.hasLikedFood);
 
 //Submit a rating and comment
-app.post('/feedback', custEngagementController.addFeedback);
+app.post('/api/feedback', custEngagementController.addFeedback);
 
 //Edit their rating and comment
-app.put('/feedback/:fbkID', custEngagementController.updateFeedback);
+app.put('/api/feedback/:fbkID', custEngagementController.updateFeedback);
 
 //Delete their rating and comment
-app.delete('/feedback/:fbkID', custEngagementController.deleteFeedback);
+app.delete('/api/feedback/:fbkID', custEngagementController.deleteFeedback);
 
+// Get average rating and number of ratings for a stall
+app.get('/api/feedback/stall/:stallId',custEngagementController.getStallRating);
 
 //reset password not fully implemented yet on the frontend
  app.put("/api/user/updatepass/:id", userController.updatePassword); 
@@ -96,6 +105,17 @@ app.get("/api/order/customers", userMiddlewares.verifyToken, orderController.get
 
 // MENU ROUTES (read-only helper for the order page)
 app.get("/api/menu", menuController.getAllMenuItems);
+
+// INSPECTION / HYGIENE / ANALYTICS ROUTES (SHMS-18, SHMS-19, SHMS-20)
+app.post("/api/inspection/create", complianceController.createInspection);
+app.get("/api/inspection/byId/:inspectionId", complianceController.getInspectionDetail);
+app.put("/api/inspection/:inspectionId/grade", complianceController.updateHygieneGrade);
+app.get("/api/inspection/history/:stallId", complianceController.getHygieneHistory);
+app.get("/api/analytics/stall-performance/:operatorId", complianceController.getStallPerformance);
+
+app.get("/api/inspection/officers", complianceController.getOfficersList);
+app.get("/api/inspection/operators", complianceController.getOperatorsList);
+app.get("/api/inspection/stalls", complianceController.getStallsList);
 
 //=================================================== WEBSITE ROUTES ==================================================================
 
@@ -131,6 +151,14 @@ app.get("/menu", (req, res) => {
 });
 app.get("/order", (req, res) => {
     res.sendFile(path.join(__dirname, 'public/html', 'order.html'));
+});
+
+app.get("/inspection", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/html', 'inspection.html'));
+});
+
+app.get("/analytics", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/html', 'analytics.html'));
 });
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

@@ -16,6 +16,7 @@ const historyListEl = document.getElementById("historyList");
 const tabs = document.querySelectorAll(".tab");
 const views = document.querySelectorAll(".view");
 const payButtons = document.querySelectorAll(".pay-btn");
+const likedListEl = document.getElementById("likedList");
 
 // ---------- Tabs ----------
 tabs.forEach((tab) => {
@@ -26,6 +27,7 @@ tabs.forEach((tab) => {
     views.forEach((v) => v.classList.remove("active"));
     document.getElementById(`view-${target}`).classList.add("active");
     if (target === "history") loadHistory();
+    if (target === "liked") loadLikedFoods();
   });
 });
 
@@ -67,7 +69,7 @@ async function initWho() {
   });
 
   try {
-    const res = await fetch(`/api/Customer/get-profile/${userId}`, {
+    const res = await fetch(`/api/user/get-profile/${userId}`, {
       headers: { "Authorization": `Bearer ${jwtToken}` }
     });
     const data = await res.json();
@@ -95,7 +97,7 @@ function renderMenu() {
   const byStall = {};
   menuItems.forEach((item) => {
     if (!byStall[item.StallID]) {
-      byStall[item.StallID] = { name: item.StallName, items: [] };
+      byStall[item.StallID] = { stallId: item.StallID, name: item.StallName, items: [] };
     }
     byStall[item.StallID].items.push(item);
   });
@@ -107,8 +109,15 @@ function renderMenu() {
 
     const heading = document.createElement("div");
     heading.className = "stall-heading";
-    heading.innerHTML = `<h3>${escapeHtml(stall.name)}</h3>`;
+    heading.innerHTML = `<h3>${escapeHtml(stall.name)}</h3>
+     <span class="stall-stars" data-stall-id="${stall.stallId}">☆☆☆☆☆</span>
+      <span class="stall-rating-count">(0)</span>
+      <a class="rate-btn" href="/rating.html?stallId=${encodeURIComponent(stall.stallId)}" 
+      title="Rate this stall">⭐ Rate</a>`;
     group.appendChild(heading);
+
+    // Load and display this stall's average rating
+    loadStallRating(stall.stallId, heading);
 
     const grid = document.createElement("div");
     grid.className = "item-grid";
@@ -120,9 +129,26 @@ function renderMenu() {
         <span class="category">${escapeHtml(item.ItemCategory)}</span>
         <span class="name">${escapeHtml(item.ItemDesc)}</span>
         <span class="price">$${Number(item.ItemPrice).toFixed(2)}</span>
-        <button class="add-btn" type="button">Add to chit</button>
+
+        <div class="food-actions">
+          <button class="add-btn" type="button">Add to chit</button>
+          <button class="like-btn" type="button"><span class="like-icon">♡</span> Like (<span class="like-count">0</span>)</button>
+        </div>
       `;
       card.querySelector(".add-btn").addEventListener("click", () => addToCart(item));
+
+      const likeBtn = card.querySelector(".like-btn");
+      const likeCounter = card.querySelector(".like-count");
+      // Load total likes from database
+      loadLikeCount(item, likeCounter);
+
+      // Load whether current customer has liked this item
+      loadLikeStatus(item, likeBtn, likeCounter);
+
+      // Like or unlike food when button is clicked
+      likeBtn.addEventListener("click", () => {
+        toggleLike(item, likeBtn);
+      });
       grid.appendChild(card);
     });
 
@@ -297,3 +323,221 @@ function escapeHtml(str) {
   await initWho();
   await loadMenu();
 })();
+
+
+
+// ---------- Like / Unlike Food ----------
+
+async function toggleLike(item, likeBtn) {
+
+  if (!currentCustomerId) {
+    alert("Please log in to like a food item.");
+    return;
+  }
+
+  const jwtToken = localStorage.getItem("jwtToken");
+  const isLiked = likeBtn.dataset.liked === "true";
+
+  try {
+
+    likeBtn.disabled = true;
+
+    const res = await fetch("/api/likes", {
+      method: isLiked ? "DELETE" : "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${jwtToken}`
+      },
+      body: JSON.stringify({
+        customerId: currentCustomerId,
+        stallId: item.StallID,
+        itemCode: item.ItemCode
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Unable to update like.");
+    }
+
+    // Update liked status
+    likeBtn.dataset.liked = (!isLiked).toString();
+
+    // Get latest like count
+    const countRes = await fetch(
+      `/api/likes/count/${item.StallID}/${item.ItemCode}`
+    );
+
+    const countData = await countRes.json();
+
+    if (!countRes.ok) {
+      throw new Error(countData.error || "Unable to load like count.");
+    }
+
+    // Update button directly
+    setLikeButtonState(likeBtn, likeBtn.dataset.liked === "true", countData.likeCount);
+
+  } catch (err) {
+
+    console.error("Like error:", err);
+    alert(err.message);
+
+  } finally {
+
+    likeBtn.disabled = false;
+
+  }
+}
+
+
+// ---------- Load Like Count ----------
+
+async function loadLikeCount(item, likeCounter) {
+
+  try {
+
+    const res = await fetch(
+      `/api/likes/count/${item.StallID}/${item.ItemCode}`
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Unable to load like count.");
+    }
+
+    likeCounter.textContent = data.likeCount;
+
+  } catch (err) {
+
+    console.error("Load like count error:", err);
+
+    likeCounter.textContent = "0";
+
+  }
+}
+
+
+function setLikeButtonState(likeBtn, liked, count) {
+  const icon = likeBtn.querySelector(".like-icon");
+  const counter = likeBtn.querySelector(".like-count");
+  icon.textContent = liked ? "♥" : "♡";
+  counter.textContent = count;
+  // update the visible label text without touching the icon/counter spans
+  likeBtn.childNodes[1].textContent = liked ? " Unlike (" : " Like (";
+}
+
+
+// ---------- Load Like Status ----------
+
+async function loadLikeStatus(item, likeBtn, likeCounter) {
+
+  if (!currentCustomerId) {
+
+    likeBtn.dataset.liked = "false";
+
+    return;
+  }
+
+  try {
+
+    const res = await fetch(
+      `/api/likes/status/${currentCustomerId}/${item.StallID}/${item.ItemCode}`
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        data.error || "Unable to load like status."
+      );
+    }
+
+    likeBtn.dataset.liked = data.liked.toString();
+
+    // Update button text using current count
+    const count = likeCounter.textContent;
+
+    setLikeButtonState(likeBtn, data.liked, likeCounter.textContent);
+
+  } catch (err) {
+
+    console.error("Load like status error:", err);
+
+  }
+}
+
+// ---------- Liked foods ----------
+async function loadLikedFoods() {
+  // Guests have no customer ID to look up likes for
+  if (!currentCustomerId) {
+    likedListEl.innerHTML = '<p class="history-empty">Log in to view your liked food items.</p>';
+    return;
+  }
+  likedListEl.innerHTML = '<p class="history-empty">Loading…</p>';
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const res = await fetch(`/api/likes/${currentCustomerId}`, {
+      headers: { "Authorization": `Bearer ${jwtToken}` }
+    });
+    const likedFoods = await res.json();
+
+    if (!res.ok) throw new Error(likedFoods.error || "Unable to load liked items.");
+
+    // No liked items yet — show empty state instead of a blank list
+    if (likedFoods.length === 0) {
+      likedListEl.innerHTML = '<p class="history-empty">You haven\'t liked any food items yet.</p>';
+      return;
+    }
+
+    likedListEl.innerHTML = "";
+    // Render one card per liked item, reusing the .history-card style
+    // from Order History so it matches the rest of the UI
+    likedFoods.forEach((food) => {
+      const card = document.createElement("div");
+      card.className = "history-card";
+      card.innerHTML = `
+        <div class="hc-top">
+          <span class="hc-stall">${escapeHtml(food.ItemDesc)}</span>
+          <span class="hc-date">${escapeHtml(food.ItemCategory)}</span>
+        </div>
+        <div class="hc-total">$${Number(food.ItemPrice).toFixed(2)}</div>
+      `;
+      likedListEl.appendChild(card);
+    });
+  } catch (err) {
+    likedListEl.innerHTML = '<p class="history-empty">Could not load liked items.</p>';
+    console.error(err);
+  }
+}
+
+// ---------- Stall ratings ----------
+
+// Converts an average rating number into a filled/empty star string
+function renderStars(avgRating) {
+  const rounded = Math.round(avgRating);
+  return "★".repeat(rounded) + "☆".repeat(5 - rounded);
+}
+
+// Fetches and displays a stall's average rating next to its name
+async function loadStallRating(stallId, headingEl) {
+  try {
+    const res = await fetch(`/api/feedback/stall/${stallId}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Unable to load rating.");
+    }
+
+    headingEl.querySelector(".stall-stars").textContent =
+      renderStars(data.avgRating);
+
+    headingEl.querySelector(".stall-rating-count").textContent =
+      `(${Math.round(data.avgRating)})`;
+
+  } catch (err) {
+    console.error("Load stall rating error:", err);
+  }
+}
+

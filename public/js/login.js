@@ -44,7 +44,14 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     }
     console.log(response);
     // Send the user to whatever page comes after login.
-    window.location.href = '/dashboard';
+    if (data.userType === "Customer") {
+      window.location.href = '/order';
+    } else if (data.userType === "NeaOfficer") {
+      window.location.href = '/inspection';
+    } else {
+      window.location.href = '/dashboard';
+    }
+
 
   } catch (error) {
     showBanner(errorBanner, error.message);
