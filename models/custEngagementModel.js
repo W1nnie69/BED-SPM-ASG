@@ -131,24 +131,33 @@ async function hasLikedFood(customerId, stallId, itemCode) {
 
 //RATINGS & COMMENTS
 //RATINGS & COMMENTS
-// Adds a customer's rating and comment for a food stall
 async function addFeedback(fbkComment, fbkRating, customerId, stallId) {
     try {
         const pool = await poolPromise;
 
-        // Convert values to the correct format
         const comment = String(fbkComment || '');
         const rating = parseInt(fbkRating, 10);
         const customer = String(customerId || '').trim();
         const stall = String(stallId || '').trim();
 
-        console.log("========== ADD FEEDBACK ==========");
-        console.log("Comment:", comment);
-        console.log("Rating:", rating);
-        console.log("CustomerID:", customer, "Length:", customer.length);
-        console.log("StallID:", stall, "Length:", stall.length);
-        console.log("==================================");
+        // Check if customer already reviewed this stall
+        const checkQuery = `
+            SELECT COUNT(*) AS FeedbackExists
+            FROM Feedback
+            WHERE CustomerID = @customerId
+            AND StallID = @stallId
+        `;
 
+        const checkResult = await pool.request()
+            .input('customerId', sql.Char(5), customer)
+            .input('stallId', sql.Char(5), stall)
+            .query(checkQuery);
+
+        if (checkResult.recordset[0].FeedbackExists > 0) {
+            throw new Error('You have already submitted a review for this stall.');
+        }
+
+        // Insert new feedback
         const query = `
             DECLARE @newFbkID CHAR(5);
 
@@ -161,8 +170,7 @@ async function addFeedback(fbkComment, fbkRating, customerId, stallId) {
             )
             FROM Feedback;
 
-            INSERT INTO Feedback
-            (
+            INSERT INTO Feedback (
                 FbkID,
                 FbkComment,
                 FbkRating,
@@ -170,8 +178,7 @@ async function addFeedback(fbkComment, fbkRating, customerId, stallId) {
                 CustomerID,
                 StallID
             )
-            VALUES
-            (
+            VALUES (
                 @newFbkID,
                 @fbkComment,
                 @fbkRating,
@@ -181,16 +188,12 @@ async function addFeedback(fbkComment, fbkRating, customerId, stallId) {
             );
         `;
 
-        const request = pool.request();
-
-        request.input('fbkComment', sql.VarChar(1000), comment);
-        request.input('fbkRating', sql.Int, rating);
-        request.input('customerId', sql.Char(5), customer);
-        request.input('stallId', sql.Char(5), stall);
-
-        await request.query(query);
-
-        console.log("Feedback added successfully.");
+        await pool.request()
+            .input('fbkComment', sql.VarChar(1000), comment)
+            .input('fbkRating', sql.Int, rating)
+            .input('customerId', sql.Char(5), customer)
+            .input('stallId', sql.Char(5), stall)
+            .query(query);
 
     } catch (error) {
         console.error("Model error in addFeedback:", error);
@@ -199,7 +202,7 @@ async function addFeedback(fbkComment, fbkRating, customerId, stallId) {
 }
 
 // Updates a customer's rating and comment for existing feedback
-async function updateFeedback(fbkID, fbkComment, fbkRating) {
+async function updateFeedback(fbkID, fbkComment, fbkRating, customerId) {
     try {
         const pool = await poolPromise;
 
@@ -208,13 +211,18 @@ async function updateFeedback(fbkID, fbkComment, fbkRating) {
             SET FbkComment = @fbkComment,
                 FbkRating = @fbkRating
             WHERE FbkID = @fbkID
+            AND CustomerID = @customerId
         `;
 
-        await pool.request()
+        const result = await pool.request()
             .input('fbkID', sql.Char(5), fbkID)
             .input('fbkComment', sql.VarChar(1000), fbkComment)
             .input('fbkRating', sql.Int, fbkRating)
+            .input('customerId', sql.Char(5), customerId)
             .query(query);
+
+        return result.rowsAffected[0];
+
     } catch (error) {
         console.error("Model error in updateFeedback:", error);
         throw error;
@@ -222,18 +230,23 @@ async function updateFeedback(fbkID, fbkComment, fbkRating) {
 }
 
 // Deletes existing feedback from the Feedback table
-async function deleteFeedback(fbkID) {
+async function deleteFeedback(fbkID, customerId) {
     try {
         const pool = await poolPromise;
 
         const query = `
             DELETE FROM Feedback
             WHERE FbkID = @fbkID
+            AND CustomerID = @customerId
         `;
 
-        await pool.request()
+        const result = await pool.request()
             .input('fbkID', sql.Char(5), fbkID)
+            .input('customerId', sql.Char(5), customerId)
             .query(query);
+
+        return result.rowsAffected[0];
+
     } catch (error) {
         console.error("Model error in deleteFeedback:", error);
         throw error;

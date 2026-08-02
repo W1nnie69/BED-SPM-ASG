@@ -156,54 +156,64 @@ async function addFeedback(req, res) {
 
 // Handles a customer's request to edit their rating and comment
 async function updateFeedback(req, res) {
-
     const fbkID = req.params.fbkID;
     const { fbkComment, fbkRating } = req.body;
+    const customerId = req.user.userId;
 
     try {
-
-        await likeModel.updateFeedback(
+        const updated = await likeModel.updateFeedback(
             fbkID,
             fbkComment,
-            fbkRating
+            fbkRating,
+            customerId
         );
+
+        if (updated === 0) {
+            return res.status(403).json({
+                error: "You can only edit your own feedback."
+            });
+        }
 
         res.status(200).json({
             message: "Rating and comment updated successfully."
         });
 
     } catch (error) {
-
         console.error("Controller error:", error);
 
         res.status(500).json({
             error: "Error updating rating and comment."
         });
-
     }
 }
 
 // Handles a customer's request to delete their rating and comment
 async function deleteFeedback(req, res) {
-
     const fbkID = req.params.fbkID;
+    const customerId = req.user.userId;
 
     try {
+        const deleted = await likeModel.deleteFeedback(
+            fbkID,
+            customerId
+        );
 
-        await likeModel.deleteFeedback(fbkID);
+        if (deleted === 0) {
+            return res.status(403).json({
+                error: "You can only delete your own feedback."
+            });
+        }
 
         res.status(200).json({
             message: "Rating and comment deleted successfully."
         });
 
     } catch (error) {
-
         console.error("Controller error:", error);
 
         res.status(500).json({
             error: "Error deleting rating and comment."
         });
-
     }
 }
 
