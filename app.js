@@ -21,31 +21,21 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // middleware
+app.use(express.static(path.join(__dirname, "public")));
 const upload = require("./middleware/upload");
 app.use(express.json());
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 2 // session lasts 2 hours
-  }
-}));
+const userMiddlewares = require("./middlewares/userMiddlewares");
 
-// test routes
 
-app.get("/", (req, res) => {
-    res.redirect("https://www.youtube.com/watch?v=DLzxrzFCyOs");
-})
 
 // API ROUTES...
 
 //=================================================== Dani's Routes ==============================================================
 app.get("/api/users", userController.getAllUsers);
 
-app.get("/api/user/byId/:id", userController.getUserById);
+// app.get("/api/user/byId/:id", userController.getUserById);
 
-app.get("/api/user/byEmail/:email", userController.getUserByEmail);
+// app.get("/api/user/byEmail/:email", userController.getUserByEmail);
 
 app.post("/api/user/forgot-password", userController.forgotPassword);
 
@@ -53,19 +43,16 @@ app.post("/api/user/reset-password", userController.resetPassword);
 
 app.post("/api/login", userController.loginAuth);
 
-app.get("/api/user/get-dashboard/:id", userController.getDashboard);
+app.get("/api/:userType/get-dashboard/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator']), userMiddlewares.checkIfUserQueryingMatchesID, userController.getDashboard);
 
-app.post("/api/logout", (req, res) => {
-    req.session.destroy(() => {
-        res.clearCookie('connect.sid');
-        res.status(200).json({ message: "Logged out"});
-    });
-});
+app.get("/api/user/get-profile/:id", userMiddlewares.verifyToken, userMiddlewares.checkIfUserQueryingMatchesID, userController.getUserProfile);
 
-// Dani's TEST API ROUTES
-app.get("/api/operator", userController.getAllOperator);
+app.put("/api/user/update-profile/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator']), userMiddlewares.checkIfUserQueryingMatchesID, userController.updateUserProfile);
 
-app.get("/api/stallowner", userController.getAllStallOwner);
+app.put("/api/user/update-password/:id", userController.updatePassword);
+
+app.post("/api/:userType/signup", userController.registerUser);
+
 
 //=================================================== Jeff's Routes ================================================================
 // Get all liked food items for a customer
@@ -103,12 +90,17 @@ app.get("/api/order/customers", orderController.getCustomersForOrdering);
 app.get("/api/menu", menuController.getAllMenuItems);
 
 //=================================================== WEBSITE ROUTES ==================================================================
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/html', 'index.html'));
+})
+
 app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
 app.get("/signup", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'signup.html'));
+    res.sendFile(path.join(__dirname, 'public', 'sign-up.html'));
 });
 
 app.get("/forgot-password", (req, res) => {
@@ -122,12 +114,17 @@ app.get("/reset-password", (req, res) => {
 app.get("/dashboard", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
+
+app.get("/profile", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+});
+
 app.get("/menu", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'menu.html'));
 });
 
 app.get("/order", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'order.html'));
+    res.sendFile(path.join(__dirname, 'public/html', 'order.html'));
 });
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

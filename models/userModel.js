@@ -45,32 +45,36 @@ async function getAllUsers() {
 async function getUserById(id) {
     let connection;
 
+    let tableName;
+    let columnName;
+
+    if (id.startsWith("OW")) {
+        tableName = "StallOwner";
+        columnName = "OwnerID";
+
+    } else if (id.startsWith("OP")) {
+        tableName = "Operator";
+        columnName = "OperatorID";
+
+    } else if (id.startsWith("C")) {
+        tableName = "Customer";
+        columnName = "CustomerID";
+    }
+
     try {
         connection = await sql.connect(dbConfig);
 
+        let query = `SELECT * FROM ${tableName} WHERE ${columnName} = @id`
         // Check StallOwner
         const result = await connection.request()
             .input('id', sql.VarChar, id)
-            .query('SELECT * FROM StallOwner WHERE OwnerID = @id');
+            .query(query);
 
         if (result.recordset.length > 0) {
             // console.log(result);
-            return { result, "userType": "StallOwner" };
-
-        } else {
-            // Check Operator
-            const result = await connection.request()
-                .input('id', sql.VarChar, id)
-                .query('SELECT * FROM Operator WHERE OperatorID = @id');
-
-            if (result.recordset.length > 0) {
-                // console.log(result2);  
-                return { result, "userType": "Operator" };
-            
-            } else {
-                console.error("testModel: No user found")
-                return;
-            }
+            let data = result.recordset[0];
+            data.userType = tableName;
+            return data;
         }
         
     } catch (error) {
@@ -85,18 +89,22 @@ async function getUserById(id) {
 // get a specific user by their email
 async function getUserByEmail(email) {
     let connection;
-
+    
     try {
         connection = await sql.connect(dbConfig);
 
-        // Check StallOwner
+        // Check StallOwner  
         const result = await connection.request()
             .input('email', sql.VarChar, email)
             .query('SELECT * FROM StallOwner WHERE Email = @email');
 
         if (result.recordset.length > 0) {
             // console.log(result);
-            return { result, "userType": "StallOwner" };
+            let data = result.recordset[0];
+            data.userType = "StallOwner";
+            console.log(data);
+            
+            return data;
 
         } else {
             // Check Operator
@@ -106,11 +114,31 @@ async function getUserByEmail(email) {
 
             if (result.recordset.length > 0) {
                 // console.log(result2);  
-                return { result, "userType": "Operator" };
+                let data = result.recordset[0];
+                data.userType = "Operator";
+                console.log(data);
+
+                return data;
             
             } else {
-                console.error("testModel: No user found");
-                return;
+            
+                // Check Customer
+                const result = await connection.request()
+                    .input('email', sql.VarChar, email)
+                    .query('SELECT * FROM Operator WHERE Email = @email');
+
+                if (result.recordset.length > 0) {
+                    // console.log(result2);  
+                    let data = result.recordset[0];
+                    data.userType = "Operator";
+                    console.log(data);
+
+                    return data;
+
+                } else {
+                    console.error("testModel: No user found");
+                    return; 
+                }
             }
         }
         
@@ -164,20 +192,19 @@ async function updatePassword(id, hashedPassword) {
 
     const configTable = {
         StallOwner: { table: 'StallOwner', idColumn: 'OwnerID' },
-        Operator: { table: 'Operator', idColumn: 'OperatorID' }
+        Operator: { table: 'Operator', idColumn: 'OperatorID' },
+        Customer: { table: 'Customer', idColumn: 'CustomerID' }
     };
 
     try {
         // Find user row first.
         // check in stall owner table first
-
-        // Since the check it done on the controller now, this can be removed.
         
-        // ===================== TODO: Remove the section below ==================================================
-        const result = await getUserById(id);                                                   
-        if (result.result.recordset.length > 0) {                                             
+        const result = await getUserById(id); 
+                                                  
+        if (result) {                                             
             // update password                                                               
-            console.log("User found: ", result.result.recordset[0]);                          
+            console.log("User found: ", result);                          
                                                                                              
             // Checks whether is userType is a valid table name                                 
             // This is done to prevent sql injections as im using string interpolation below,    
@@ -197,6 +224,9 @@ async function updatePassword(id, hashedPassword) {
                 .input('hashedPassword', sql.VarChar, hashedPassword)
                 .query(query);
 
+            if (result2.rowsAffected[0] === 0) {
+                throw new Error("No matching user found to update.")
+            }
             return true;
 
         } else {
@@ -209,11 +239,208 @@ async function updatePassword(id, hashedPassword) {
         throw err;
 
     } finally {
-        safeClose();
+        safeClose(connection);
     }
 }
 
-async function getDashboard(OwnerId) {
+async function updateUserProfile(id, userNewData) {
+    let connection;
+    let tableName;
+    let idColumn;
+    let nameColumn;
+    let contactColumn;
+    let contactType;
+
+    // FOR req.body
+    let name;
+    let email;
+    let contact;
+
+    
+    //Check user type from ID...
+    // Why didnt i do this before...
+    if (id.startsWith("OW")) {
+        //Stall owner
+        tableName = "StallOwner";
+        idColumn = "OwnerID";
+        nameColumn = "OwnerName";
+        contactColumn = "OwnerContactNo";
+        contactType = sql.Char(8);
+        ({ name, email, contact } = { name: userNewData.name, email: userNewData.email, contact: userNewData.contactNo });
+
+    } else if (id.startsWith("OP")) {
+        //Operator
+        tableName = "Operator";
+        idColumn = "OperatorID";
+        nameColumn = "OperatorName";
+        contactColumn = "ContactPerson";
+        contactType = sql.VarChar(50);
+        ({ name, email, contact } = { name: userNewData.name, email: userNewData.email, contact: userNewData.contactPerson });
+
+    } else if (id.startsWith("C")) {
+        //Operator
+        tableName = "Customer";
+        idColumn = "CustomerID";
+        nameColumn = "CustName";
+        contactColumn = "CustContactNo";
+        contactType = sql.VarChar(50);
+        ({ name, email, contact } = { name: userNewData.name, email: userNewData.email, contact: userNewData.contactPerson });
+
+    }
+
+    if (!tableName) {
+        throw new Error(`Unrecognized ID format: ${id}`);
+    }
+
+    try {
+        connection = await sql.connect(dbConfig);
+
+        const query = `
+        UPDATE ${tableName} '
+        SET 
+            ${nameColumn} = @name,
+            Email = @email,
+            ${contactColumn} = @contact
+        WHERE ${idColumn} = @id;`
+
+        const result = await connection.request()
+            .input('id', sql.VarChar, id)
+            .input('name', sql.VarChar, name)
+            .input('email', sql.VarChar, email)
+            .input('contact', contactType, contact)
+            .query(query);
+
+        if (result.rowsAffected[0] === 0) {
+            throw new Error("No matching user found to update");
+        }
+
+        return true;
+
+    } catch (err) {
+        console.error("Model error: " + err.stack);
+        throw err;
+        return false;
+
+    } finally {
+        safeClose(connection);
+    }
+}
+
+async function signUpUser(userData) {
+    let connection;
+    let query;
+    let incrementQuery;
+    let idColumnName;
+    let idStartsWith;
+    let queryResult;
+
+    switch (userData.userType) {
+        case "StallOwner":
+            idStartsWith = "OW";
+            idColumnName = "OwnerID";
+            query = `
+                INSERT INTO StallOwner (OwnerID, OwnerName, OwnerNRIC, OwnerContactNo, Email, Password)
+                VALUES (@OwnerID, @OwnerName, @OwnerNRIC, @OwnerContactNo, @Email, @Password);
+            `;
+
+            incrementQuery = `
+                SELECT TOP 1 OwnerID FROM StallOwner ORDER BY OwnerID DESC;
+            `;
+
+        break;
+
+        case "Operator":
+            idStartsWith = "OP";
+            idColumnName = "OperatorID";
+            query = `
+                INSERT INTO Operator (OperatorID, OperatorName, ContactPerson, Email, Password)
+                VALUES (@OperatorID, @OperatorName, @ContactPerson, @Email, @Password);
+            `;
+
+            incrementQuery = `
+                SELECT TOP 1 OperatorID FROM Operator ORDER BY OperatorID DESC;
+            `;
+
+        break;
+
+        case "Customer":
+            idStartsWith = "C0";
+            idColumnName = "CustomerID";
+            query = `
+                INSERT INTO Customer (CustomerID, CustName, CustContactNo, CustEmail, Password)
+                VALUES (@CustomerID, @CustName, @CustContactNo, @CustEmail, @Password);
+            `;
+
+            incrementQuery = `
+                SELECT TOP 1 CustomerID FROM Customer ORDER BY CustomerID DESC;
+            `;
+        
+        break;
+    }
+
+    try {
+        connection = await sql.connect(dbConfig);
+        const incrementQueryResult = await connection.request().query(incrementQuery);    
+
+        let nextNumber = 1;
+        if (incrementQueryResult.recordset.length > 0) {
+            const lastId = incrementQueryResult.recordset[0][idColumnName]; // e.g. "OW014"
+            const lastNumber = parseInt(lastId.substring(2), 10); // "014" -> 14
+            nextNumber = lastNumber + 1;
+            console.log("Next id is: ", nextNumber);
+        }
+
+        
+        const newUserId = idStartsWith + String(nextNumber).padStart(3, '0');
+
+        switch (userData.userType) {
+            case "StallOwner":
+                queryResult = await connection.request()
+                                .input('OwnerID', sql.Char(5), newUserId)
+                                .input('OwnerName', sql.VarChar, userData.name)
+                                .input('OwnerNRIC', sql.Char(9), userData.nric)
+                                .input('OwnerContactNo', sql.Char(8), userData.contactNo)
+                                .input('Email', sql.VarChar, userData.email)
+                                .input('Password', sql.VarChar, userData.password)
+                                .query(query);
+
+                break;
+
+            case "Operator":
+                queryResult = await connection.request()
+                                .input('OperatorID', sql.Char(5), newUserId)
+                                .input('OperatorName', sql.VarChar, userData.name)
+                                .input('ContactPerson', sql.VarChar, userData.contactPerson)
+                                .input('Email', sql.VarChar, userData.email)
+                                .input('Password', sql.VarChar, userData.password)
+                                .query(query);
+
+                break;
+
+            case "Customer":
+                queryResult = await connection.request()
+                                .input('CustomerID', sql.Char(5), newUserId)
+                                .input('CustName', sql.VarChar, userData.name)
+                                .input('CustContactNo', sql.Char(8), userData.contactNo)
+                                .input('CustEmail', sql.VarChar, userData.email)
+                                .input('Password', sql.VarChar, userData.password)
+                                .query(query);
+
+                break;
+        }
+
+        return true;
+        
+    } catch (err) {
+        console.error("Model error: " + err.stack);
+        return false;
+
+    } finally {
+        safeClose(connection);
+    }
+}
+
+async function getStallOwnerDashboard(OwnerId) {
     let connection;
 
     const dashboardQuery = `
@@ -276,6 +503,116 @@ async function getDashboard(OwnerId) {
         .query(dashboardQuery);
 
         console.log(result);
+        if (result.recordsets.length > 0) {
+            return result;
+        }
+
+    } catch (error) {
+        console.error("DB error: ", error.stack);
+        throw error;
+    } finally {
+        safeClose(connection);
+    }
+}
+
+async function getOperatorDashboard(OperatorId) {
+    let connection;
+
+    const dashboardQuery = `
+        SELECT OperatorID, OperatorName
+        FROM Operator
+        WHERE OperatorID = @OperatorID;
+
+        SELECT
+            hc.HawkerCentreID, hc.HCName, hc.HCAddress,
+            COUNT(fs.StallID) AS StallCount
+        FROM HawkerCentre hc
+        LEFT JOIN FoodStall fs ON fs.HawkerCentreID = hc.HawkerCentreID
+        WHERE hc.OperatorID = @OperatorID
+        GROUP BY hc.HawkerCentreID, hc.HCName, hc.HCAddress;
+
+        SELECT
+            fs.StallID, fs.StallName, hc.HCName,
+            owner_info.OwnerName, owner_info.AgrStartDate, owner_info.AgrEndDate,
+            latest_grade.HygieneGrade
+        FROM FoodStall fs
+        JOIN HawkerCentre hc ON hc.HawkerCentreID = fs.HawkerCentreID
+        OUTER APPLY (
+            SELECT TOP 1 so.OwnerName, ra.AgrStartDate, ra.AgrEndDate
+            FROM RentalAgreement ra
+            JOIN StallOwner so ON so.OwnerID = ra.OwnerID
+            WHERE ra.StallID = fs.StallID
+            ORDER BY ra.AgrEndDate DESC
+        ) owner_info
+        OUTER APPLY (
+            SELECT TOP 1 i.HygieneGrade
+            FROM Inspection i
+            WHERE i.StallID = fs.StallID
+            ORDER BY i.InspectionDate DESC
+        ) latest_grade
+        WHERE hc.OperatorID = @OperatorID;
+
+        SELECT
+            fs.StallName, c.Category, f.FbkComment, f.FbkDateTime
+        FROM Complaint c
+        JOIN Feedback f ON f.FbkID = c.FbkID
+        JOIN FoodStall fs ON fs.StallID = f.StallID
+        JOIN HawkerCentre hc ON hc.HawkerCentreID = fs.HawkerCentreID
+        WHERE hc.OperatorID = @OperatorID
+        ORDER BY f.FbkDateTime DESC;
+
+        SELECT
+            fs.StallName, i.InspectionDate, i.OfficerID, i.HygieneGrade
+        FROM Inspection i
+        JOIN FoodStall fs ON fs.StallID = i.StallID
+        JOIN HawkerCentre hc ON hc.HawkerCentreID = fs.HawkerCentreID
+        WHERE hc.OperatorID = @OperatorID
+        ORDER BY i.InspectionDate DESC;
+
+        SELECT
+            (SELECT COUNT(*) FROM HawkerCentre WHERE OperatorID = @OperatorID) AS hawkerCentreCount,
+            (SELECT COUNT(*)
+             FROM FoodStall fs
+             JOIN HawkerCentre hc ON hc.HawkerCentreID = fs.HawkerCentreID
+             WHERE hc.OperatorID = @OperatorID) AS stallCount,
+            (SELECT COUNT(*)
+             FROM Complaint c
+             JOIN Feedback f ON f.FbkID = c.FbkID
+             JOIN FoodStall fs ON fs.StallID = f.StallID
+             JOIN HawkerCentre hc ON hc.HawkerCentreID = fs.HawkerCentreID
+             WHERE hc.OperatorID = @OperatorID) AS activeComplaints,
+            (
+                SELECT
+                    CASE ROUND(AVG(CASE i.HygieneGrade
+                        WHEN 'A' THEN 4.0
+                        WHEN 'B' THEN 3.0
+                        WHEN 'C' THEN 2.0
+                        WHEN 'D' THEN 1.0
+                    END), 0)
+                        WHEN 4 THEN 'A'
+                        WHEN 3 THEN 'B'
+                        WHEN 2 THEN 'C'
+                        WHEN 1 THEN 'D'
+                    END
+                FROM (
+                    SELECT i.StallID, i.HygieneGrade,
+                           ROW_NUMBER() OVER (PARTITION BY i.StallID ORDER BY i.InspectionDate DESC) AS rn
+                    FROM Inspection i
+                    JOIN FoodStall fs ON fs.StallID = i.StallID
+                    JOIN HawkerCentre hc ON hc.HawkerCentreID = fs.HawkerCentreID
+                    WHERE hc.OperatorID = @OperatorID
+                ) i
+                WHERE i.rn = 1
+            ) AS avgHygieneScore;
+        `;
+
+    try {
+        connection = await sql.connect(dbConfig);
+        const result = await connection.request()
+        .input('OperatorID', sql.Char(5), OperatorId)
+        .query(dashboardQuery);
+
+        console.log(result);
         if (result.recordset.length > 0) {
             return result;
         }
@@ -295,5 +632,8 @@ module.exports = {
     getAllOperator,
     getAllStallOwner,
     updatePassword,
-    getDashboard
+    getStallOwnerDashboard,
+    getOperatorDashboard,
+    updateUserProfile,
+    signUpUser
 }

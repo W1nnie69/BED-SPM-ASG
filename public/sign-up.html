@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Sign Up</title>
+<style>
+  :root {
+    --bg: #f6f4ef;
+    --surface: #ffffff;
+    --ink: #22201d;
+    --ink-soft: #6f6a62;
+    --line: #eae6dd;
+    --teal: #0f6e6e;
+    --teal-dark: #0a4f4f;
+    --teal-tint: #e4f2f1;
+    --spice: #d9822b;
+    --spice-tint: #fbeddc;
+    --chili: #c8553d;
+    --chili-tint: #f8e6e1;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --shadow-card: 0 1px 2px rgba(34, 32, 29, 0.04), 0 10px 30px -12px rgba(34, 32, 29, 0.12);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    background:
+      radial-gradient(1200px 500px at 100% -10%, rgba(15, 110, 110, 0.06), transparent 60%),
+      var(--bg);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--teal-tint);
+    color: var(--teal-dark);
+  }
+
+  .card {
+    background: var(--surface);
+    width: 100%;
+    max-width: 460px;
+    padding: 36px 34px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--line);
+  }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px -4px rgba(15, 110, 110, 0.5);
+  }
+
+  .brand-mark svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .brand-row h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  .card h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    margin: 0 0 4px;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+  }
+
+  .card p.subtitle {
+    margin: 0 0 24px;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- User type tabs ---------- */
+  .type-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 24px;
+    background: var(--bg);
+    padding: 5px;
+    border-radius: 12px;
+  }
+
+  .type-tab {
+    padding: 9px 6px;
+    text-align: center;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: transparent;
+    border: none;
+    border-radius: 9px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .type-tab.active {
+    background: var(--surface);
+    color: var(--teal-dark);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* ---------- Form ---------- */
+  .field {
+    margin-bottom: 16px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .field .hint {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    font-weight: 400;
+    margin-left: 4px;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--ink);
+    background: var(--surface);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .field input:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px var(--teal-tint);
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .contact-note {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin: -8px 0 16px;
+  }
+
+  button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background: var(--teal);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease, transform 0.1s ease;
+    margin-top: 4px;
+  }
+
+  button[type="submit"]:hover {
+    background: var(--teal-dark);
+  }
+
+  button[type="submit"]:active {
+    transform: scale(0.99);
+  }
+
+  button[type="submit"]:disabled {
+    background: var(--line);
+    color: var(--ink-soft);
+    cursor: not-allowed;
+  }
+
+  .login-link {
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 20px;
+  }
+
+  .login-link a {
+    color: var(--teal-dark);
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  .login-link a:hover {
+    text-decoration: underline;
+  }
+
+  .banner {
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  .banner.show {
+    display: block;
+  }
+
+  .banner.error {
+    background: var(--chili-tint);
+    border: 1px solid rgba(200, 85, 61, 0.25);
+    color: var(--chili);
+  }
+
+  .banner.success {
+    background: var(--teal-tint);
+    border: 1px solid rgba(15, 110, 110, 0.25);
+    color: var(--teal-dark);
+  }
+
+  @media (max-width: 480px) {
+    .field-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="brand-row">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 10L12 4L20 10V19C20 19.5523 19.5523 20 19 20H5C4.44772 20 4 19.5523 4 19V10Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M9 20V14H15V20" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1>Hawker Centre Portal</h1>
+    </div>
+
+    <h2>Create your account</h2>
+    <p class="subtitle">Choose an account type to get started</p>
+
+    <div class="banner error" id="errorBanner"></div>
+    <div class="banner success" id="successBanner"></div>
+
+    <div class="type-tabs" id="typeTabs">
+      <button type="button" class="type-tab active" data-type="Customer">Customer</button>
+      <button type="button" class="type-tab" data-type="StallOwner">Stall Owner</button>
+      <button type="button" class="type-tab" data-type="Operator">Operator</button>
+    </div>
+
+    <form id="signupForm">
+
+      <div class="field">
+        <label for="fieldName">Full Name</label>
+        <input type="text" id="fieldName" name="name" required>
+      </div>
+
+      <!-- Customer only: contact number and email (at least one required) -->
+      <div id="customerFields">
+        <div class="field-row">
+          <div class="field">
+            <label for="custContactNo">Contact Number</label>
+            <input type="text" id="custContactNo" name="custContactNo" maxlength="8">
+          </div>
+          <div class="field">
+            <label for="custEmail">Email</label>
+            <input type="email" id="custEmail" name="custEmail">
+          </div>
+        </div>
+        <!-- <p class="contact-note">Please provide at least a contact number or an email.</p> -->
+      </div>
+
+      <!-- Stall Owner only -->
+      <div id="stallOwnerFields" style="display:none;">
+        <div class="field-row">
+          <div class="field">
+            <label for="ownerNric">NRIC</label>
+            <input type="text" id="ownerNric" name="ownerNric" maxlength="9">
+          </div>
+          <div class="field">
+            <label for="ownerContactNo">Contact Number</label>
+            <input type="text" id="ownerContactNo" name="ownerContactNo" maxlength="8">
+          </div>
+        </div>
+        <div class="field">
+          <label for="ownerEmail">Email</label>
+          <input type="email" id="ownerEmail" name="ownerEmail">
+        </div>
+      </div>
+
+      <!-- Operator only -->
+      <div id="operatorFields" style="display:none;">
+        <div class="field">
+          <label for="opContactPerson">Contact Person</label>
+          <input type="text" id="opContactPerson" name="opContactPerson">
+        </div>
+        <div class="field">
+          <label for="opEmail">Email</label>
+          <input type="email" id="opEmail" name="opEmail">
+        </div>
+      </div>
+
+      <!-- Password fields: shown for Stall Owner / Operator only, since Customer has no password column -->
+      <div id="passwordFields" style="display:none;">
+        <div class="field-row">
+          <div class="field">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" minlength="8" autocomplete="new-password">
+          </div>
+          <div class="field">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" autocomplete="new-password">
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" id="signupBtn">Create account</button>
+    </form>
+
+    <p class="login-link">Already have an account? <a href="/login">Log in</a></p>
+  </div>
+
+  <script>
+    // ---------------------------------------------------------------
+    // CONFIG
+    // Assumed endpoint: POST /api/:userType/signup
+    // Body shape differs per type - see buildPayload() below.
+    // This route doesn't exist in your backend yet.
+    // ---------------------------------------------------------------
+    const API_BASE = 'http://localhost:3000/api';
+
+    let selectedType = 'Customer';
+
+    const tabs = document.querySelectorAll('.type-tab');
+    const customerFields = document.getElementById('customerFields');
+    const stallOwnerFields = document.getElementById('stallOwnerFields');
+    const operatorFields = document.getElementById('operatorFields');
+    const passwordFields = document.getElementById('passwordFields');
+
+    function setType(type) {
+      selectedType = type;
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.type === type));
+
+      customerFields.style.display = type === 'Customer' ? 'block' : 'none';
+      stallOwnerFields.style.display = type === 'StallOwner' ? 'block' : 'none';
+      operatorFields.style.display = type === 'Operator' ? 'block' : 'none';
+      // Customers have no password column in the database, so no password
+      // fields for them. Stall owners and operators both need one.
+      passwordFields.style.display = type === '....' ? 'none' : 'block';
+
+      hideBanners();
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => setType(tab.dataset.type));
+    });
+
+    function showBanner(el, message) {
+      el.textContent = message;
+      el.classList.add('show');
+    }
+
+    function hideBanners() {
+      document.getElementById('errorBanner').classList.remove('show');
+      document.getElementById('successBanner').classList.remove('show');
+    }
+
+    function buildPayload() {
+      const name = document.getElementById('fieldName').value.trim();
+
+      if (selectedType === 'Customer') {
+        return {
+          name,
+          contactNo: document.getElementById('custContactNo').value.trim() || null,
+          email: document.getElementById('custEmail').value.trim() || null,
+          password: document.getElementById('password').value
+        };
+      }
+
+      if (selectedType === 'StallOwner') {
+        return {
+          name,
+          nric: document.getElementById('ownerNric').value.trim(),
+          contactNo: document.getElementById('ownerContactNo').value.trim(),
+          email: document.getElementById('ownerEmail').value.trim(),
+          password: document.getElementById('password').value
+        };
+      }
+
+      // Operator
+      return {
+        name,
+        contactPerson: document.getElementById('opContactPerson').value.trim(),
+        email: document.getElementById('opEmail').value.trim(),
+        password: document.getElementById('password').value
+      };
+    }
+
+    function validate() {
+      const name = document.getElementById('fieldName').value.trim();
+      if (!name) {
+        return 'Please enter your name.';
+      }
+
+      if (selectedType === 'Customer') {
+        const contactNo = document.getElementById('custContactNo').value.trim();
+        const email = document.getElementById('custEmail').value.trim();
+        if (!contactNo && !email) {
+          return 'Please provide at least a contact number or an email.';
+        }
+
+        return null;
+      }
+
+      if (selectedType === 'StallOwner') {
+        const nric = document.getElementById('ownerNric').value.trim();
+        const contactNo = document.getElementById('ownerContactNo').value.trim();
+        const email = document.getElementById('ownerEmail').value.trim();
+        if (!nric || !contactNo || !email) {
+          return 'Please fill in NRIC, contact number, and email.';
+        }
+      }
+
+      if (selectedType === 'Operator') {
+        const contactPerson = document.getElementById('opContactPerson').value.trim();
+        const email = document.getElementById('opEmail').value.trim();
+        if (!contactPerson || !email) {
+          return 'Please fill in contact person and email.';
+        }
+      }
+
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      if (!password || !confirmPassword) {
+        return 'Please enter and confirm your password.';
+      }
+      if (password.length < 8) {
+        return 'Password must be at least 8 characters.';
+      }
+      if (password !== confirmPassword) {
+        return 'Passwords do not match.';
+      }
+
+      return null;
+    }
+
+    document.getElementById('signupForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      hideBanners();
+
+      const validationError = validate();
+      if (validationError) {
+        showBanner(document.getElementById('errorBanner'), validationError);
+        return;
+      }
+
+      const btn = document.getElementById('signupBtn');
+      btn.disabled = true;
+      btn.textContent = 'Creating account...';
+
+      try {
+        const response = await fetch(`${API_BASE}/${selectedType}/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(buildPayload())
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || `Could not create your account (status ${response.status}).`);
+        }
+
+        showBanner(document.getElementById('successBanner'), 'Account created. Redirecting to login...');
+        setTimeout(() => { window.location.href = '/login'; }, 1200);
+
+      } catch (error) {
+        showBanner(document.getElementById('errorBanner'), error.message || 'Something went wrong creating your account.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Create account';
+      }
+    });
+
+    setType('Customer');
+  </script>
+
+</body>
+</html>

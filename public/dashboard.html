@@ -3,8 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <title>Stall Owner Dashboard</title>
 <style>
+  :root {
+    --bg: #f6f4ef;
+    --surface: #ffffff;
+    --ink: #22201d;
+    --ink-soft: #6f6a62;
+    --line: #eae6dd;
+    --teal: #0f6e6e;
+    --teal-dark: #0a4f4f;
+    --teal-tint: #e4f2f1;
+    --spice: #d9822b;
+    --spice-tint: #fbeddc;
+    --chili: #c8553d;
+    --chili-tint: #f8e6e1;
+    --grade-a: #2f7d5b;
+    --grade-a-tint: #e2f2ea;
+    --grade-b: #b8862f;
+    --grade-b-tint: #faf1de;
+    --grade-c: #c1573f;
+    --grade-c-tint: #fbe9e4;
+    --grade-d: #a13f3f;
+    --grade-d-tint: #f7e2e2;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --shadow-card: 0 1px 2px rgba(34, 32, 29, 0.04), 0 10px 30px -12px rgba(34, 32, 29, 0.12);
+  }
+
   * {
     box-sizing: border-box;
   }
@@ -12,75 +40,156 @@
   body {
     margin: 0;
     min-height: 100vh;
-    background: #f2f4f7;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    color: #1f2937;
+    background:
+      radial-gradient(1200px 500px at 100% -10%, rgba(15, 110, 110, 0.06), transparent 60%),
+      var(--bg);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--teal-tint);
+    color: var(--teal-dark);
   }
 
   /* ---------- Top bar ---------- */
   .topbar {
-    background: #ffffff;
-    padding: 16px 28px;
+    background: var(--surface);
+    padding: 18px 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px -4px rgba(15, 110, 110, 0.5);
+  }
+
+  .brand-mark svg {
+    width: 19px;
+    height: 19px;
   }
 
   .topbar h1 {
-    font-size: 18px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 19px;
+    font-weight: 600;
     margin: 0;
-    color: #1f2937;
+    color: var(--ink);
+    letter-spacing: -0.01em;
   }
 
   .topbar .sub {
-    font-size: 13px;
-    color: #6b7280;
-    margin: 2px 0 0;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin: 1px 0 0;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
   }
 
   .topbar-right {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 18px;
+  }
+
+  #ownerLabel,
+  .owner-pill {
+   font-size: 13px;
+   color: var(--ink);
+   font-weight: 600;
+   background: var(--teal-tint);
+   padding: 7px 14px;
+   border-radius: 999px;
+   border: none;
+   font-family: inherit;
+   cursor: pointer;
+   display: inline-flex;
+   align-items: center;
+   gap: 6px;
+   transition: background 0.15s ease, color 0.15s ease;
+ }
+
+ .owner-pill::after {
+   content: '';
+   width: 6px;
+   height: 6px;
+   border-right: 1.6px solid currentColor;
+   border-bottom: 1.6px solid currentColor;
+   transform: rotate(-45deg);
+   margin-left: 2px;
+   opacity: 0.6;
+  } 
+
+ .owner-pill:hover {
+   background: var(--teal);
+   color: #fff;
   }
 
   .logout-btn {
-    padding: 8px 16px;
-    background: #4f46e5;
+    padding: 9px 18px;
+    background: var(--ink);
     color: #fff;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
   }
 
   .logout-btn:hover {
-    background: #4338ca;
+    background: var(--chili);
+  }
+
+  .logout-btn:active {
+    transform: scale(0.97);
   }
 
   /* ---------- Layout ---------- */
   .container {
-    max-width: 1100px;
-    margin: 28px auto;
-    padding: 0 20px;
+    max-width: 1120px;
+    margin: 32px auto 64px;
+    padding: 0 24px;
   }
 
   .greeting {
-    margin-bottom: 20px;
+    margin-bottom: 28px;
   }
 
   .greeting h2 {
-    margin: 0 0 4px;
-    font-size: 22px;
-    color: #1f2937;
+    font-family: 'Fraunces', Georgia, serif;
+    margin: 0 0 6px;
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.015em;
   }
 
   .greeting p {
     margin: 0;
-    font-size: 14px;
-    color: #6b7280;
+    font-size: 14.5px;
+    color: var(--ink-soft);
   }
 
   /* ---------- Stat cards ---------- */
@@ -88,97 +197,130 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
-    margin-bottom: 28px;
+    margin-bottom: 32px;
   }
 
   .stat-card {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    background: var(--surface);
+    padding: 20px 22px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    border-top: 3px solid var(--teal);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
 
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(34,32,29,0.05), 0 16px 32px -14px rgba(34, 32, 29, 0.18);
+  }
+
+  .stat-card:nth-child(2) { border-top-color: var(--spice); }
+  .stat-card:nth-child(3) { border-top-color: var(--chili); }
+  .stat-card:nth-child(4) { border-top-color: var(--teal-dark); }
+
   .stat-card .label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #6b7280;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--ink-soft);
     text-transform: uppercase;
-    letter-spacing: 0.03em;
-    margin-bottom: 8px;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
   }
 
   .stat-card .value {
-    font-size: 26px;
-    font-weight: 700;
-    color: #1f2937;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
   }
 
-  .stat-card .value.grade-a { color: #16a34a; }
-  .stat-card .value.grade-b { color: #d97706; }
+  .stat-card .value.grade-a { color: var(--grade-a); }
+  .stat-card .value.grade-b { color: var(--grade-b); }
 
   /* ---------- Cards ---------- */
   .card {
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    padding: 24px 28px;
-    margin-bottom: 24px;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 26px 28px;
+    margin-bottom: 22px;
+    border: 1px solid var(--line);
   }
 
   .card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
   }
 
   .card-header h3 {
     margin: 0;
-    font-size: 16px;
-    color: #1f2937;
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.005em;
   }
 
   .card-header .count {
     font-size: 12px;
-    color: #6b7280;
+    color: var(--ink-soft);
+    font-weight: 600;
+    background: var(--bg);
+    padding: 4px 10px;
+    border-radius: 999px;
   }
 
   .add-btn {
-    padding: 7px 14px;
-    background: #eef2ff;
-    color: #4f46e5;
-    border: 1px solid #c7d2fe;
-    border-radius: 8px;
+    padding: 8px 16px;
+    background: var(--teal-tint);
+    color: var(--teal-dark);
+    border: 1px solid transparent;
+    border-radius: 9px;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
+    transition: background 0.15s ease;
   }
 
   .add-btn:hover {
-    background: #e0e7ff;
+    background: var(--teal);
+    color: #fff;
   }
 
   /* ---------- Tables ---------- */
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 13.5px;
   }
 
   th {
     text-align: left;
-    font-size: 11px;
+    font-size: 10.5px;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: #6b7280;
-    padding: 8px 10px;
-    border-bottom: 1px solid #e5e7eb;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    color: var(--ink-soft);
+    padding: 0 12px 10px;
+    border-bottom: 1px solid var(--line);
   }
 
   td {
-    padding: 12px 10px;
-    border-bottom: 1px solid #f3f4f6;
-    color: #374151;
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+  }
+
+  tbody tr {
+    transition: background 0.12s ease;
+  }
+
+  tbody tr:hover {
+    background: var(--bg);
   }
 
   tr:last-child td {
@@ -186,20 +328,34 @@
   }
 
   .badge {
-    display: inline-block;
-    padding: 3px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 11px;
     border-radius: 999px;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.01em;
   }
 
-  .badge.a { background: #dcfce7; color: #16a34a; }
-  .badge.b { background: #fef3c7; color: #d97706; }
-  .badge.active { background: #eef2ff; color: #4f46e5; }
-  .badge.expired { background: #f3f4f6; color: #6b7280; }
+  .badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .badge.a { background: var(--grade-a-tint); color: var(--grade-a); }
+  .badge.b { background: var(--grade-b-tint); color: var(--grade-b); }
+  .badge.c { background: var(--grade-c-tint); color: var(--grade-c); }
+  .badge.d { background: var(--grade-d-tint); color: var(--grade-d); }
+  .badge.active { background: var(--teal-tint); color: var(--teal-dark); }
+  .badge.expired { background: #f1efe9; color: var(--ink-soft); }
+  .badge.open { background: var(--spice-tint); color: var(--spice); }
 
   .stars {
-    color: #f59e0b;
+    color: var(--spice);
     letter-spacing: 1px;
   }
 
@@ -207,12 +363,12 @@
   .two-col {
     display: grid;
     grid-template-columns: 1.3fr 1fr;
-    gap: 24px;
+    gap: 22px;
   }
 
   .feedback-item {
-    padding: 14px 0;
-    border-bottom: 1px solid #f3f4f6;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
   }
 
   .feedback-item:last-child {
@@ -223,28 +379,29 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
   }
 
   .feedback-item .cust {
-    font-weight: 600;
-    font-size: 13px;
-    color: #1f2937;
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--ink);
   }
 
   .feedback-item .date {
     font-size: 12px;
-    color: #9ca3af;
+    color: var(--ink-soft);
   }
 
   .feedback-item .comment {
-    font-size: 13px;
-    color: #6b7280;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.5;
   }
 
   .promo-item {
-    padding: 12px 0;
-    border-bottom: 1px solid #f3f4f6;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
   }
 
   .promo-item:last-child {
@@ -252,14 +409,15 @@
   }
 
   .promo-item .desc {
-    font-size: 13px;
-    color: #374151;
-    margin-bottom: 4px;
+    font-size: 13.5px;
+    color: var(--ink);
+    font-weight: 600;
+    margin-bottom: 5px;
   }
 
   .promo-item .range {
     font-size: 12px;
-    color: #9ca3af;
+    color: var(--ink-soft);
   }
 
   @media (max-width: 800px) {
@@ -273,7 +431,7 @@
 
   /* ---------- Loading / empty / error states ---------- */
   .skeleton {
-    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 37%, #f3f4f6 63%);
+    background: linear-gradient(90deg, #eeece5 25%, #e2dfd5 37%, #eeece5 63%);
     background-size: 400% 100%;
     animation: skeleton-loading 1.4s ease infinite;
     border-radius: 6px;
@@ -288,42 +446,72 @@
 
   .empty-row td {
     text-align: center;
-    color: #9ca3af;
+    color: var(--ink-soft);
     font-size: 13px;
-    padding: 24px 10px;
+    padding: 28px 10px;
   }
 
   .empty-note {
-    color: #9ca3af;
+    color: var(--ink-soft);
     font-size: 13px;
     padding: 12px 0;
   }
 
   .error-banner {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #b91c1c;
-    padding: 12px 16px;
-    border-radius: 8px;
+    background: var(--chili-tint);
+    border: 1px solid rgba(200, 85, 61, 0.25);
+    color: var(--chili);
+    padding: 13px 18px;
+    border-radius: var(--radius-md);
     font-size: 13px;
-    margin-bottom: 20px;
+    font-weight: 600;
+    margin-bottom: 22px;
     display: none;
   }
 
   .error-banner.show {
     display: block;
   }
+
+  .view {
+    display: none;
+  }
+
+  .view.active {
+    display: block;
+    animation: fade-in 0.3s ease;
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
 </style>
 </head>
 <body>
 
   <div class="topbar">
-    <div>
-      <h1>Hawker Centre Portal</h1>
-      <p class="sub">Stall Owner Dashboard</p>
+    <div class="topbar-brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 10L12 4L20 10V19C20 19.5523 19.5523 20 19 20H5C4.44772 20 4 19.5523 4 19V10Z" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M9 20V14H15V20" stroke="white" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Hawker Centre Portal</h1>
+        <p class="sub" id="portalSub">Stall Owner Dashboard</p>
+      </div>
     </div>
     <div class="topbar-right">
-      <span style="font-size:13px; color:#374151;" id="ownerLabel">Loading...</span>
+      <button id="ownerLabel" class="owner-pill">Loading...</button>
       <button class="logout-btn" id="logoutBtn">Log out</button>
     </div>
   </div>
@@ -334,120 +522,217 @@
 
     <div class="greeting">
       <h2 id="greetingName">Welcome back</h2>
-      <p>Here is what is happening with your stalls today</p>
+      <p id="greetingSub">Here is what is happening with your stalls today</p>
     </div>
 
-    <!-- Stat cards -->
-    <div class="stats">
-      <div class="stat-card">
-        <div class="label">My Stalls</div>
-        <div class="value" id="statStallCount"><span class="skeleton"></span></div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Hygiene Grade</div>
-        <div class="value" id="statHygieneGrade"><span class="skeleton"></span></div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Average Rating</div>
-        <div class="value" id="statAvgRating"><span class="skeleton"></span></div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Active Promotions</div>
-        <div class="value" id="statActivePromos"><span class="skeleton"></span></div>
-      </div>
-    </div>
+    <!-- ============================================================ -->
+    <!-- STALL OWNER VIEW                                              -->
+    <!-- ============================================================ -->
+    <div class="view" id="stallOwnerView">
 
-    <!-- My Stalls & Rental Agreement -->
-    <div class="card">
-      <div class="card-header">
-        <h3>My Stalls & Rental Agreement</h3>
-        <span class="count" id="stallsCount"></span>
+      <!-- Stat cards -->
+      <div class="stats">
+        <div class="stat-card">
+          <div class="label">My Stalls</div>
+          <div class="value" id="statStallCount"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Hygiene Grade</div>
+          <div class="value" id="statHygieneGrade"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Average Rating</div>
+          <div class="value" id="statAvgRating"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Active Promotions</div>
+          <div class="value" id="statActivePromos"><span class="skeleton"></span></div>
+        </div>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Stall ID</th>
-            <th>Stall Name</th>
-            <th>Unit No</th>
-            <th>Hawker Centre</th>
-            <th>Rental Price</th>
-            <th>Agreement Period</th>
-            <th>Hygiene Grade</th>
-          </tr>
-        </thead>
-        <tbody id="stallsTableBody">
-          <tr><td colspan="7"><div class="skeleton"></div></td></tr>
-        </tbody>
-      </table>
-    </div>
 
-    <!-- Menu Items -->
-    <div class="card">
-      <div class="card-header">
-        <h3>Menu Items</h3>
-        <button class="add-btn">+ Add Item</button>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Item Code</th>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Price</th>
-          </tr>
-        </thead>
-        <tbody id="menuTableBody">
-          <tr><td colspan="4"><div class="skeleton"></div></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="two-col">
-
-      <!-- Recent Feedback -->
+      <!-- My Stalls & Rental Agreement -->
       <div class="card">
         <div class="card-header">
-          <h3>Recent Customer Feedback</h3>
-          <span class="count" id="feedbackAvg"></span>
+          <h3>My Stalls & Rental Agreement</h3>
+          <span class="count" id="stallsCount"></span>
         </div>
-        <div id="feedbackList">
-          <div class="feedback-item"><div class="skeleton"></div></div>
-        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Stall ID</th>
+              <th>Stall Name</th>
+              <th>Unit No</th>
+              <th>Hawker Centre</th>
+              <th>Rental Price</th>
+              <th>Agreement Period</th>
+              <th>Hygiene Grade</th>
+            </tr>
+          </thead>
+          <tbody id="stallsTableBody">
+            <tr><td colspan="7"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
       </div>
 
-      <!-- Promotions -->
+      <!-- Menu Items -->
       <div class="card">
         <div class="card-header">
-          <h3>Promotions</h3>
-          <button class="add-btn">+ New</button>
+          <h3>Menu Items</h3>
+          <button class="add-btn">+ Add Item</button>
         </div>
-        <div id="promoList">
-          <div class="promo-item"><div class="skeleton"></div></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Item Code</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody id="menuTableBody">
+            <tr><td colspan="4"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="two-col">
+
+        <!-- Recent Feedback -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent Customer Feedback</h3>
+            <span class="count" id="feedbackAvg"></span>
+          </div>
+          <div id="feedbackList">
+            <div class="feedback-item"><div class="skeleton"></div></div>
+          </div>
         </div>
+
+        <!-- Promotions -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Promotions</h3>
+            <button class="add-btn">+ New</button>
+          </div>
+          <div id="promoList">
+            <div class="promo-item"><div class="skeleton"></div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Inspection History -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Inspection History</h3>
+          <span class="count">Latest first</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Inspection ID</th>
+              <th>Date</th>
+              <th>Officer</th>
+              <th>Grade</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody id="inspectionTableBody">
+            <tr><td colspan="5"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
       </div>
 
     </div>
 
-    <!-- Inspection History -->
-    <div class="card">
-      <div class="card-header">
-        <h3>Inspection History</h3>
-        <span class="count">Latest first</span>
+    <!-- ============================================================ -->
+    <!-- OPERATOR VIEW                                                 -->
+    <!-- ============================================================ -->
+    <div class="view" id="operatorView">
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="label">Hawker Centres</div>
+          <div class="value" id="op-statHCCount"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Total Stalls</div>
+          <div class="value" id="op-statStallCount"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Open Complaints</div>
+          <div class="value" id="op-statComplaints"><span class="skeleton"></span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Avg Hygiene Score</div>
+          <div class="value" id="op-statHygiene"><span class="skeleton"></span></div>
+        </div>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Inspection ID</th>
-            <th>Date</th>
-            <th>Officer</th>
-            <th>Grade</th>
-            <th>Remarks</th>
-          </tr>
-        </thead>
-        <tbody id="inspectionTableBody">
-          <tr><td colspan="5"><div class="skeleton"></div></td></tr>
-        </tbody>
-      </table>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>My Hawker Centres</h3>
+          <span class="count" id="op-hcCount"></span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Centre ID</th>
+              <th>Name</th>
+              <th>Address</th>
+              <th>Stalls</th>
+            </tr>
+          </thead>
+          <tbody id="op-hcTableBody">
+            <tr><td colspan="4"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Stalls Overview</h3>
+          <span class="count" id="op-stallsCount"></span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Stall ID</th>
+              <th>Stall Name</th>
+              <th>Hawker Centre</th>
+              <th>Owner</th>
+              <th>Rental Status</th>
+              <th>Hygiene Grade</th>
+            </tr>
+          </thead>
+          <tbody id="op-stallsTableBody">
+            <tr><td colspan="6"><div class="skeleton"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent Complaints</h3>
+            <span class="count" id="op-complaintsCount"></span>
+          </div>
+          <div id="op-complaintsList">
+            <div class="feedback-item"><div class="skeleton"></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent Inspections</h3>
+            <span class="count">Across all centres</span>
+          </div>
+          <div id="op-inspectionsList">
+            <div class="promo-item"><div class="skeleton"></div></div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -460,10 +745,23 @@
     // different way (e.g. a JWT you decode, or a server-rendered value).
     // ---------------------------------------------------------------
     const API_BASE = 'http://localhost:3000/api';
+    const jwtToken = localStorage.getItem('jwtToken');
+
+    if (!jwtToken) {
+      alert("Something went wrong...");
+      window.location.href = '/login';
+    }
 
     function getOwnerId() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('userId') || sessionStorage.getItem('userId') || 'OW002';
+      const id = sessionStorage.getItem('userId');
+      return id;
+    }
+
+    // Which dashboard to show: 'StallOwner' or 'Operator'.
+    // Set this in sessionStorage right after login succeeds, e.g.
+    // sessionStorage.setItem('userType', data.userType);
+    function getUserType() {
+      return sessionStorage.getItem('userType') || 'StallOwner';
     }
 
     function showError(message) {
@@ -501,16 +799,23 @@
       return now >= new Date(startDate) && now <= new Date(endDate);
     }
 
-    // ---------------------------------------------------------------
-    // RENDER FUNCTIONS
+    function isAgreementActive(startDate, endDate) {
+      const now = new Date();
+      return now >= new Date(startDate) && now <= new Date(endDate);
+    }
+
+    // =================================================================
+    // STALL OWNER DASHBOARD RENDER FUNCTIONS
     // Each one is defensive: if a field is missing it falls back
     // to a placeholder rather than throwing.
-    // ---------------------------------------------------------------
+    // =================================================================
     function renderOwner(owner) {
       const name = owner?.OwnerName || 'Stall Owner';
       const id = owner?.OwnerID || '';
+      document.getElementById('portalSub').textContent = 'Stall Owner Dashboard';
       document.getElementById('ownerLabel').textContent = id ? `${name} (${id})` : name;
       document.getElementById('greetingName').textContent = `Welcome back, ${name.split(' ')[0]}`;
+      document.getElementById('greetingSub').textContent = 'Here is what is happening with your stalls today';
     }
 
     function renderStats(stats, stallCountFallback, promoCountFallback) {
@@ -622,52 +927,215 @@
       `).join('');
     }
 
-    // ---------------------------------------------------------------
-    // LOAD
-    // Expects GET /api/stallowner/:ownerId/dashboard to return:
+    async function loadStallOwnerDashboard(ownerId) {
+      document.getElementById('stallOwnerView').classList.add('active');
+
+      const response = await fetch(`${API_BASE}/StallOwner/get-dashboard/${ownerId}`, {
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Could not load dashboard data (status ${response.status}).`);
+      }
+
+      const data = await response.json();
+
+      renderOwner(data.owner);
+      renderStalls(data.stalls || []);
+      renderMenuItems(data.menuItems || []);
+      renderFeedback(data.feedback || []);
+      renderPromotions(data.promotions || []);
+      renderInspections(data.inspections || []);
+      renderStats(
+        data.stats,
+        (data.stalls || []).length,
+        (data.promotions || []).filter(p => isPromoActive(p.PromoStartDate, p.PromoEndDate)).length
+      );
+    }
+
+    // =================================================================
+    // OPERATOR DASHBOARD RENDER FUNCTIONS
+    // Expects GET /api/Operator/get-dashboard/:id to return:
     // {
-    //   owner: { OwnerID, OwnerName },
-    //   stats: { stallCount, hygieneGrade, avgRating, activePromotions },
-    //   stalls: [...], menuItems: [...], feedback: [...],
-    //   promotions: [...], inspections: [...]
+    //   operator: { OperatorID, OperatorName },
+    //   stats: { hawkerCentreCount, stallCount, activeComplaints, avgHygieneScore },
+    //   hawkerCentres: [...], stalls: [...], complaints: [...], inspections: [...]
     // }
-    // Adjust the URL and the field names below to match your real API.
+    // =================================================================
+    function renderOperator(operator) {
+      const name = operator?.OperatorName || 'Operator';
+      const id = operator?.OperatorID || '';
+      document.getElementById('portalSub').textContent = 'Operator Dashboard';
+      document.getElementById('ownerLabel').textContent = id ? `${name} (${id})` : name;
+      document.getElementById('greetingName').textContent = `Welcome back, ${name.split(' ')[0]}`;
+      document.getElementById('greetingSub').textContent = 'Here is an overview of your hawker centres today';
+    }
+
+    function renderOperatorStats(stats, hcCountFallback, stallCountFallback) {
+      document.getElementById('op-statHCCount').textContent = stats?.hawkerCentreCount ?? hcCountFallback ?? '0';
+      document.getElementById('op-statStallCount').textContent = stats?.stallCount ?? stallCountFallback ?? '0';
+      document.getElementById('op-statComplaints').textContent = stats?.activeComplaints ?? '0';
+      document.getElementById('op-statHygiene').textContent = stats?.avgHygieneScore || '-';
+    }
+
+    function renderHawkerCentres(centres) {
+      const body = document.getElementById('op-hcTableBody');
+      document.getElementById('op-hcCount').textContent = `${centres.length} centre${centres.length === 1 ? '' : 's'}`;
+
+      if (!centres.length) {
+        body.innerHTML = '<tr class="empty-row"><td colspan="4">No hawker centres found for this account.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = centres.map(c => `
+        <tr>
+          <td>${c.HawkerCentreID ?? ''}</td>
+          <td>${c.HCName ?? ''}</td>
+          <td>${c.HCAddress ?? ''}</td>
+          <td>${c.StallCount ?? 0}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderOperatorStalls(stalls) {
+      const body = document.getElementById('op-stallsTableBody');
+      document.getElementById('op-stallsCount').textContent = `${stalls.length} stall${stalls.length === 1 ? '' : 's'}`;
+
+      if (!stalls.length) {
+        body.innerHTML = '<tr class="empty-row"><td colspan="6">No stalls found across your hawker centres.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = stalls.map(s => {
+        const active = s.AgrStartDate && s.AgrEndDate ? isAgreementActive(s.AgrStartDate, s.AgrEndDate) : false;
+        return `
+        <tr>
+          <td>${s.StallID ?? ''}</td>
+          <td>${s.StallName ?? ''}</td>
+          <td>${s.HCName ?? ''}</td>
+          <td>${s.OwnerName ?? 'Vacant'}</td>
+          <td><span class="badge ${s.OwnerName ? (active ? 'active' : 'expired') : ''}">${s.OwnerName ? (active ? 'Rented' : 'Lapsed') : 'Vacant'}</span></td>
+          <td><span class="badge ${gradeBadgeClass(s.HygieneGrade)}">${s.HygieneGrade ?? '-'}</span></td>
+        </tr>
+      `;
+      }).join('');
+    }
+
+    function renderComplaints(complaints) {
+      const list = document.getElementById('op-complaintsList');
+      document.getElementById('op-complaintsCount').textContent = `${complaints.length} open`;
+
+      if (!complaints.length) {
+        list.innerHTML = '<p class="empty-note">No complaints on record.</p>';
+        return;
+      }
+
+      list.innerHTML = complaints.map(c => `
+        <div class="feedback-item">
+          <div class="top-row">
+            <span class="cust">${c.StallName ?? c.StallID ?? ''} &middot; ${c.Category ?? ''}</span>
+            <span class="date">${formatDate(c.FbkDateTime)}</span>
+          </div>
+          <div class="comment">${c.FbkComment ?? ''}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderOperatorInspections(inspections) {
+      const list = document.getElementById('op-inspectionsList');
+      if (!inspections.length) {
+        list.innerHTML = '<p class="empty-note">No inspections on record.</p>';
+        return;
+      }
+      list.innerHTML = inspections.map(i => `
+        <div class="promo-item">
+          <div class="desc">${i.StallName ?? i.StallID ?? ''} &middot; ${formatDate(i.InspectionDate)}</div>
+          <div class="range">Officer ${i.OfficerID ?? ''} &middot;
+            <span class="badge ${gradeBadgeClass(i.HygieneGrade)}">${i.HygieneGrade ?? '-'}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function loadOperatorDashboard(operatorId) {
+      document.getElementById('operatorView').classList.add('active');
+
+      const response = await fetch(`${API_BASE}/Operator/get-dashboard/${operatorId}`, {
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Could not load dashboard data (status ${response.status}).`);
+      }
+
+      const data = await response.json();
+
+      renderOperator(data.operator);
+      renderHawkerCentres(data.hawkerCentres || []);
+      renderOperatorStalls(data.stalls || []);
+      renderComplaints(data.complaints || []);
+      renderOperatorInspections(data.inspections || []);
+      renderOperatorStats(
+        data.stats,
+        (data.hawkerCentres || []).length,
+        (data.stalls || []).length
+      );
+    }
+
+    // ---------------------------------------------------------------
+    // LOAD / ROUTER
+    // Checks userType (set in sessionStorage right after login) and
+    // calls the matching loader. Defaults to Stall Owner if unset.
     // ---------------------------------------------------------------
     async function loadDashboard() {
-      const ownerId = getOwnerId();
+      const id = getOwnerId();
+      const userType = getUserType();
 
       try {
-        const response = await fetch(`http://localhost:3000/api/user/get-dashboard/${ownerId}`);
-
-        if (!response.ok) {
-          throw new Error(`Could not load dashboard data (status ${response.status}).`);
+        if (userType === 'Operator') {
+          await loadOperatorDashboard(id);
+        } else {
+          document.getElementById('stallOwnerView').classList.add('active');
+          await loadStallOwnerDashboard(id);
         }
-
-        const data = await response.json();
-
-        renderOwner(data.owner);
-        renderStalls(data.stalls || []);
-        renderMenuItems(data.menuItems || []);
-        renderFeedback(data.feedback || []);
-        renderPromotions(data.promotions || []);
-        renderInspections(data.inspections || []);
-        renderStats(data.stats, (data.stalls || []).length, (data.promotions || []).filter(p => isPromoActive(p.PromoStartDate, p.PromoEndDate)).length);
 
       } catch (error) {
         showError(error.message || 'Something went wrong loading your dashboard. Please try again.');
-        document.getElementById('ownerLabel').textContent = 'Stall Owner';
-        document.getElementById('greetingName').textContent = 'Welcome back';
-        renderStalls([]);
-        renderMenuItems([]);
-        renderFeedback([]);
-        renderPromotions([]);
-        renderInspections([]);
-        renderStats({});
+
+        if (userType === 'Operator') {
+          document.getElementById('ownerLabel').textContent = 'Operator';
+          document.getElementById('greetingName').textContent = 'Welcome back';
+          renderHawkerCentres([]);
+          renderOperatorStalls([]);
+          renderComplaints([]);
+          renderOperatorInspections([]);
+          renderOperatorStats({});
+        } else {
+          document.getElementById('ownerLabel').textContent = 'Stall Owner';
+          document.getElementById('greetingName').textContent = 'Welcome back';
+          renderStalls([]);
+          renderMenuItems([]);
+          renderFeedback([]);
+          renderPromotions([]);
+          renderInspections([]);
+          renderStats({});
+        }
       }
     }
 
-    document.getElementById('logoutBtn').addEventListener('click', function() {
-      sessionStorage.removeItem('ownerId');
+    document.getElementById('ownerLabel').addEventListener('click', function() {
+      window.location.href = '/profile';
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async function() {
+      console.log("logging out...");
+      sessionStorage.clear("userId");
+      localStorage.clear("jwtToken");
+
       window.location.href = '/login';
     });
 
