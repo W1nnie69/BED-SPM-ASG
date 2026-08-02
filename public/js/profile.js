@@ -3,8 +3,7 @@
 // Mirrors the same pattern as dashboard.html: JWT in localStorage,
 // userId/userType in sessionStorage, and a REST route shaped like
 // /api/:userType/get-profile/:id and /api/:userType/update-profile/:id.
-// These two endpoints don't exist in your backend yet - you'll need
-// to add them. Adjust the URLs below if you name them differently.
+// Now supports StallOwner, Operator, and Customer.
 // ---------------------------------------------------------------
 const API_BASE = 'http://localhost:3000/api';
 const jwtToken = localStorage.getItem('jwtToken');
@@ -39,20 +38,23 @@ function setStatus(el, message, kind) {
 
 // ---------------------------------------------------------------
 // LOAD PROFILE
-// Expects GET /api/:userType/get-profile/:id to return, for a
-// Stall Owner:
-//   { OwnerName, Email, OwnerContactNo, OwnerNRIC }
-// or for an Operator:
-//   { OperatorName, Email, ContactPerson }
+// Expects GET /api/:userType/get-profile/:id to return:
+//   Stall Owner:  { OwnerName, Email, OwnerContactNo, OwnerNRIC }
+//   Operator:     { OperatorName, Email, ContactPerson }
+//   Customer:     { CustName, CustEmail, CustContactNo }
 // ---------------------------------------------------------------
 async function loadProfile() {
   const id = getUserId();
   const userType = getUserType();
   const isOperator = userType === 'Operator';
+  const isCustomer = userType === 'Customer';
 
+  // Contact number: shown for Stall Owner and Customer, hidden for Operator
   document.getElementById('fieldContactNoWrap').style.display = isOperator ? 'none' : 'block';
+  // Contact person: shown for Operator only
   document.getElementById('fieldContactPersonWrap').style.display = isOperator ? 'block' : 'none';
-  document.getElementById('fieldNricWrap').style.display = isOperator ? 'none' : 'block';
+  // NRIC: shown for Stall Owner only
+  document.getElementById('fieldNricWrap').style.display = (!isOperator && !isCustomer) ? 'block' : 'none';
 
   try {
     const response = await fetch(`${API_BASE}/user/get-profile/${id}`, {
@@ -65,15 +67,24 @@ async function loadProfile() {
 
     const data = await response.json();
 
-    document.getElementById('greetingName').textContent = isOperator
-      ? (data.OperatorName || 'Your Profile')
-      : (data.OwnerName || 'Your Profile');
+    let displayName = data.OwnerName || 'Your Profile';
+    let email = data.Email || '';
 
-    document.getElementById('fieldName').value = isOperator ? (data.OperatorName || '') : (data.OwnerName || '');
-    document.getElementById('fieldEmail').value = data.Email || '';
+    if (isOperator) {
+      displayName = data.OperatorName || 'Your Profile';
+    } else if (isCustomer) {
+      displayName = data.CustName || 'Your Profile';
+      email = data.CustEmail || '';
+    }
+
+    document.getElementById('greetingName').textContent = displayName;
+    document.getElementById('fieldName').value = displayName === 'Your Profile' ? '' : displayName;
+    document.getElementById('fieldEmail').value = email;
 
     if (isOperator) {
       document.getElementById('fieldContactPerson').value = data.ContactPerson || '';
+    } else if (isCustomer) {
+      document.getElementById('fieldContactNo').value = data.CustContactNo || '';
     } else {
       document.getElementById('fieldContactNo').value = data.OwnerContactNo || '';
       document.getElementById('fieldNric').value = data.OwnerNRIC || '';
@@ -87,7 +98,7 @@ async function loadProfile() {
 // ---------------------------------------------------------------
 // SAVE PROFILE
 // Sends PUT /api/:userType/update-profile/:id with a body shaped
-// like { name, email, contactNo } (Stall Owner) or
+// like { name, email, contactNo } (Stall Owner / Customer) or
 // { name, email, contactPerson } (Operator). Adjust field names
 // to match whatever your controller/model actually expects.
 // ---------------------------------------------------------------
@@ -109,6 +120,7 @@ document.getElementById('profileForm').addEventListener('submit', async function
   if (isOperator) {
     payload.contactPerson = document.getElementById('fieldContactPerson').value.trim();
   } else {
+    // Stall Owner and Customer both send contactNo
     payload.contactNo = document.getElementById('fieldContactNo').value.trim();
   }
 
@@ -143,7 +155,7 @@ document.getElementById('profileForm').addEventListener('submit', async function
 // ---------------------------------------------------------------
 // CHANGE PASSWORD
 // Sends PUT /api/:userType/update-password/:id with
-// { currentPassword, newPassword }. Your backend should verify
+// { id, currentPassword, newPassword }. Your backend should verify
 // currentPassword before allowing the change.
 // ---------------------------------------------------------------
 document.getElementById('passwordForm').addEventListener('submit', async function(e) {
@@ -207,8 +219,13 @@ document.getElementById('passwordForm').addEventListener('submit', async functio
 });
 
 document.getElementById('backBtn').addEventListener('click', function() {
-  window.location.href = '/dashboard';
+  const userType = getUserType();
+  window.location.href = userType === 'Customer' ? '/order' : '/dashboard';
 });
+
+if (getUserType() === 'Customer') {
+  document.getElementById('backBtn').textContent = 'Back to menu';
+}
 
 document.getElementById('logoutBtn').addEventListener('click', function() {
   sessionStorage.clear();
