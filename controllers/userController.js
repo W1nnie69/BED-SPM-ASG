@@ -368,7 +368,14 @@ async function getDashboard(req, res) {
         res.status(500).json({ error: "Error retrieving user" });
     }
 }
-
+//-shengle- added this to cover feature needed by login
+async function getSessionStatus(req, res) {
+    if (req.session.userId) {
+        res.json({ loggedIn: true, userId: req.session.userId, userType: req.session.userType });
+    } else {
+        res.json({ loggedIn: false });
+    }
+}
 module.exports = {
     getAllUsers,
     getUserById,
@@ -379,9 +386,7 @@ module.exports = {
     forgotPassword,
     resetPassword,
     getDashboard,
-<<<<<<< HEAD
-    getSessionStatus
-=======
+    getSessionStatus,
     getUserProfile,
     updateUserProfile,
     updatePassword,

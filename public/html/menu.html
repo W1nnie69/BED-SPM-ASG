@@ -3,109 +3,145 @@
 <head>
   <meta charset="UTF-8">
   <title>Manage menu</title>
-  <link rel="stylesheet" href="/style.css">
-  <style>
-    body { max-width: 760px; }
-    .row {
-      display: grid;
-      grid-template-columns: 90px 1fr 90px 110px 140px;
-      gap: 8px;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
-    }
-    .row input {
-      width: 100%;
-    }
-    .row.header {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #666;
-      border-bottom: 2px solid #ccc;
-    }
-    .row button {
-      margin: 0;
-      padding: 6px 10px;
-      font-size: 0.8rem;
-    }
-    .row .save-btn { background: #1a7a3d; }
-    .row .save-btn:hover { background: #16612f; }
-    .row .delete-btn { background: #a33; }
-    .row .delete-btn:hover { background: #822; }
-    .stall-picker {
-      display: flex;
-      gap: 8px;
-      align-items: flex-end;
-      margin-bottom: 8px;
-    }
-    .stall-picker > div { flex: 1; }
-    .stall-picker button { margin-top: 0; }
-    .add-row {
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 2px solid #ccc;
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/menu-management.css">
 </head>
 <body>
-  <h1>Manage menu</h1>
-  <p class="subtitle">
-    Full CRUD test client for <code>/api/stall/:stallId/menu</code>.
-    Add/edit/delete require a logged-in session that owns the stall
-    (via <code>RentalAgreement</code>) — otherwise you'll see 401/403 below.
-  </p>
 
-  <div class="stall-picker">
-    <div>
-      <label for="stallId">Stall ID</label>
-      <input type="text" id="stallId" value="ST001">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 4h16v4H4zM6 10h12v10H6z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Menu management</h1>
+        <p class="sub">Vendor tools</p>
+      </div>
     </div>
-    <button id="loadBtn">Load menu</button>
+    <div class="topbar-right">
+      <a href="/dashboard" class="back-btn">Back to dashboard</a>
+    </div>
   </div>
 
-  <div id="topMessage" class="message"></div>
+  <div class="container">
+    <div class="greeting">
+      <h2>Manage your stall's menu</h2>
+      <p>Add, edit, or remove items — changes are saved instantly.</p>
+    </div>
 
-  <div id="menuList"></div>
+    <div id="loginRequiredNotice" class="banner error">
+      You need to <a href="/login">log in</a> to manage items.
+    </div>
 
-  <div class="add-row">
-    <h3>Add new item</h3>
-    <form id="addForm">
-      <label for="newCode">Item code</label>
-      <input type="text" id="newCode" placeholder="IT099" required>
+    <!-- Stall picker -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Select stall</h3>
+      </div>
+      <div class="stall-picker">
+        <div class="field">
+          <label for="stallId">Stall ID</label>
+          <input type="text" id="stallId" value="ST001">
+        </div>
+        <button id="loadBtn" class="load-btn">Load menu</button>
+      </div>
+    </div>
 
-      <label for="newDesc">Description</label>
-      <input type="text" id="newDesc" required>
+    <div id="topMessage" class="banner"></div>
 
-      <label for="newPrice">Price</label>
-      <input type="number" step="0.01" id="newPrice" required>
+    <!-- Menu list -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Menu items</h3>
+        <span class="count" id="itemCount">—</span>
+      </div>
+      <table id="menuTable" style="display:none">
+        <thead>
+          <tr>
+            <th>Photo</th>
+            <th>Code</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="menuBody"></tbody>
+      </table>
+      <div id="emptyNote" class="empty-note" style="display:none">No menu items for this stall yet.</div>
+    </div>
 
-      <label for="newCategory">Category</label>
-      <input type="text" id="newCategory" required>
+    <!-- Add item -->
+    <div class="card" id="addCard" style="display:none">
+      <div class="card-header">
+        <h3>Add new item</h3>
+      </div>
+      <form id="addForm">
+        <div class="field-row">
+          <div class="field">
+            <label for="newCode">Item code</label>
+            <input type="text" id="newCode" placeholder="IT099" required>
+          </div>
+          <div class="field">
+            <label for="newPrice">Price</label>
+            <input type="number" step="0.01" id="newPrice" placeholder="5.50" required>
+          </div>
+        </div>
 
-      <button type="submit">Add item</button>
-    </form>
-    <div id="addMessage" class="message"></div>
-  </div>
+        <div class="field">
+          <label for="newDesc">Description</label>
+          <input type="text" id="newDesc" placeholder="e.g. Chicken Rice" required>
+        </div>
 
-  <div class="links">
-    <a href="/dash">Back to dashboard</a>
+        <div class="field">
+          <label for="newCategory">Category</label>
+          <input type="text" id="newCategory" placeholder="e.g. Rice & Noodles" required>
+        </div>
+
+        <div class="field">
+          <label for="newPhoto">Photo <span style="font-weight:400;color:var(--ink-soft)">(optional)</span></label>
+          <div class="file-field">
+            <input type="file" id="newPhoto" accept="image/jpeg,image/png,image/webp">
+          </div>
+        </div>
+
+        <button type="submit" class="add-btn-submit">Add item</button>
+      </form>
+      <div id="addMessage" class="banner"></div>
+    </div>
   </div>
 
   <script>
     const stallIdInput = document.getElementById("stallId");
     const loadBtn = document.getElementById("loadBtn");
     const topMessage = document.getElementById("topMessage");
-    const menuList = document.getElementById("menuList");
+    const menuTable = document.getElementById("menuTable");
+    const menuBody = document.getElementById("menuBody");
+    const emptyNote = document.getElementById("emptyNote");
+    const itemCount = document.getElementById("itemCount");
+    const addCard = document.getElementById("addCard");
     const addForm = document.getElementById("addForm");
     const addMessage = document.getElementById("addMessage");
+    const loginRequiredNotice = document.getElementById("loginRequiredNotice");
 
-    function showMessage(el, text, type) {
+    let isLoggedIn = false;
+    let ownsCurrentStall = false;
+
+    function showBanner(el, text, type) {
       el.textContent = text;
-      el.className = "message show " + type;
+      el.className = "banner show " + type;
     }
 
-    function clearMessage(el) {
-      el.className = "message";
+    function showBannerHTML(el, html, type) {
+      el.innerHTML = html;
+      el.className = "banner show " + type;
+    }
+
+    function clearBanner(el) {
+      el.className = "banner";
     }
 
     function menuUrl(extra = "") {
@@ -113,59 +149,110 @@
       return `/api/stall/${encodeURIComponent(stallId)}/menu${extra}`;
     }
 
+    async function checkSession() {
+      try {
+        const res = await fetch("/api/session");
+        const data = await res.json();
+        isLoggedIn = !!data.loggedIn;
+      } catch (err) {
+        isLoggedIn = false;
+      }
+    }
+
+    async function checkOwnership() {
+      ownsCurrentStall = false;
+
+      if (!isLoggedIn) {
+        addCard.style.display = "none";
+        showBannerHTML(loginRequiredNotice, `You need to <a href="/login">log in</a> to manage items.`, "error");
+        return;
+      }
+
+      try {
+        const stallId = stallIdInput.value.trim();
+        const res = await fetch(`/api/stall/${encodeURIComponent(stallId)}/owns`);
+        const data = await res.json();
+
+        ownsCurrentStall = !!data.owns;
+
+        if (ownsCurrentStall) {
+          addCard.style.display = "block";
+          clearBanner(loginRequiredNotice);
+        } else {
+          addCard.style.display = "none";
+          showBanner(loginRequiredNotice, "You don't own this stall, so you can't manage its items.", "error");
+        }
+      } catch (err) {
+        ownsCurrentStall = false;
+        addCard.style.display = "none";
+        showBanner(loginRequiredNotice, "Couldn't verify stall ownership — try reloading.", "error");
+      }
+    }
+
     async function loadMenu() {
-      clearMessage(topMessage);
-      menuList.innerHTML = "";
+      clearBanner(topMessage);
+      menuBody.innerHTML = "";
+      menuTable.style.display = "none";
+      emptyNote.style.display = "none";
+      itemCount.textContent = "—";
 
       try {
         const res = await fetch(menuUrl());
         const data = await res.json();
 
         if (!res.ok) {
-          showMessage(topMessage, `${res.status}: ${data.error || "Failed to load menu."}`, "error");
+          showBanner(topMessage, `${res.status}: ${data.error || "Failed to load menu."}`, "error");
           return;
         }
 
+        itemCount.textContent = `${data.length} item${data.length === 1 ? "" : "s"}`;
+
         if (data.length === 0) {
-          showMessage(topMessage, "No menu items for this stall yet. Add one below.", "success");
+          emptyNote.style.display = "block";
           return;
         }
 
         renderRows(data);
+        menuTable.style.display = "table";
       } catch (err) {
-        showMessage(topMessage, "Could not reach the server: " + err.message, "error");
+        showBanner(topMessage, "Could not reach the server: " + err.message, "error");
       }
     }
 
     function renderRows(items) {
-      const header = document.createElement("div");
-      header.className = "row header";
-      header.innerHTML = `<div>Code</div><div>Description</div><div>Price</div><div>Category</div><div>Actions</div>`;
-      menuList.appendChild(header);
+      menuBody.innerHTML = "";
 
       items.forEach(item => {
-        const row = document.createElement("div");
-        row.className = "row";
+        const row = document.createElement("tr");
+
+        const thumb = item.ImagePath
+          ? `<img src="${item.ImagePath}" alt="${item.ItemDesc}" class="item-thumb">`
+          : `<div class="item-thumb placeholder"></div>`;
+
+        const actions = ownsCurrentStall
+          ? `<div class="row-actions"><button class="save-btn">Save</button><button class="delete-btn">Delete</button></div>`
+          : `<span class="pill">Not your stall</span>`;
+
         row.innerHTML = `
-          <div>${item.ItemCode}</div>
-          <input type="text" class="edit-desc" value="${item.ItemDesc}">
-          <input type="number" step="0.01" class="edit-price" value="${item.ItemPrice}">
-          <input type="text" class="edit-category" value="${item.ItemCategory}">
-          <div>
-            <button class="save-btn">Save</button>
-            <button class="delete-btn">Delete</button>
-          </div>
+          <td>${thumb}</td>
+          <td>${item.ItemCode}</td>
+          <td><input type="text" class="edit-desc" value="${item.ItemDesc}" ${ownsCurrentStall ? "" : "disabled"}></td>
+          <td><input type="number" step="0.01" class="edit-price" value="${item.ItemPrice}" ${ownsCurrentStall ? "" : "disabled"}></td>
+          <td><input type="text" class="edit-category" value="${item.ItemCategory}" ${ownsCurrentStall ? "" : "disabled"}></td>
+          <td>${actions}</td>
         `;
 
-        row.querySelector(".save-btn").addEventListener("click", () => updateItem(item.ItemCode, row));
-        row.querySelector(".delete-btn").addEventListener("click", () => deleteItem(item.ItemCode, row));
+        if (ownsCurrentStall) {
+          row.querySelector(".save-btn").addEventListener("click", () => updateItem(item.ItemCode, row));
+          row.querySelector(".delete-btn").addEventListener("click", () => deleteItem(item.ItemCode, row));
+        }
 
-        menuList.appendChild(row);
+        menuBody.appendChild(row);
       });
     }
 
     async function updateItem(code, row) {
-      clearMessage(topMessage);
+      clearBanner(topMessage);
 
       const payload = {
         ItemDesc: row.querySelector(".edit-desc").value,
@@ -183,17 +270,17 @@
         const data = await res.json();
 
         if (res.ok) {
-          showMessage(topMessage, `${code} updated.`, "success");
+          showBanner(topMessage, `${code} updated.`, "success");
         } else {
-          showMessage(topMessage, `${res.status}: ${data.error || "Update failed."}`, "error");
+          showBanner(topMessage, `${res.status}: ${data.error || "Update failed."}`, "error");
         }
       } catch (err) {
-        showMessage(topMessage, "Could not reach the server: " + err.message, "error");
+        showBanner(topMessage, "Could not reach the server: " + err.message, "error");
       }
     }
 
     async function deleteItem(code, row) {
-      clearMessage(topMessage);
+      clearBanner(topMessage);
 
       if (!confirm(`Delete item ${code}?`)) return;
 
@@ -205,52 +292,66 @@
         const data = await res.json();
 
         if (res.ok) {
-          showMessage(topMessage, `${code} deleted.`, "success");
+          showBanner(topMessage, `${code} deleted.`, "success");
           row.remove();
+          const remaining = menuBody.querySelectorAll("tr").length;
+          itemCount.textContent = `${remaining} item${remaining === 1 ? "" : "s"}`;
+          if (remaining === 0) {
+            menuTable.style.display = "none";
+            emptyNote.style.display = "block";
+          }
         } else {
-          showMessage(topMessage, `${res.status}: ${data.error || "Delete failed."}`, "error");
+          showBanner(topMessage, `${res.status}: ${data.error || "Delete failed."}`, "error");
         }
       } catch (err) {
-        showMessage(topMessage, "Could not reach the server: " + err.message, "error");
+        showBanner(topMessage, "Could not reach the server: " + err.message, "error");
       }
     }
 
     addForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      clearMessage(addMessage);
+      clearBanner(addMessage);
 
-      const payload = {
-        itemCode: document.getElementById("newCode").value,
-        ItemDesc: document.getElementById("newDesc").value,
-        ItemPrice: parseFloat(document.getElementById("newPrice").value),
-        ItemCategory: document.getElementById("newCategory").value
-      };
+      const formData = new FormData();
+      formData.append("itemCode", document.getElementById("newCode").value);
+      formData.append("ItemDesc", document.getElementById("newDesc").value);
+      formData.append("ItemPrice", document.getElementById("newPrice").value);
+      formData.append("ItemCategory", document.getElementById("newCategory").value);
+
+      const photoFile = document.getElementById("newPhoto").files[0];
+      if (photoFile) {
+        formData.append("photo", photoFile);
+      }
 
       try {
         const res = await fetch(menuUrl(), {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: formData
         });
 
         const data = await res.json();
 
         if (res.ok) {
-          showMessage(addMessage, data.message || "Item added.", "success");
+          showBanner(addMessage, data.message || "Item added.", "success");
           addForm.reset();
           loadMenu();
         } else {
-          showMessage(addMessage, `${res.status}: ${data.error || "Add failed."}`, "error");
+          showBanner(addMessage, `${res.status}: ${data.error || "Add failed."}`, "error");
         }
       } catch (err) {
-        showMessage(addMessage, "Could not reach the server: " + err.message, "error");
+        showBanner(addMessage, "Could not reach the server: " + err.message, "error");
       }
     });
 
-    loadBtn.addEventListener("click", loadMenu);
+    loadBtn.addEventListener("click", () => {
+      checkOwnership();
+      loadMenu();
+    });
 
-    // load ST001 by default on page open
-    loadMenu();
+    checkSession().then(() => {
+      checkOwnership();
+      loadMenu();
+    });
   </script>
 </body>
 </html>
