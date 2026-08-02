@@ -69,7 +69,7 @@ async function initWho() {
   });
 
   try {
-    const res = await fetch(`/api/Customer/get-profile/${userId}`, {
+    const res = await fetch(`/api/user/get-profile/${userId}`, {
       headers: { "Authorization": `Bearer ${jwtToken}` }
     });
     const data = await res.json();
