@@ -14,6 +14,7 @@ const userController = require("./controllers/userController");
 const orderController = require("./controllers/orderController");
 const menuController = require("./controllers/menuController");
 const custEngagementController = require("./controllers/custEngagementController");
+const complianceController = require("./controllers/complianceController");
 
 
 // create app
@@ -104,6 +105,17 @@ app.get("/api/order/customers", userMiddlewares.verifyToken, orderController.get
 // MENU ROUTES (read-only helper for the order page)
 app.get("/api/menu", menuController.getAllMenuItems);
 
+// INSPECTION / HYGIENE / ANALYTICS ROUTES (SHMS-18, SHMS-19, SHMS-20)
+app.post("/api/inspection/create", complianceController.createInspection);
+app.get("/api/inspection/byId/:inspectionId", complianceController.getInspectionDetail);
+app.put("/api/inspection/:inspectionId/grade", complianceController.updateHygieneGrade);
+app.get("/api/inspection/history/:stallId", complianceController.getHygieneHistory);
+app.get("/api/analytics/stall-performance/:operatorId", complianceController.getStallPerformance);
+
+app.get("/api/inspection/officers", complianceController.getOfficersList);
+app.get("/api/inspection/operators", complianceController.getOperatorsList);
+app.get("/api/inspection/stalls", complianceController.getStallsList);
+
 //=================================================== WEBSITE ROUTES ==================================================================
 
 app.get("/", (req, res) => {
@@ -140,6 +152,14 @@ app.get("/menu", (req, res) => {
 
 app.get("/order", (req, res) => {
     res.sendFile(path.join(__dirname, 'public/html', 'order.html'));
+});
+
+app.get("/inspection", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/html', 'inspection.html'));
+});
+
+app.get("/analytics", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/html', 'analytics.html'));
 });
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

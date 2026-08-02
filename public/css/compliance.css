@@ -1,0 +1,131 @@
+/* ---------- Shared form card (inspection page) ---------- */
+.form-card {
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow);
+}
+.form-card h2 { font-size: 18px; margin-bottom: 16px; }
+
+.form-card label,
+.order-detail label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  margin: 14px 0 6px;
+}
+.form-card label:first-of-type { margin-top: 0; }
+
+.form-card select,
+.form-card input,
+.form-card textarea,
+.order-detail select,
+.order-detail input {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+.form-card textarea { resize: vertical; font-family: "Courier New", monospace; font-size: 13px; }
+.form-card select:focus-visible,
+.form-card input:focus-visible,
+.form-card textarea:focus-visible,
+.order-detail select:focus-visible,
+.order-detail input:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 1px;
+}
+
+.form-card .save-btn,
+.order-detail .save-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px;
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+.form-card .save-btn:hover,
+.order-detail .save-btn:hover { background: var(--teal-dark); }
+
+/* Grade badge used across inspection + analytics pages */
+.grade-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-weight: 900;
+  font-size: 14px;
+  color: #fff;
+}
+.grade-badge.grade-A { background: var(--teal); }
+.grade-badge.grade-B { background: var(--mustard); }
+.grade-badge.grade-C { background: var(--chili); }
+.grade-badge.grade-D { background: var(--chili-dark); }
+.grade-badge.grade-none { background: var(--ink-soft); font-size: 11px; }
+
+/* ---------- Analytics dashboard ---------- */
+.analytics-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+}
+
+.stall-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.stall-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.stall-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.stall-card h3 { font-size: 16px; margin: 0; }
+.stall-card .hc-name { font-size: 12px; color: var(--ink-soft); margin: 2px 0 14px; }
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+}
+.stat-block .stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  display: block;
+  margin-bottom: 2px;
+}
+.stat-block .stat-value {
+  font-family: "Courier New", monospace;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--teal-dark);
+}
+.stat-block .stat-value.chili { color: var(--chili-dark); }
