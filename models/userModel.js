@@ -1,49 +1,38 @@
 const sql = require("mssql");
 const dbConfig = require("../dbConfig");
 
-// Close connection safely
-// TODO: Might move this to a helper/utils file too
-async function safeClose(connection) {
-    if (!connection) return;
-    try {
-        await connection.close();
-    } catch (err) {
-        console.error("Error closing connection: ", err);
-    }
-}
+const poolPromise = sql.connect(dbConfig);
 
 // getAllUsers couldve been done with a single sql query but im too stoopid(lazy) for advance sql stuff...
 // get all users...
-async function getAllUsers() {
-    let connection;
+// async function getAllUsers() {
+//     try {
+//         const operators = await getAllOperator();
+//         const stallowners = await getAllStallOwner();
 
-    try {
-        const operators = await getAllOperator();
-        const stallowners = await getAllStallOwner();
+//         if ((!operators || operators.length === 0) || (!stallowners || stallowners.length === 0)) {
+//             throw new Error ("User's array null or empty");
+//         };
 
-        if ((!operators || operators.length === 0) || (!stallowners || stallowners.length === 0)) {
-            throw new Error ("User's array null or empty");
-        };
+//         const users = {
+//             "Operators": operators,
+//             "Stall Owners": stallowners
+//         };
 
-        const users = {
-            "Operators": operators,
-            "Stall Owners": stallowners
-        };
+//         return users;
 
-        return users;
+//     } catch (error) {
+//         console.error("Error: ", error);
+//         throw error;
 
-    } catch (error) {
-        console.error("Error: ", error);
-        throw error;
-
-    } finally {
-       safeClose(connection);
-    }
-}
+//     } finally {
+//        safeClose(connection);
+//     }
+// }
 
 // get a specific user by using its id
 async function getUserById(id) {
-    let connection;
+   const pool = await poolPromise;
 
     let tableName;
     let columnName;
@@ -62,11 +51,9 @@ async function getUserById(id) {
     }
 
     try {
-        connection = await sql.connect(dbConfig);
-
         let query = `SELECT * FROM ${tableName} WHERE ${columnName} = @id`
         // Check StallOwner
-        const result = await connection.request()
+        const result = await pool.request()
             .input('id', sql.VarChar, id)
             .query(query);
 
@@ -81,20 +68,16 @@ async function getUserById(id) {
         console.error("DB error: ", error);
         throw error;
 
-    } finally {
-        safeClose(connection);
     }
 }
 
 // get a specific user by their email
 async function getUserByEmail(email) {
-    let connection;
+    const pool = await poolPromise;
     
     try {
-        connection = await sql.connect(dbConfig);
-
         // Check StallOwner  
-        const result = await connection.request()
+        const result = await pool.request()
             .input('email', sql.VarChar, email)
             .query('SELECT * FROM StallOwner WHERE Email = @email');
 
@@ -108,7 +91,7 @@ async function getUserByEmail(email) {
 
         } else {
             // Check Operator
-            const result = await connection.request()
+            const result = await pool.request()
                 .input('email', sql.VarChar, email)
                 .query('SELECT * FROM Operator WHERE Email = @email');
 
@@ -121,9 +104,8 @@ async function getUserByEmail(email) {
                 return data;
             
             } else {
-            
                 // Check Customer
-                const result = await connection.request()
+                const result = await pool.request()
                     .input('email', sql.VarChar, email)
                     .query('SELECT * FROM Customer WHERE CustEmail = @email');
 
@@ -146,49 +128,45 @@ async function getUserByEmail(email) {
         console.error("DB error: ", error);
         throw error;
 
-    } finally {
-        safeClose(connection);
     }
 }
 
 // used for getAllUsers
-async function getAllOperator() {
-    let connection;
+// async function getAllOperator() {
+//     const pool = await poolPromise;
 
-    try {
-        connection = await sql.connect(dbConfig);
-        const query = "SELECT * FROM Operator";
-        const result = await connection.request().query(query);
-        return result.recordset;
+//     try {
+//         const query = "SELECT * FROM Operator";
+//         const result = await pool.request().query(query);
+//         return result.recordset;
 
-    } catch (error) {
-        console.error("DB error: ", error.stack);
-        throw error;
-    } finally {
-        safeClose(connection);
-    }
-}
+//     } catch (error) {
+//         console.error("DB error: ", error.stack);
+//         throw error;
+//     } finally {
+//         safeClose(connection);
+//     }
+// }
 
-// used for getAllUsers
-async function getAllStallOwner() {
-    let connection;
+// // used for getAllUsers
+// async function getAllStallOwner() {
+//     const pool = await poolPromise;
 
-    try {
-        connection = await sql.connect(dbConfig);
-        const query = "SELECT * FROM StallOwner";
-        const result = await connection.request().query(query);
-        return result.recordset;
+//     try {
+//         const query = "SELECT * FROM StallOwner";
+//         const result = await connection.request().query(query);
+//         return result.recordset;
 
-    } catch (error) {
-        console.error("DB error: ", error.stack);
-        throw error;
-    } finally {
-        safeClose(connection);
-    }
-}
+//     } catch (error) {
+//         console.error("DB error: ", error.stack);
+//         throw error;
+//     } finally {
+//         safeClose(connection);
+//     }
+// }
 
 async function updatePassword(id, hashedPassword) {
-    let connection;
+    const pool = await poolPromise;
 
     const configTable = {
         StallOwner: { table: 'StallOwner', idColumn: 'OwnerID' },
@@ -215,11 +193,10 @@ async function updatePassword(id, hashedPassword) {
             }
             
         // =====================================================================================================
-            connection = await sql.connect(dbConfig);
 
             const query = `UPDATE ${config.table} SET Password = @hashedPassword WHERE ${config.idColumn} = @id`
 
-            const result2 = await connection.request()
+            const result2 = await pool.request()
                 .input('id', sql.VarChar, id)
                 .input('hashedPassword', sql.VarChar, hashedPassword)
                 .query(query);
@@ -238,13 +215,11 @@ async function updatePassword(id, hashedPassword) {
         console.error("Model error: " + err.stack);
         throw err;
 
-    } finally {
-        safeClose(connection);
     }
 }
 
 async function updateUserProfile(id, userNewData) {
-    let connection;
+    const pool = await poolPromise;
     let tableName;
     let idColumn;
     let nameColumn;
@@ -293,8 +268,6 @@ async function updateUserProfile(id, userNewData) {
     }
 
     try {
-        connection = await sql.connect(dbConfig);
-
         const query = `
         UPDATE ${tableName} '
         SET 
@@ -303,7 +276,7 @@ async function updateUserProfile(id, userNewData) {
             ${contactColumn} = @contact
         WHERE ${idColumn} = @id;`
 
-        const result = await connection.request()
+        const result = await pool.request()
             .input('id', sql.VarChar, id)
             .input('name', sql.VarChar, name)
             .input('email', sql.VarChar, email)
@@ -321,13 +294,11 @@ async function updateUserProfile(id, userNewData) {
         throw err;
         return false;
 
-    } finally {
-        safeClose(connection);
     }
 }
 
 async function signUpUser(userData) {
-    let connection;
+    const pool = await poolPromise;
     let query;
     let incrementQuery;
     let idColumnName;
@@ -379,7 +350,6 @@ async function signUpUser(userData) {
     }
 
     try {
-        connection = await sql.connect(dbConfig);
         const incrementQueryResult = await connection.request().query(incrementQuery);    
 
         let nextNumber = 1;
@@ -390,12 +360,11 @@ async function signUpUser(userData) {
             console.log("Next id is: ", nextNumber);
         }
 
-        
         const newUserId = idStartsWith + String(nextNumber).padStart(3, '0');
 
         switch (userData.userType) {
             case "StallOwner":
-                queryResult = await connection.request()
+                queryResult = await pool.request()
                                 .input('OwnerID', sql.Char(5), newUserId)
                                 .input('OwnerName', sql.VarChar, userData.name)
                                 .input('OwnerNRIC', sql.Char(9), userData.nric)
@@ -407,7 +376,7 @@ async function signUpUser(userData) {
                 break;
 
             case "Operator":
-                queryResult = await connection.request()
+                queryResult = await pool.request()
                                 .input('OperatorID', sql.Char(5), newUserId)
                                 .input('OperatorName', sql.VarChar, userData.name)
                                 .input('ContactPerson', sql.VarChar, userData.contactPerson)
@@ -418,7 +387,7 @@ async function signUpUser(userData) {
                 break;
 
             case "Customer":
-                queryResult = await connection.request()
+                queryResult = await pool.request()
                                 .input('CustomerID', sql.Char(5), newUserId)
                                 .input('CustName', sql.VarChar, userData.name)
                                 .input('CustContactNo', sql.Char(8), userData.contactNo)
@@ -435,13 +404,11 @@ async function signUpUser(userData) {
         console.error("Model error: " + err.stack);
         return false;
 
-    } finally {
-        safeClose(connection);
     }
 }
 
 async function getStallOwnerDashboard(OwnerId) {
-    let connection;
+    const pool = await poolPromise;
 
     const dashboardQuery = `
         SELECT OwnerID, OwnerName
@@ -497,8 +464,7 @@ async function getStallOwnerDashboard(OwnerId) {
         `;
 
     try {
-        connection = await sql.connect(dbConfig);
-        const result = await connection.request()
+        const result = await pool.request()
         .input('OwnerID', sql.Char(5), OwnerId)
         .query(dashboardQuery);
 
@@ -510,13 +476,11 @@ async function getStallOwnerDashboard(OwnerId) {
     } catch (error) {
         console.error("DB error: ", error.stack);
         throw error;
-    } finally {
-        safeClose(connection);
     }
 }
 
 async function getOperatorDashboard(OperatorId) {
-    let connection;
+    const pool = await poolPromise;
 
     const dashboardQuery = `
         SELECT OperatorID, OperatorName
@@ -607,8 +571,7 @@ async function getOperatorDashboard(OperatorId) {
         `;
 
     try {
-        connection = await sql.connect(dbConfig);
-        const result = await connection.request()
+        const result = await pool.request()
         .input('OperatorID', sql.Char(5), OperatorId)
         .query(dashboardQuery);
 
@@ -620,17 +583,12 @@ async function getOperatorDashboard(OperatorId) {
     } catch (error) {
         console.error("DB error: ", error.stack);
         throw error;
-    } finally {
-        safeClose(connection);
     }
 }
 
 module.exports = {
-    getAllUsers,
     getUserById,
     getUserByEmail,
-    getAllOperator,
-    getAllStallOwner,
     updatePassword,
     getStallOwnerDashboard,
     getOperatorDashboard,
