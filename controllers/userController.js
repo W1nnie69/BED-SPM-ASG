@@ -187,7 +187,7 @@ async function resetPassword(req, res) {
 
 async function updatePassword(req, res) {
     const { id, currentPassword, newPassword } = req.body;
-
+  
     try {
         const result = await userModel.getUserById(id);
         
@@ -195,7 +195,7 @@ async function updatePassword(req, res) {
             const compare_result = await bcrypt.compare(currentPassword, result.Password);
 
             if (compare_result) {
-                const hashedNewPassword = await hashPassword(currentPassword);
+                const hashedNewPassword = await hashPassword(newPassword);
                 const status = await userModel.updatePassword(id, hashedNewPassword);
 
                 if (status) {
