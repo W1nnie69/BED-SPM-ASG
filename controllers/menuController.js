@@ -1,5 +1,7 @@
 const menuModel = require("../models/menuModel");
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
+const path = require("path");
 
 async function getMenuByStall(req, res) {
     try {
@@ -76,16 +78,33 @@ async function deleteMenuItem(req, res) {
             return res.status(403).json({ error: "You don't own this stall" });
         }
 
-        const deleted = await menuModel.deleteMenuItem(stallId, code);
+        // Get the menu item first
+        const item = await menuModel.getMenuItem(stallId, code);
 
-        if (!deleted) {
+        if (!item) {
             return res.status(404).json({ error: "Menu item not found" });
         }
 
-        res.json({ message: "Menu item deleted" });
+        // Delete the image if one exists
+        if (item.ImagePath) {
+            const imagePath = path.join(
+                __dirname,
+                "..",
+                item.ImagePath.replace(/^\//, "")
+            );
+
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
+        }
+
+        // Delete database record
+        await menuModel.deleteMenuItem(stallId, code);
+
+        res.json({ message: "Menu item and image deleted" });
 
     } catch (error) {
-        console.error("Controller error: ", error);
+        console.error("Controller error:", error);
         res.status(500).json({ error: "Error deleting menu item" });
     }
 }
