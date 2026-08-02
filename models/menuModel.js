@@ -135,5 +135,6 @@ module.exports = {
     addMenuItem, 
     updateMenuItem, 
     deleteMenuItem,
-    getAllMenuItems 
+    getAllMenuItems,
+    deleteMenuItem
 }

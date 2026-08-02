@@ -379,6 +379,9 @@ module.exports = {
     forgotPassword,
     resetPassword,
     getDashboard,
+<<<<<<< HEAD
+    getSessionStatus
+=======
     getUserProfile,
     updateUserProfile,
     updatePassword,
