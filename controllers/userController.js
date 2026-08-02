@@ -260,6 +260,7 @@ async function loginAuth(req, res) {
         } else {
             // Will it ever be empty? idk 
             res.status(500).json({ error: "hashedPassword is empty" });
+            throw new Error("hashedPassword is empty");
         }
 
     } catch (error) {
