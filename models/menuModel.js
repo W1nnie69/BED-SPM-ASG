@@ -46,8 +46,13 @@ async function addMenuItem(stallId, itemCode, item) {
             .input('itemDesc', sql.VarChar, item.ItemDesc)
             .input('itemPrice', sql.SmallMoney, item.ItemPrice)
             .input('itemCategory', sql.VarChar, item.ItemCategory)
-            .query(`INSERT INTO MenuItem (StallID, ItemCode, ItemDesc, ItemPrice, ItemCategory)
-                    VALUES (@stallId, @itemCode, @itemDesc, @itemPrice, @itemCategory)`);
+            .input("imagePath", sql.VarChar, item.ImagePath)
+            .query(`
+            INSERT INTO MenuItem
+            (StallID, ItemCode, ItemDesc, ItemPrice, ItemCategory, ImagePath)
+            VALUES
+            (@stallId, @itemCode, @itemDesc, @itemPrice, @itemCategory, @imagePath)
+            `);
 
         return true;
 
@@ -93,6 +98,21 @@ async function deleteMenuItem(stallId, itemCode) {
         throw error;
     } 
 }
+async function getMenuItem(stallId, itemCode) {
+    const pool = await poolPromise;
+
+    const result = await pool.request()
+        .input("stallId", sql.Char, stallId)
+        .input("itemCode", sql.Char, itemCode)
+        .query(`
+            SELECT ImagePath
+            FROM MenuItem
+            WHERE StallID = @stallId
+            AND ItemCode = @itemCode
+        `);
+
+    return result.recordset[0] || null;
+}
 
 // LiangChen's api function
 async function getAllMenuItems() {
@@ -114,5 +134,6 @@ module.exports = {
     updateMenuItem, 
     deleteMenuItem,
     getAllMenuItems,
-    deleteMenuItem
+    deleteMenuItem,
+    getMenuItem
 }
