@@ -130,37 +130,67 @@ async function hasLikedFood(customerId, stallId, itemCode) {
 }
 
 //RATINGS & COMMENTS
+//RATINGS & COMMENTS
 // Adds a customer's rating and comment for a food stall
 async function addFeedback(fbkComment, fbkRating, customerId, stallId) {
     try {
         const pool = await poolPromise;
 
+        // Convert values to the correct format
+        const comment = String(fbkComment || '');
+        const rating = parseInt(fbkRating, 10);
+        const customer = String(customerId || '').trim();
+        const stall = String(stallId || '').trim();
+
+        console.log("========== ADD FEEDBACK ==========");
+        console.log("Comment:", comment);
+        console.log("Rating:", rating);
+        console.log("CustomerID:", customer, "Length:", customer.length);
+        console.log("StallID:", stall, "Length:", stall.length);
+        console.log("==================================");
+
         const query = `
+            DECLARE @newFbkID CHAR(5);
+
+            SELECT @newFbkID = 'FB' + RIGHT(
+                '000' + CAST(
+                    ISNULL(MAX(CAST(RIGHT(FbkID, 3) AS INT)), 0) + 1
+                    AS VARCHAR(3)
+                ),
+                3
+            )
+            FROM Feedback;
+
             INSERT INTO Feedback
-            (FbkID, FbkComment, FbkRating, FbkDateTime, CustomerID, StallID)
+            (
+                FbkID,
+                FbkComment,
+                FbkRating,
+                FbkDateTime,
+                CustomerID,
+                StallID
+            )
             VALUES
-            (@fbkID, @fbkComment, @fbkRating, GETDATE(), @customerId, @stallId)
+            (
+                @newFbkID,
+                @fbkComment,
+                @fbkRating,
+                GETDATE(),
+                @customerId,
+                @stallId
+            );
         `;
 
-        const result = await pool.request()
-            .input('fbkComment', sql.VarChar(1000), fbkComment)
-            .input('fbkRating', sql.Int, fbkRating)
-            .input('customerId', sql.Char(5), customerId)
-            .input('stallId', sql.Char(5), stallId)
-            .query(`
-                SELECT 'FB' + RIGHT('000' + CAST(ISNULL(MAX(CAST(RIGHT(FbkID, 3) AS INT)), 0) + 1 AS VARCHAR), 3) AS NewFbkID
-                FROM Feedback
-            `);
+        const request = pool.request();
 
-        const fbkID = result.recordset[0].NewFbkID;
+        request.input('fbkComment', sql.VarChar(1000), comment);
+        request.input('fbkRating', sql.Int, rating);
+        request.input('customerId', sql.Char(5), customer);
+        request.input('stallId', sql.Char(5), stall);
 
-        await pool.request()
-            .input('fbkID', sql.Char(5), fbkID)
-            .input('fbkComment', sql.VarChar(1000), fbkComment)
-            .input('fbkRating', sql.Int, fbkRating)
-            .input('customerId', sql.Char(5), customerId)
-            .input('stallId', sql.Char(5), stallId)
-            .query(query);
+        await request.query(query);
+
+        console.log("Feedback added successfully.");
 
     } catch (error) {
         console.error("Model error in addFeedback:", error);
@@ -236,6 +266,36 @@ async function getStallRating(stallId) {
     }
 }
 
+// Retrieves all ratings and comments for a stall
+async function getStallReviews(stallId) {
+    try {
+        const pool = await poolPromise;
+
+        const query = `
+            SELECT
+                FbkID,
+                FbkComment,
+                FbkRating,
+                FbkDateTime,
+                CustomerID,
+                StallID
+            FROM Feedback
+            WHERE StallID = @stallId
+            ORDER BY FbkDateTime DESC
+        `;
+
+        const result = await pool.request()
+            .input('stallId', sql.Char(5), stallId)
+            .query(query);
+
+        return result.recordset;
+
+    } catch (error) {
+        console.error("Model error in getStallReviews:", error);
+        throw error;
+    }
+}
+
 module.exports = {
     likeFood,
     getLikedFoods,
@@ -245,5 +305,6 @@ module.exports = {
     addFeedback,
     updateFeedback,
     deleteFeedback,
-    getStallRating
+    getStallRating,
+    getStallReviews
 };

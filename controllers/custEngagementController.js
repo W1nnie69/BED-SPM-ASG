@@ -207,18 +207,24 @@ async function deleteFeedback(req, res) {
     }
 }
 
-// Retrieves the average rating and total number of ratings for a stall
+// Retrieves the average rating, total number of ratings,
+// and all ratings/comments for a stall
 async function getStallRating(req, res) {
 
     const stallId = req.params.stallId;
 
     try {
 
+        // Get average rating and total number of ratings
         const ratingData = await likeModel.getStallRating(stallId);
+
+        // Get all ratings and comments for the stall
+        const reviews = await likeModel.getStallReviews(stallId);
 
         res.status(200).json({
             avgRating: Number(ratingData.avgRating),
-            count: ratingData.count
+            count: ratingData.count,
+            reviews: reviews
         });
 
     } catch (error) {
@@ -226,7 +232,30 @@ async function getStallRating(req, res) {
         console.error("Controller error:", error);
 
         res.status(500).json({
-            error: "Error retrieving stall rating."
+            error: "Error retrieving stall ratings and reviews."
+        });
+
+    }
+}
+
+
+// Retrieves all ratings and comments for a stall
+async function getStallReviews(req, res) {
+
+    const stallId = req.params.stallId;
+
+    try {
+
+        const reviews = await likeModel.getStallReviews(stallId);
+
+        res.status(200).json(reviews);
+
+    } catch (error) {
+
+        console.error("Controller error:", error);
+
+        res.status(500).json({
+            error: "Error retrieving stall reviews."
         });
 
     }
@@ -241,5 +270,6 @@ module.exports = {
     addFeedback,
     updateFeedback,
     deleteFeedback,
-    getStallRating
+    getStallRating,
+    getStallReviews
 };

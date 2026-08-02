@@ -112,7 +112,8 @@ function renderMenu() {
     heading.innerHTML = `<h3>${escapeHtml(stall.name)}</h3>
      <span class="stall-stars" data-stall-id="${stall.stallId}">☆☆☆☆☆</span>
       <span class="stall-rating-count">(0)</span>
-      <a class="rate-btn" href="/rating.html?stallId=${encodeURIComponent(stall.stallId)}" 
+      <a class="rate-btn" href="/rating.html?stallId=${encodeURIComponent(stall.stallId)}
+      &stallName=${encodeURIComponent(stall.name)}" 
       title="Rate this stall">⭐ Rate</a>`;
     group.appendChild(heading);
 
