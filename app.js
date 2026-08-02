@@ -4,7 +4,6 @@ dotenv.config();
 
 // modules
 const express = require("express");
-const session = require("express-session");
 const sql = require("mssql")
 const path = require("path");
 
@@ -23,8 +22,8 @@ const port = process.env.PORT || 3000;
 
 // middleware
 app.use(express.static(path.join(__dirname, "public")));
-const upload = require("./middlewares/upload");
 app.use(express.json());
+const upload = require("./middlewares/upload");
 const userMiddlewares = require("./middlewares/userMiddlewares");
 
 
