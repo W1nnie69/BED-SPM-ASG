@@ -1,30 +1,29 @@
 const sql = require('mssql');
 const dbConfig = require('../dbConfig');
 
+// Create the connection pool ONCE when the app starts
+const poolPromise = sql.connect(dbConfig);
+
 //LIKES
 // Inserts a customer's liked food item into the Likes table in the database.
 async function likeFood(customerId, stallId, itemCode) {
-
-    const connection = await sql.connect(dbConfig);
+    const pool = await poolPromise;
 
     const query = `
         INSERT INTO Likes (CustomerID, StallID, ItemCode)
         VALUES (@customerId, @stallId, @itemCode)
     `;
 
-    await connection.request()
+    await pool.request()
         .input('customerId', sql.Char(5), customerId)
         .input('stallId', sql.Char(5), stallId)
         .input('itemCode', sql.Char(5), itemCode)
         .query(query);
-
-    connection.close();
 }
 
 // Retrieves all food items liked by a customer
 async function getLikedFoods(customerId) {
-
-    const connection = await sql.connect(dbConfig);
+    const pool = await poolPromise;
 
     const query = `
         SELECT
@@ -40,19 +39,16 @@ async function getLikedFoods(customerId) {
         WHERE L.CustomerID = @customerId
     `;
 
-    const result = await connection.request()
+    const result = await pool.request()
         .input('customerId', sql.Char(5), customerId)
         .query(query);
-
-    connection.close();
 
     return result.recordset;
 }
 
 // Removes a customer's liked food item from the Likes table
 async function unlikeFood(customerId, stallId, itemCode) {
-
-    const connection = await sql.connect(dbConfig);
+    const pool = await poolPromise;
 
     const query = `
         DELETE FROM Likes
@@ -61,19 +57,16 @@ async function unlikeFood(customerId, stallId, itemCode) {
         AND ItemCode = @itemCode
     `;
 
-    await connection.request()
+    await pool.request()
         .input('customerId', sql.Char(5), customerId)
         .input('stallId', sql.Char(5), stallId)
         .input('itemCode', sql.Char(5), itemCode)
         .query(query);
-
-    connection.close();
 }
 
 // Retrieves the total number of likes for a food item
 async function getLikeCount(stallId, itemCode) {
-
-    const connection = await sql.connect(dbConfig);
+    const pool = await poolPromise;
 
     const query = `
         SELECT COUNT(*) AS LikeCount
@@ -82,20 +75,17 @@ async function getLikeCount(stallId, itemCode) {
         AND ItemCode = @itemCode
     `;
 
-    const result = await connection.request()
+    const result = await pool.request()
         .input('stallId', sql.Char(5), stallId)
         .input('itemCode', sql.Char(5), itemCode)
         .query(query);
-
-    connection.close();
 
     return result.recordset[0].LikeCount;
 }
 
 // Checks whether a customer has already liked a food item
 async function hasLikedFood(customerId, stallId, itemCode) {
-
-    const connection = await sql.connect(dbConfig);
+    const pool = await poolPromise;
 
     const query = `
         SELECT COUNT(*) AS LikeExists
@@ -105,13 +95,11 @@ async function hasLikedFood(customerId, stallId, itemCode) {
         AND ItemCode = @itemCode
     `;
 
-    const result = await connection.request()
+    const result = await pool.request()
         .input('customerId', sql.Char(5), customerId)
         .input('stallId', sql.Char(5), stallId)
         .input('itemCode', sql.Char(5), itemCode)
         .query(query);
-
-    connection.close();
 
     return result.recordset[0].LikeExists > 0;
 }
@@ -119,8 +107,7 @@ async function hasLikedFood(customerId, stallId, itemCode) {
 //RATINGS & COMMENTS
 // Adds a customer's rating and comment for a food stall
 async function addFeedback(fbkID, fbkComment, fbkRating, fbkDateTime, customerId, stallId) {
-
-    const connection = await sql.connect(dbConfig);
+    const pool = await poolPromise;
 
     const query = `
         INSERT INTO Feedback
@@ -129,7 +116,7 @@ async function addFeedback(fbkID, fbkComment, fbkRating, fbkDateTime, customerId
         (@fbkID, @fbkComment, @fbkRating, @fbkDateTime, @customerId, @stallId)
     `;
 
-    await connection.request()
+    await pool.request()
         .input('fbkID', sql.Char(5), fbkID)
         .input('fbkComment', sql.VarChar(1000), fbkComment)
         .input('fbkRating', sql.Int, fbkRating)
@@ -137,14 +124,11 @@ async function addFeedback(fbkID, fbkComment, fbkRating, fbkDateTime, customerId
         .input('customerId', sql.Char(5), customerId)
         .input('stallId', sql.Char(5), stallId)
         .query(query);
-
-    connection.close();
 }
 
 // Updates a customer's rating and comment for existing feedback
 async function updateFeedback(fbkID, fbkComment, fbkRating) {
-
-    const connection = await sql.connect(dbConfig);
+    const pool = await poolPromise;
 
     const query = `
         UPDATE Feedback
@@ -153,32 +137,26 @@ async function updateFeedback(fbkID, fbkComment, fbkRating) {
         WHERE FbkID = @fbkID
     `;
 
-    await connection.request()
+    await pool.request()
         .input('fbkID', sql.Char(5), fbkID)
         .input('fbkComment', sql.VarChar(1000), fbkComment)
         .input('fbkRating', sql.Int, fbkRating)
         .query(query);
-
-    connection.close();
 }
 
 // Deletes existing feedback from the Feedback table
 async function deleteFeedback(fbkID) {
-
-    const connection = await sql.connect(dbConfig);
+    const pool = await poolPromise;
 
     const query = `
         DELETE FROM Feedback
         WHERE FbkID = @fbkID
     `;
 
-    await connection.request()
+    await pool.request()
         .input('fbkID', sql.Char(5), fbkID)
         .query(query);
-
-    connection.close();
 }
-
 
 module.exports = {
     likeFood,
