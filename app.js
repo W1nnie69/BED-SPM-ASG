@@ -32,7 +32,7 @@ const userMiddlewares = require("./middlewares/userMiddlewares");
 // API ROUTES...
 
 //=================================================== Dani's Routes ==============================================================
-app.get("/api/users", userController.getAllUsers);
+// app.get("/api/users", userController.getAllUsers);
 
 // app.get("/api/user/byId/:id", userController.getUserById);
 
@@ -48,9 +48,9 @@ app.get("/api/:userType/get-dashboard/:id", userMiddlewares.verifyToken, userMid
 
 app.get("/api/user/get-profile/:id", userMiddlewares.verifyToken, userMiddlewares.checkIfUserQueryingMatchesID, userController.getUserProfile);
 
-app.put("/api/user/update-profile/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator']), userMiddlewares.checkIfUserQueryingMatchesID, userController.updateUserProfile);
+app.put("/api/user/update-profile/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator', 'Customer', 'NeaOfficer']), userMiddlewares.checkIfUserQueryingMatchesID, userController.updateUserProfile);
 
-app.put("/api/user/update-password/:id", userController.updatePassword);
+app.put("/api/user/update-password/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator', 'Customer', 'NeaOfficer']), userMiddlewares.checkIfUserQueryingMatchesID, userController.updatePassword);
 
 app.post("/api/:userType/signup", userController.registerUser);
 
