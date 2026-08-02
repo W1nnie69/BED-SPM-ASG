@@ -48,6 +48,10 @@ async function getUserById(id) {
     } else if (id.startsWith("C")) {
         tableName = "Customer";
         columnName = "CustomerID";
+
+    } else if (id.startsWith("O")) {
+        tableName = "NeaOfficer";
+        columnName = "OfficerID";
     }
 
     try {
@@ -118,8 +122,23 @@ async function getUserByEmail(email) {
                     return data;
 
                 } else {
-                    console.error("testModel: No user found");
-                    return; 
+                    // Check NeaOfficer
+                    const result = await pool.request()
+                        .input('email', sql.VarChar, email)
+                        .query('SELECT * FROM NeaOfficer WHERE Email = @email');
+
+                    if (result.recordset.length > 0) {
+                        // console.log(result2);  
+                        let data = result.recordset[0];
+                        data.userType = "NeaOfficer";
+                        console.log(data);
+
+                        return data;
+
+                    } else {
+                        console.error("testModel: No user found");
+                        return; 
+                    }
                 }
             }
         }
@@ -171,7 +190,8 @@ async function updatePassword(id, hashedPassword) {
     const configTable = {
         StallOwner: { table: 'StallOwner', idColumn: 'OwnerID' },
         Operator: { table: 'Operator', idColumn: 'OperatorID' },
-        Customer: { table: 'Customer', idColumn: 'CustomerID' }
+        Customer: { table: 'Customer', idColumn: 'CustomerID' },
+        NeaOfficer: { table: 'NeaOfficer', idColumn: 'OfficerID' }
     };
 
     try {
@@ -224,6 +244,7 @@ async function updateUserProfile(id, userNewData) {
     let idColumn;
     let nameColumn;
     let contactColumn;
+    let emailColumn;
     let contactType;
 
     // FOR req.body
@@ -240,6 +261,7 @@ async function updateUserProfile(id, userNewData) {
         idColumn = "OwnerID";
         nameColumn = "OwnerName";
         contactColumn = "OwnerContactNo";
+        emailColumn = "Email";
         contactType = sql.Char(8);
         ({ name, email, contact } = { name: userNewData.name, email: userNewData.email, contact: userNewData.contactNo });
 
@@ -249,6 +271,7 @@ async function updateUserProfile(id, userNewData) {
         idColumn = "OperatorID";
         nameColumn = "OperatorName";
         contactColumn = "ContactPerson";
+        emailColumn = "Email";
         contactType = sql.VarChar(50);
         ({ name, email, contact } = { name: userNewData.name, email: userNewData.email, contact: userNewData.contactPerson });
 
@@ -258,9 +281,18 @@ async function updateUserProfile(id, userNewData) {
         idColumn = "CustomerID";
         nameColumn = "CustName";
         contactColumn = "CustContactNo";
+        emailColumn = "CustEmail";
         contactType = sql.VarChar(50);
-        ({ name, email, contact } = { name: userNewData.name, email: userNewData.email, contact: userNewData.contactPerson });
+        ({ name, email, contact } = { name: userNewData.name, email: userNewData.email, contact: userNewData.contactNo });
 
+    } else if (id.startsWith("O")) {
+        tableName = "NeaOfficer";
+        idColumn = "OfficerID";
+        nameColumn = "OfficerName";
+        contactColumn = "OfficerContactNo";
+        emailColumn = "Email";
+        contactType = sql.VarChar(50);
+        ({ name, email, contact } = { name: userNewData.name, email: userNewData.email, contact: userNewData.contactNo });
     }
 
     if (!tableName) {
@@ -269,10 +301,10 @@ async function updateUserProfile(id, userNewData) {
 
     try {
         const query = `
-        UPDATE ${tableName} '
+        UPDATE ${tableName}
         SET 
             ${nameColumn} = @name,
-            Email = @email,
+            ${emailColumn} = @email,
             ${contactColumn} = @contact
         WHERE ${idColumn} = @id;`
 

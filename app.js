@@ -23,7 +23,7 @@ const port = process.env.PORT || 3000;
 
 // middleware
 app.use(express.static(path.join(__dirname, "public")));
-// const upload = require("./middleware/upload");
+const upload = require("./middlewares/upload");
 app.use(express.json());
 const userMiddlewares = require("./middlewares/userMiddlewares");
 
@@ -32,7 +32,7 @@ const userMiddlewares = require("./middlewares/userMiddlewares");
 // API ROUTES...
 
 //=================================================== Dani's Routes ==============================================================
-app.get("/api/users", userController.getAllUsers);
+// app.get("/api/users", userController.getAllUsers);
 
 // app.get("/api/user/byId/:id", userController.getUserById);
 
@@ -48,9 +48,9 @@ app.get("/api/:userType/get-dashboard/:id", userMiddlewares.verifyToken, userMid
 
 app.get("/api/user/get-profile/:id", userMiddlewares.verifyToken, userMiddlewares.checkIfUserQueryingMatchesID, userController.getUserProfile);
 
-app.put("/api/user/update-profile/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator']), userMiddlewares.checkIfUserQueryingMatchesID, userController.updateUserProfile);
+app.put("/api/user/update-profile/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator', 'Customer', 'NeaOfficer']), userMiddlewares.checkIfUserQueryingMatchesID, userController.updateUserProfile);
 
-app.put("/api/user/update-password/:id", userController.updatePassword);
+app.put("/api/user/update-password/:id", userMiddlewares.verifyToken, userMiddlewares.requireRole(['StallOwner', 'Operator', 'Customer', 'NeaOfficer']), userMiddlewares.checkIfUserQueryingMatchesID, userController.updatePassword);
 
 app.post("/api/:userType/signup", userController.registerUser);
 
@@ -85,16 +85,17 @@ app.get('/api/feedback/stall/:stallId',custEngagementController.getStallRating);
 
 
 //reset password not fully implemented yet on the frontend
-// app.put("/api/user/updatepass/:id", userController.updatePassword); 
+ app.put("/api/user/updatepass/:id", userController.updatePassword); 
 
 //=================================================== Shengle's Routes ===============================================================
 app.get("/api/stall/:stallId/menu", menuController.getMenuByStall);
+app.get("/api/stall/:stallId/owns", menuController.checkOwnership);
 
-// app.post("/api/stall/:stallId/menu", upload.single("photo"), menuController.addMenuItem);
+app.post("/api/stall/:stallId/menu", userMiddlewares.verifyToken, upload.single("photo"), menuController.addMenuItem);
+app.put("/api/stall/:stallId/menu/:code", userMiddlewares.verifyToken, menuController.updateMenuItem);
+app.delete("/api/stall/:stallId/menu/:code", userMiddlewares.verifyToken, menuController.deleteMenuItem);
 
-app.put("/api/stall/:stallId/menu/:code", menuController.updateMenuItem);
-
-app.delete("/api/stall/:stallId/menu/:code", menuController.deleteMenuItem);
+app.get("/api/session", userController.getSessionStatus);
 
 //=================================================== LiangChen's Routes ==============================================================
 // ORDER ROUTES (SHMS-7, SHMS-9)
@@ -146,11 +147,9 @@ app.get("/dashboard", (req, res) => {
 app.get("/profile", (req, res) => {
     res.sendFile(path.join(__dirname, 'public/html', 'profile.html'));
 });
-
 app.get("/menu", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/html', 'menu.html'));
+    res.sendFile(path.join(__dirname, 'public/html', 'menu-management.html'));
 });
-
 app.get("/order", (req, res) => {
     res.sendFile(path.join(__dirname, 'public/html', 'order.html'));
 });

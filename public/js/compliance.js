@@ -1,4 +1,21 @@
+// ---------------------------------------------------------------
+// REQUIRE LOGIN
+// Unlike the customer order page, guests aren't allowed here at all.
+// Same jwtToken/userType/userId pattern as your other pages, assumed
+// userType for this role is "Officer" - adjust if yours is named
+// differently (e.g. "NEAOfficer").
+// ---------------------------------------------------------------
+const jwtToken = localStorage.getItem("jwtToken");
+const officerUserType = sessionStorage.getItem("userType");
+const currentOfficerId = sessionStorage.getItem("userId");
+
+if (!jwtToken || officerUserType !== "NeaOfficer" || !currentOfficerId) {
+  window.location.href = "/login";
+}
+
 let stalls = [];
+
+const whoBtn = document.getElementById("whoBtn");
 
 const tabs = document.querySelectorAll(".tab");
 const views = document.querySelectorAll(".view");
@@ -11,20 +28,30 @@ tabs.forEach((tab) => {
   });
 });
 
-// ---------- Load officers + stalls for dropdowns ----------
-async function loadOfficers() {
-  const select = document.getElementById("officerSelect");
+// ---------- Who's inspecting (name pill, links to profile) ----------
+// Assumes GET /api/Officer/get-profile/:id, same route pattern used
+// on the profile page for the other roles.
+async function initWho() {
+  whoBtn.textContent = "Loading...";
+
+  whoBtn.addEventListener("click", () => {
+    window.location.href = "/profile";
+  });
+
   try {
-    const res = await fetch("/api/inspection/officers");
+    const res = await fetch(`/api/user/get-profile/${currentOfficerId}`, {
+      headers: { "Authorization": `Bearer ${jwtToken}` }
+    });
     const data = await res.json();
-    select.innerHTML = (data.officers || [])
-      .map((o) => `<option value="${o.OfficerID}">${escapeHtml(o.OfficerName)}</option>`)
-      .join("");
+    console.log(data);
+    whoBtn.textContent = data.OfficerName;
   } catch (err) {
-    select.innerHTML = "<option>Unable to load</option>";
+    whoBtn.textContent = currentOfficerId;
+    console.error(err);
   }
 }
 
+// ---------- Load stalls for the dropdown ----------
 async function loadStalls() {
   const select = document.getElementById("stallSelect");
   try {
@@ -41,7 +68,7 @@ async function loadStalls() {
 
 // ---------- Submit a new inspection ----------
 document.getElementById("submitInspectionBtn").addEventListener("click", async () => {
-  const officerId = document.getElementById("officerSelect").value;
+  const officerId = currentOfficerId;
   const stallId = document.getElementById("stallSelect").value;
   const hygieneGrade = document.getElementById("gradeSelect").value;
   const gradeExpiry = document.getElementById("expiryInput").value;
@@ -65,7 +92,10 @@ document.getElementById("submitInspectionBtn").addEventListener("click", async (
   try {
     const res = await fetch("/api/inspection/create", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${jwtToken}`
+      },
       body: JSON.stringify({ officerId, stallId, hygieneGrade, gradeExpiry, remarks })
     });
     const data = await res.json();
@@ -135,7 +165,10 @@ document.getElementById("saveGradeBtn").addEventListener("click", async () => {
   try {
     const res = await fetch(`/api/inspection/${inspectionId}/grade`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${jwtToken}`
+      },
       body: JSON.stringify({ hygieneGrade, gradeExpiry })
     });
     const data = await res.json();
@@ -158,5 +191,5 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-loadOfficers();
+initWho();
 loadStalls();

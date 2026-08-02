@@ -11,16 +11,16 @@ const { user } = require("../dbConfig");
 const resetTokens = new Map();
 
 
-async function getAllUsers(req, res) {
-    try {
-        const users = await userModel.getAllUsers();
-        res.json(users);
+// async function getAllUsers(req, res) {
+//     try {
+//         const users = await userModel.getAllUsers();
+//         res.json(users);
 
-    } catch (error) {
-        console.error("Controller error: ", error);
-        res.status(500).json({error: "Error retrieving users"});
-    }
-}
+//     } catch (error) {
+//         console.error("Controller error: ", error);
+//         res.status(500).json({error: "Error retrieving users"});
+//     }
+// }
 
 async function getUserById(req, res) {
     try {
@@ -58,27 +58,27 @@ async function getUserByEmail(req, res) {
     }
 }
 
-async function getAllOperator(req, res) {
-    try {
-        const users = await userModel.getAllOperator();
-        res.json(users);
+// async function getAllOperator(req, res) {
+//     try {
+//         const users = await userModel.getAllOperator();
+//         res.json(users);
 
-    } catch (error) {
-        console.error("Controller error: ", error);
-        res.status(500).json({error: "Error retrieving users"});
-    }
-}
+//     } catch (error) {
+//         console.error("Controller error: ", error);
+//         res.status(500).json({error: "Error retrieving users"});
+//     }
+// }
 
-async function getAllStallOwner(req, res) {
-    try {
-        const users = await userModel.getAllStallOwner();
-        res.json(users);
+// async function getAllStallOwner(req, res) {
+//     try {
+//         const users = await userModel.getAllStallOwner();
+//         res.json(users);
 
-    } catch (error) {
-        console.error("Controller error: ", error);
-        res.status(500).json({error: "Error retrieving users"});
-    }
-}
+//     } catch (error) {
+//         console.error("Controller error: ", error);
+//         res.status(500).json({error: "Error retrieving users"});
+//     }
+// }
 
 async function getUserProfile(req, res) {
     try {
@@ -226,7 +226,9 @@ async function loginAuth(req, res) {
         const userIdType = {
                     Operator: "OperatorID",
                     StallOwner: "OwnerID",
-                    Customer: "CustomerID"
+                    Customer: "CustomerID",
+                    NeaOfficer: "OfficerID"
+
                 };
 
         // Horrible to look at but it works...
@@ -369,17 +371,30 @@ async function getDashboard(req, res) {
         res.status(500).json({ error: "Error retrieving user" });
     }
 }
+//-shengle- added this to cover feature needed by login
+async function getSessionStatus(req, res) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
 
+    if (!token) {
+        return res.json({ loggedIn: false });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.json({ loggedIn: false });
+        }
+        res.json({ loggedIn: true, userId: decoded.userId, userType: decoded.userType });
+    });
+}
 module.exports = {
-    getAllUsers,
     getUserById,
     getUserByEmail,
-    getAllOperator,
-    getAllStallOwner,
     loginAuth,
     forgotPassword,
     resetPassword,
     getDashboard,
+    getSessionStatus,
     getUserProfile,
     updateUserProfile,
     updatePassword,
