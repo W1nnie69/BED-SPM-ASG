@@ -55,7 +55,9 @@ async function initWho() {
 async function loadStalls() {
   const select = document.getElementById("stallSelect");
   try {
-    const res = await fetch("/api/inspection/stalls");
+    const res = await fetch("/api/inspection/stalls", {
+      headers: { "Authorization": `Bearer ${jwtToken}` }
+    });
     const data = await res.json();
     stalls = data.stalls || [];
     select.innerHTML = stalls
@@ -129,7 +131,9 @@ document.getElementById("lookupInspectionBtn").addEventListener("click", async (
   }
 
   try {
-    const res = await fetch(`/api/inspection/byId/${inspectionId}`);
+    const res = await fetch(`/api/inspection/byId/${inspectionId}`, {
+      headers: { "Authorization": `Bearer ${jwtToken}` }
+    });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Inspection not found");
 

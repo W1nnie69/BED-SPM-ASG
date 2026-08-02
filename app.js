@@ -57,35 +57,32 @@ app.post("/api/:userType/signup", userController.registerUser);
 
 //=================================================== Jeff's Routes ================================================================
 // Get all liked food items for a customer
-app.get('/api/likes/:customerId', custEngagementController.getLikedFoods);
+app.get('/api/likes/:customerId', userMiddlewares.verifyToken, custEngagementController.getLikedFoods);
 
 // Route for liking a food item
-app.post('/api/likes', custEngagementController.likeFood);
+app.post('/api/likes', userMiddlewares.verifyToken, custEngagementController.likeFood);
 
 // Unlike a food item
-app.delete('/api/likes', custEngagementController.unlikeFood);
+app.delete('/api/likes', userMiddlewares.verifyToken, custEngagementController.unlikeFood);
 
 // Get total like count for a food item
-app.get('/api/likes/count/:stallId/:itemCode',custEngagementController.getLikeCount);
+app.get('/api/likes/count/:stallId/:itemCode', custEngagementController.getLikeCount);
 
 // Check if a customer has liked a food item
-app.get('/api/likes/status/:customerId/:stallId/:itemCode',custEngagementController.hasLikedFood);
+app.get('/api/likes/status/:customerId/:stallId/:itemCode', userMiddlewares.verifyToken, custEngagementController.hasLikedFood);
 
 //Submit a rating and comment
-app.post('/api/feedback', custEngagementController.addFeedback);
+app.post('/api/feedback', userMiddlewares.verifyToken, custEngagementController.addFeedback);
 
 //Edit their rating and comment
-app.put('/api/feedback/:fbkID', custEngagementController.updateFeedback);
+app.put('/api/feedback/:fbkID', userMiddlewares.verifyToken, custEngagementController.updateFeedback);
 
 //Delete their rating and comment
-app.delete('/api/feedback/:fbkID', custEngagementController.deleteFeedback);
+app.delete('/api/feedback/:fbkID', userMiddlewares.verifyToken, custEngagementController.deleteFeedback);
 
 // Get average rating and number of ratings for a stall
-app.get('/api/feedback/stall/:stallId',custEngagementController.getStallRating);
+app.get('/api/feedback/stall/:stallId', custEngagementController.getStallRating);
 
-
-//reset password not fully implemented yet on the frontend
- app.put("/api/user/updatepass/:id", userController.updatePassword); 
 
 //=================================================== Shengle's Routes ===============================================================
 app.get("/api/stall/:stallId/menu", menuController.getMenuByStall);
@@ -108,15 +105,15 @@ app.get("/api/order/customers", userMiddlewares.verifyToken, orderController.get
 app.get("/api/menu", menuController.getAllMenuItems);
 
 // INSPECTION / HYGIENE / ANALYTICS ROUTES (SHMS-18, SHMS-19, SHMS-20)
-app.post("/api/inspection/create", complianceController.createInspection);
-app.get("/api/inspection/byId/:inspectionId", complianceController.getInspectionDetail);
-app.put("/api/inspection/:inspectionId/grade", complianceController.updateHygieneGrade);
-app.get("/api/inspection/history/:stallId", complianceController.getHygieneHistory);
-app.get("/api/analytics/stall-performance/:operatorId", complianceController.getStallPerformance);
+app.post("/api/inspection/create", userMiddlewares.verifyToken, userMiddlewares.requireRole(['NeaOfficer']), complianceController.createInspection);
+app.get("/api/inspection/byId/:inspectionId", userMiddlewares.verifyToken, userMiddlewares.requireRole(['NeaOfficer']), complianceController.getInspectionDetail);
+app.put("/api/inspection/:inspectionId/grade", userMiddlewares.verifyToken, userMiddlewares.requireRole(['NeaOfficer']), complianceController.updateHygieneGrade);
+app.get("/api/inspection/history/:stallId", userMiddlewares.verifyToken, userMiddlewares.requireRole(['NeaOfficer']), complianceController.getHygieneHistory);
+app.get("/api/analytics/stall-performance/:operatorId", userMiddlewares.verifyToken, userMiddlewares.requireRole(['NeaOfficer']), complianceController.getStallPerformance);
 
-app.get("/api/inspection/officers", complianceController.getOfficersList);
-app.get("/api/inspection/operators", complianceController.getOperatorsList);
-app.get("/api/inspection/stalls", complianceController.getStallsList);
+app.get("/api/inspection/officers", userMiddlewares.verifyToken, complianceController.getOfficersList);
+app.get("/api/inspection/operators", userMiddlewares.verifyToken, complianceController.getOperatorsList);
+app.get("/api/inspection/stalls", userMiddlewares.verifyToken, complianceController.getStallsList);
 
 //=================================================== WEBSITE ROUTES ==================================================================
 

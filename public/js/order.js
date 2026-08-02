@@ -3,6 +3,7 @@ let menuItems = [];
 let cart = []; // { itemCode, itemName, unitPrice, quantity }
 let paymentMethod = "PayNow";
 let ticketCounter = Math.floor(100 + Math.random() * 900);
+const jwtToken = localStorage.getItem("jwtToken");
 
 // ---------- Elements ----------
 const whoBtn = document.getElementById("whoBtn");
@@ -46,7 +47,6 @@ payButtons.forEach((btn) => {
 // Guests can still browse the menu - this only controls the pill in the
 // top bar and whether currentCustomerId gets set.
 async function initWho() {
-  const jwtToken = localStorage.getItem("jwtToken");
   const userType = sessionStorage.getItem("userType");
   const userId = sessionStorage.getItem("userId");
 
@@ -336,7 +336,6 @@ async function toggleLike(item, likeBtn) {
     return;
   }
 
-  const jwtToken = localStorage.getItem("jwtToken");
   const isLiked = likeBtn.dataset.liked === "true";
 
   try {
@@ -444,7 +443,8 @@ async function loadLikeStatus(item, likeBtn, likeCounter) {
   try {
 
     const res = await fetch(
-      `/api/likes/status/${currentCustomerId}/${item.StallID}/${item.ItemCode}`
+      `/api/likes/status/${currentCustomerId}/${item.StallID}/${item.ItemCode}`,
+      { headers: { "Authorization": `Bearer ${jwtToken}` } }
     );
 
     const data = await res.json();
@@ -478,7 +478,6 @@ async function loadLikedFoods() {
   }
   likedListEl.innerHTML = '<p class="history-empty">Loading…</p>';
   try {
-    const jwtToken = localStorage.getItem("jwtToken");
     const res = await fetch(`/api/likes/${currentCustomerId}`, {
       headers: { "Authorization": `Bearer ${jwtToken}` }
     });

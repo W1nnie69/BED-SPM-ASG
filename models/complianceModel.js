@@ -39,7 +39,7 @@ async function createInspection({ officerId, stallId, hygieneGrade, gradeExpiry,
     // Confirm officer and stall both exist before inserting
     const officerCheck = await new sql.Request(transaction)
       .input("officerId", sql.Char(5), officerId)
-      .query("SELECT OfficerID FROM NEA_Officer WHERE OfficerID = @officerId");
+      .query("SELECT OfficerID FROM NeaOfficer WHERE OfficerID = @officerId");
     if (officerCheck.recordset.length === 0) {
       throw new Error(`NEA Officer ${officerId} does not exist`);
     }
