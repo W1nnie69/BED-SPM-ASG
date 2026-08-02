@@ -382,7 +382,7 @@ async function signUpUser(userData) {
     }
 
     try {
-        const incrementQueryResult = await connection.request().query(incrementQuery);    
+        const incrementQueryResult = await pool.request().query(incrementQuery);    
 
         let nextNumber = 1;
         if (incrementQueryResult.recordset.length > 0) {
