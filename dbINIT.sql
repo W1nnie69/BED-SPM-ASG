@@ -27,10 +27,12 @@ CREATE TABLE Cuisine (
     CuisineDesc VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE NEA_Officer (
+CREATE TABLE NeaOfficer (
     OfficerID CHAR(5) PRIMARY KEY,
     OfficerName VARCHAR(100) NOT NULL,
-    OfficerContactNo CHAR(8) UNIQUE NOT NULL
+    OfficerContactNo CHAR(8) UNIQUE NOT NULL,
+    Email VARCHAR(50) UNIQUE NOT NULL,
+    Password VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE Operator (
@@ -118,7 +120,7 @@ CREATE TABLE Inspection (
     GradeExpiry DATE NOT NULL,
     OfficerID CHAR(5) NOT NULL,
     StallID CHAR(5) NOT NULL,
-    FOREIGN KEY (OfficerID) REFERENCES NEA_Officer(OfficerID),
+    FOREIGN KEY (OfficerID) REFERENCES NeaOfficer(OfficerID),
     FOREIGN KEY (StallID) REFERENCES FoodStall(StallID),
     CONSTRAINT chk_hygiene_grade CHECK (HygieneGrade IN ('A', 'B', 'C', 'D')),
     CONSTRAINT chk_grade_expiry CHECK (GradeExpiry > InspectionDate)
@@ -240,13 +242,13 @@ INSERT INTO Cuisine (CuisineID, CuisineDesc) VALUES
 ('CU008', 'Vietnamese');
 
 -- NEA_Officer (6 rows)
-INSERT INTO NEA_Officer (OfficerID, OfficerName, OfficerContactNo) VALUES
-('O0001', 'Tan Boon Huat', '67001234'),
-('O0002', 'Lee Siew Lan', '67001235'),
-('O0003', 'Krishnan Muthu', '67001236'),
-('O0004', 'Ahmad bin Hassan', '67001237'),
-('O0005', 'Chong Wei Jie', '67001238'),
-('O0006', 'Fatimah binti Ali', '67001239');
+INSERT INTO NeaOfficer (OfficerID, OfficerName, OfficerContactNo, Email, Password) VALUES
+('O0001', 'Tan Boon Huat', '67001234', 'tanboonhuat@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('O0002', 'Lee Siew Lan', '67001235', 'leesiewlan@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('O0003', 'Krishnan Muthu', '67001236', 'krishnan@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('O0004', 'Ahmad bin Hassan', '67001237', 'ahmadbinhassan@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('O0005', 'Chong Wei Jie', '67001238', 'chongweijie@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK'),
+('O0006', 'Fatimah binti Ali', '67001239', 'fatimahbintiali@email.com', '$2b$10$HrUpGF2.7Wy6vJozY75.E.rBqRoDfu1shk3d5CfrY2n2ydCxWN5TK');
 
 -- Operator (5 rows) - Password left NULL, to be set later
 INSERT INTO Operator (OperatorID, OperatorName, ContactPerson, Email, Password) VALUES
