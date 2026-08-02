@@ -463,3 +463,248 @@ font-size: 24px;
 }
 
 }
+
+
+/* ============================================================
+   STALL RATINGS & COMMENTS
+   ============================================================ */
+
+.reviews-card {
+    background: var(--surface);
+
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-card);
+
+    border: 1px solid var(--line);
+
+    padding: 28px;
+
+    margin-top: 22px;
+}
+
+
+/* ============================================================
+   REVIEWS HEADER
+   ============================================================ */
+
+.reviews-header {
+    margin-bottom: 22px;
+}
+
+.reviews-header h2 {
+    font-family: 'Fraunces', Georgia, serif;
+
+    font-size: 24px;
+
+    font-weight: 600;
+
+    margin: 0 0 6px;
+}
+
+.reviews-header p {
+    color: var(--ink-soft);
+
+    font-size: 13.5px;
+
+    margin: 0;
+
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   AVERAGE RATING
+   ============================================================ */
+
+.average-rating {
+    display: flex;
+
+    align-items: center;
+
+    gap: 16px;
+
+    padding: 18px;
+
+    margin-bottom: 24px;
+
+    background: var(--teal-tint);
+
+    border-radius: var(--radius-md);
+
+    border: 1px solid rgba(15, 110, 110, 0.12);
+}
+
+.average-rating-number {
+    font-family: 'Fraunces', Georgia, serif;
+
+    font-size: 38px;
+
+    font-weight: 600;
+
+    color: var(--teal-dark);
+
+    line-height: 1;
+}
+
+.average-stars {
+    color: var(--spice);
+
+    font-size: 22px;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 4px;
+}
+
+.rating-count {
+    color: var(--ink-soft);
+
+    font-size: 12.5px;
+
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   REVIEW LIST
+   ============================================================ */
+
+#reviewsList {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+
+/* ============================================================
+   INDIVIDUAL REVIEW
+   ============================================================ */
+
+.review-item {
+    background: #fcfbf8;
+
+    border: 1px solid var(--line);
+
+    border-radius: var(--radius-md);
+
+    padding: 16px 18px;
+
+    transition:
+        box-shadow 0.15s ease,
+        transform 0.15s ease;
+}
+
+.review-item:hover {
+    box-shadow: 0 4px 12px rgba(34, 32, 29, 0.06);
+
+    transform: translateY(-1px);
+}
+
+
+/* ============================================================
+   REVIEW TOP ROW
+   ============================================================ */
+
+.review-top {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 8px;
+}
+
+.review-rating {
+    color: var(--spice);
+
+    font-size: 17px;
+
+    letter-spacing: 1px;
+}
+
+.review-date {
+    color: var(--ink-soft);
+
+    font-size: 11.5px;
+
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   REVIEW COMMENT
+   ============================================================ */
+
+.review-comment {
+    color: var(--ink);
+
+    font-size: 13.5px;
+
+    line-height: 1.6;
+
+    margin: 0;
+
+    word-wrap: break-word;
+}
+
+
+/* ============================================================
+   EMPTY REVIEWS
+   ============================================================ */
+
+.reviews-empty {
+    color: var(--ink-soft);
+
+    font-size: 13.5px;
+
+    text-align: center;
+
+    padding: 24px 10px;
+
+    margin: 0;
+}
+
+
+/* ============================================================
+   RESPONSIVE REVIEWS
+   ============================================================ */
+
+@media (max-width: 600px) {
+
+    .reviews-card {
+        padding: 22px;
+    }
+
+    .average-rating {
+        padding: 15px;
+    }
+
+    .average-rating-number {
+        font-size: 32px;
+    }
+
+    .average-stars {
+        font-size: 18px;
+    }
+
+    .review-top {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 4px;
+    }
+
+    .review-date {
+        font-size: 11px;
+    }
+
+}
+
+

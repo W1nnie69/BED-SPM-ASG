@@ -83,6 +83,7 @@ app.delete('/api/feedback/:fbkID', custEngagementController.deleteFeedback);
 // Get average rating and number of ratings for a stall
 app.get('/api/feedback/stall/:stallId',custEngagementController.getStallRating);
 
+
 //reset password not fully implemented yet on the frontend
  app.put("/api/user/updatepass/:id", userController.updatePassword); 
 
@@ -151,6 +152,10 @@ app.get("/menu", (req, res) => {
 });
 app.get("/order", (req, res) => {
     res.sendFile(path.join(__dirname, 'public/html', 'order.html'));
+});
+
+app.get("/rating.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "public/html", "rating-comment.html"));
 });
 
 app.get("/inspection", (req, res) => {
