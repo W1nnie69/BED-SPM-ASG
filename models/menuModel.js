@@ -16,9 +16,7 @@ async function getMenuByStall(stallId) {
     } catch (error) {
         console.error("DB error: ", error.stack);
         throw error;
-    } finally {
-        safeClose(connection);
-    }
+    } 
 }
 
 // Checks whether OwnerID has an active rental agreement for StallID
@@ -36,9 +34,7 @@ async function ownsStall(ownerId, stallId) {
     } catch (error) {
         console.error("DB error: ", error.stack);
         throw error;
-    } finally {
-        safeClose(connection);
-    }
+    } 
 }
 
 async function addMenuItem(stallId, itemCode, item) {
@@ -58,9 +54,7 @@ async function addMenuItem(stallId, itemCode, item) {
     } catch (error) {
         console.error("DB error: ", error.stack);
         throw error;
-    } finally {
-        safeClose(connection);
-    }
+    } 
 }
 
 async function updateMenuItem(stallId, itemCode, item) {
@@ -81,9 +75,7 @@ async function updateMenuItem(stallId, itemCode, item) {
     } catch (error) {
         console.error("DB error: ", error.stack);
         throw error;
-    } finally {
-        safeClose(connection);
-    }
+    } 
 }
 
 async function deleteMenuItem(stallId, itemCode) {
@@ -99,9 +91,7 @@ async function deleteMenuItem(stallId, itemCode) {
     } catch (error) {
         console.error("DB error: ", error.stack);
         throw error;
-    } finally {
-        safeClose(connection);
-    }
+    } 
 }
 
 // LiangChen's api function
