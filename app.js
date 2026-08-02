@@ -4,7 +4,7 @@ dotenv.config();
 
 // modules
 const express = require("express");
-const sql = require("mssql")
+const sql = require("mssql");
 const path = require("path");
 
 
