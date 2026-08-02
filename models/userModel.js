@@ -125,12 +125,12 @@ async function getUserByEmail(email) {
                 // Check Customer
                 const result = await connection.request()
                     .input('email', sql.VarChar, email)
-                    .query('SELECT * FROM Operator WHERE Email = @email');
+                    .query('SELECT * FROM Customer WHERE CustEmail = @email');
 
                 if (result.recordset.length > 0) {
                     // console.log(result2);  
                     let data = result.recordset[0];
-                    data.userType = "Operator";
+                    data.userType = "Customer";
                     console.log(data);
 
                     return data;
