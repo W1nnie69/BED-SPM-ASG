@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hawker Queue — Stall Performance</title>
+<link rel="stylesheet" href="../css/order.css" />
+<link rel="stylesheet" href="../css/compliance.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">📊</span>
+      <div>
+        <h1>Hawker Queue</h1>
+        <p class="tagline">Stall Performance Dashboard</p>
+      </div>
+    </div>
+    <div class="who">
+      <label for="operatorSelect">Viewing as</label>
+      <select id="operatorSelect"></select>
+    </div>
+  </header>
+
+  <main class="analytics-main">
+    <p id="analyticsMsg" class="lookup-msg"></p>
+    <div id="stallCards" class="stall-cards"></div>
+  </main>
+
+  <script src="../js/analytics.js"></script>
+</body>
+</html>
