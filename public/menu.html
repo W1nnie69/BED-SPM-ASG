@@ -8,7 +8,7 @@
     body { max-width: 760px; }
     .row {
       display: grid;
-      grid-template-columns: 90px 1fr 90px 110px 140px;
+      grid-template-columns: 50px 90px 1fr 90px 110px 140px;
       gap: 8px;
       align-items: center;
       padding: 8px 0;
@@ -32,6 +32,9 @@
     .row .save-btn:hover { background: #16612f; }
     .row .delete-btn { background: #a33; }
     .row .delete-btn:hover { background: #822; }
+    .row .save-btn[disabled], .row .delete-btn[disabled] {
+      display: none;
+    }
     .stall-picker {
       display: flex;
       gap: 8px;
@@ -69,7 +72,12 @@
 
   <div class="add-row">
     <h3>Add new item</h3>
-    <form id="addForm">
+
+    <div id="loginRequiredNotice" class="message error" style="display:none">
+      You need to <a href="/login">log in</a> as the owner of this stall to add items.
+    </div>
+
+    <form id="addForm" style="display:none">
       <label for="newCode">Item code</label>
       <input type="text" id="newCode" placeholder="IT099" required>
 
@@ -81,6 +89,9 @@
 
       <label for="newCategory">Category</label>
       <input type="text" id="newCategory" required>
+
+      <label for="newPhoto">Photo (optional)</label>
+      <input type="file" id="newPhoto" accept="image/jpeg,image/png,image/webp">
 
       <button type="submit">Add item</button>
     </form>
@@ -98,6 +109,10 @@
     const menuList = document.getElementById("menuList");
     const addForm = document.getElementById("addForm");
     const addMessage = document.getElementById("addMessage");
+    const loginRequiredNotice = document.getElementById("loginRequiredNotice");
+
+    let isLoggedIn = false;
+    let ownsCurrentStall = false;
 
     function showMessage(el, text, type) {
       el.textContent = text;
@@ -111,6 +126,51 @@
     function menuUrl(extra = "") {
       const stallId = stallIdInput.value.trim();
       return `/api/stall/${encodeURIComponent(stallId)}/menu${extra}`;
+    }
+
+    // ---- Check session status ----
+    async function checkSession() {
+      try {
+        const res = await fetch("/api/session");
+        const data = await res.json();
+        isLoggedIn = !!data.loggedIn;
+      } catch (err) {
+        isLoggedIn = false;
+      }
+    }
+
+    // ---- Check whether the logged-in user owns the currently selected stall ----
+    async function checkOwnership() {
+      ownsCurrentStall = false;
+
+      if (!isLoggedIn) {
+        addForm.style.display = "none";
+        loginRequiredNotice.style.display = "block";
+        loginRequiredNotice.innerHTML = `You need to <a href="/login">log in</a> to add items.`;
+        return;
+      }
+
+      try {
+        const stallId = stallIdInput.value.trim();
+        const res = await fetch(`/api/stall/${encodeURIComponent(stallId)}/owns`);
+        const data = await res.json();
+
+        ownsCurrentStall = !!data.owns;
+
+        if (ownsCurrentStall) {
+          addForm.style.display = "flex";
+          loginRequiredNotice.style.display = "none";
+        } else {
+          addForm.style.display = "none";
+          loginRequiredNotice.style.display = "block";
+          loginRequiredNotice.innerHTML = `You don't own this stall, so you can't add items to it.`;
+        }
+      } catch (err) {
+        ownsCurrentStall = false;
+        addForm.style.display = "none";
+        loginRequiredNotice.style.display = "block";
+        loginRequiredNotice.innerHTML = `Couldn't verify stall ownership — try reloading.`;
+      }
     }
 
     async function loadMenu() {
@@ -140,25 +200,37 @@
     function renderRows(items) {
       const header = document.createElement("div");
       header.className = "row header";
-      header.innerHTML = `<div>Code</div><div>Description</div><div>Price</div><div>Category</div><div>Actions</div>`;
+      header.innerHTML = `<div>Photo</div><div>Code</div><div>Description</div><div>Price</div><div>Category</div><div>Actions</div>`;
       menuList.appendChild(header);
 
       items.forEach(item => {
         const row = document.createElement("div");
         row.className = "row";
+
+        const thumb = item.ImagePath
+          ? `<img src="${item.ImagePath}" alt="${item.ItemDesc}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;">`
+          : `<div style="width:40px;height:40px;background:#eee;border-radius:4px;"></div>`;
+
+        // Save/Delete only rendered as active controls when logged in —
+        // they'll still fail server-side with 401/403 if session state
+        // changes mid-page, but there's no point showing them otherwise.
+        const actions = ownsCurrentStall
+          ? `<button class="save-btn">Save</button><button class="delete-btn">Delete</button>`
+          : `<span class="pill">Not your stall</span>`;
+
         row.innerHTML = `
+          <div>${thumb}</div>
           <div>${item.ItemCode}</div>
-          <input type="text" class="edit-desc" value="${item.ItemDesc}">
-          <input type="number" step="0.01" class="edit-price" value="${item.ItemPrice}">
-          <input type="text" class="edit-category" value="${item.ItemCategory}">
-          <div>
-            <button class="save-btn">Save</button>
-            <button class="delete-btn">Delete</button>
-          </div>
+          <input type="text" class="edit-desc" value="${item.ItemDesc}" ${ownsCurrentStall ? "" : "disabled"}>
+          <input type="number" step="0.01" class="edit-price" value="${item.ItemPrice}" ${ownsCurrentStall ? "" : "disabled"}>
+          <input type="text" class="edit-category" value="${item.ItemCategory}" ${ownsCurrentStall ? "" : "disabled"}>
+          <div>${actions}</div>
         `;
 
-        row.querySelector(".save-btn").addEventListener("click", () => updateItem(item.ItemCode, row));
-        row.querySelector(".delete-btn").addEventListener("click", () => deleteItem(item.ItemCode, row));
+        if (ownsCurrentStall) {
+          row.querySelector(".save-btn").addEventListener("click", () => updateItem(item.ItemCode, row));
+          row.querySelector(".delete-btn").addEventListener("click", () => deleteItem(item.ItemCode, row));
+        }
 
         menuList.appendChild(row);
       });
@@ -219,18 +291,23 @@
       e.preventDefault();
       clearMessage(addMessage);
 
-      const payload = {
-        itemCode: document.getElementById("newCode").value,
-        ItemDesc: document.getElementById("newDesc").value,
-        ItemPrice: parseFloat(document.getElementById("newPrice").value),
-        ItemCategory: document.getElementById("newCategory").value
-      };
+      const formData = new FormData();
+      formData.append("itemCode", document.getElementById("newCode").value);
+      formData.append("ItemDesc", document.getElementById("newDesc").value);
+      formData.append("ItemPrice", document.getElementById("newPrice").value);
+      formData.append("ItemCategory", document.getElementById("newCategory").value);
+
+      const photoFile = document.getElementById("newPhoto").files[0];
+      if (photoFile) {
+        formData.append("photo", photoFile);
+      }
 
       try {
+        // No Content-Type header here — the browser sets the correct
+        // multipart/form-data boundary automatically when using FormData.
         const res = await fetch(menuUrl(), {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: formData
         });
 
         const data = await res.json();
@@ -247,10 +324,16 @@
       }
     });
 
-    loadBtn.addEventListener("click", loadMenu);
+    loadBtn.addEventListener("click", () => {
+      checkOwnership();
+      loadMenu();
+    });
 
-    // load ST001 by default on page open
-    loadMenu();
+    // check session once, then check ownership + load the default stall's menu
+    checkSession().then(() => {
+      checkOwnership();
+      loadMenu();
+    });
   </script>
 </body>
 </html>

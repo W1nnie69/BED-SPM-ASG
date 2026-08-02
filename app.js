@@ -89,6 +89,9 @@ app.put("/api/stall/:stallId/menu/:code", menuController.updateMenuItem);
 
 app.delete("/api/stall/:stallId/menu/:code", menuController.deleteMenuItem);
 
+app.get("/api/session", userController.getSessionStatus);
+app.get("/api/stall/:stallId/owns", menuController.checkOwnership);
+  
 //=================================================== LiangChen's Routes ==============================================================
 // ORDER ROUTES (SHMS-7, SHMS-9)
 app.post("/api/order/create", orderController.createOrder);

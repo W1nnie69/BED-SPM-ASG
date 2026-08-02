@@ -135,5 +135,5 @@ module.exports = {
     ownsStall, 
     addMenuItem, 
     updateMenuItem, 
-    deleteMenuItem 
+    deleteMenuItem
 }

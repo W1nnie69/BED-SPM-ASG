@@ -97,6 +97,23 @@ async function deleteMenuItem(req, res) {
         res.status(500).json({ error: "Error deleting menu item" });
     }
 }
+async function checkOwnership(req, res) {
+    try {
+        const { stallId } = req.params;
+        const ownerId = req.session.userId;
+
+        if (!ownerId) {
+            return res.json({ owns: false });
+        }
+
+        const owns = await menuModel.ownsStall(ownerId, stallId);
+        res.json({ owns });
+
+    } catch (error) {
+        console.error("Controller error: ", error);
+        res.status(500).json({ error: "Error checking ownership" });
+    }
+}
 
 /**
  * GET /api/menu
@@ -121,5 +138,6 @@ module.exports = {
     addMenuItem, 
     updateMenuItem, 
     deleteMenuItem,
-    getAllMenuItems 
+    getAllMenuItems,
+    checkOwnership
 }

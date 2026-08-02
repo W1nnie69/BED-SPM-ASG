@@ -206,6 +206,7 @@ async function loginAuth(req, res) {
                 
                 // Sets the session userId
                 req.session.userId = user.result.recordset[0][userIdType[user.userType]];
+                req.session.userType = user.userType;
                 console.log(req.session.userId);
                 res.status(200).json({ "loginStatus": true, "userType": user.userType, "userId": user.result.recordset[0][userIdType[user.userType]]});
 
@@ -250,6 +251,16 @@ async function getDashboard(req, res) {
     }
 }
 
+
+//-shengle- added this to cover feature needed by login
+async function getSessionStatus(req, res) {
+    if (req.session.userId) {
+        res.json({ loggedIn: true, userId: req.session.userId, userType: req.session.userType });
+    } else {
+        res.json({ loggedIn: false });
+    }
+}
+
 module.exports = {
     getAllUsers,
     getUserById,
@@ -259,5 +270,6 @@ module.exports = {
     loginAuth,
     forgotPassword,
     resetPassword,
-    getDashboard
+    getDashboard,
+    getSessionStatus
 }
