@@ -48,6 +48,10 @@ async function getUserById(id) {
     } else if (id.startsWith("C")) {
         tableName = "Customer";
         columnName = "CustomerID";
+
+    } else if (id.startsWith("O")) {
+        tableName = "NeaOfficer";
+        columnName = "OfficerID";
     }
 
     try {
@@ -118,8 +122,23 @@ async function getUserByEmail(email) {
                     return data;
 
                 } else {
-                    console.error("testModel: No user found");
-                    return; 
+                    // Check NeaOfficer
+                    const result = await pool.request()
+                        .input('email', sql.VarChar, email)
+                        .query('SELECT * FROM NeaOfficer WHERE Email = @email');
+
+                    if (result.recordset.length > 0) {
+                        // console.log(result2);  
+                        let data = result.recordset[0];
+                        data.userType = "NeaOfficer";
+                        console.log(data);
+
+                        return data;
+
+                    } else {
+                        console.error("testModel: No user found");
+                        return; 
+                    }
                 }
             }
         }

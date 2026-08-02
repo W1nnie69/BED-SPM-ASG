@@ -226,7 +226,9 @@ async function loginAuth(req, res) {
         const userIdType = {
                     Operator: "OperatorID",
                     StallOwner: "OwnerID",
-                    Customer: "CustomerID"
+                    Customer: "CustomerID",
+                    NeaOfficer: "OfficerID"
+
                 };
 
         // Horrible to look at but it works...

@@ -3,7 +3,7 @@
 // Mirrors the same pattern as dashboard.html: JWT in localStorage,
 // userId/userType in sessionStorage, and a REST route shaped like
 // /api/:userType/get-profile/:id and /api/:userType/update-profile/:id.
-// Now supports StallOwner, Operator, and Customer.
+// Now supports StallOwner, Operator, Customer, and NeaOfficer.
 // ---------------------------------------------------------------
 const API_BASE = 'http://localhost:3000/api';
 const jwtToken = localStorage.getItem('jwtToken');
@@ -42,19 +42,21 @@ function setStatus(el, message, kind) {
 //   Stall Owner:  { OwnerName, Email, OwnerContactNo, OwnerNRIC }
 //   Operator:     { OperatorName, Email, ContactPerson }
 //   Customer:     { CustName, CustEmail, CustContactNo }
+//   NeaOfficer:   { OfficerName, Email, OfficerContactNo }
 // ---------------------------------------------------------------
 async function loadProfile() {
   const id = getUserId();
   const userType = getUserType();
   const isOperator = userType === 'Operator';
   const isCustomer = userType === 'Customer';
+  const isOfficer = userType === 'NeaOfficer';
 
-  // Contact number: shown for Stall Owner and Customer, hidden for Operator
+  // Contact number: shown for Stall Owner, Customer, and NEA Officer, hidden for Operator
   document.getElementById('fieldContactNoWrap').style.display = isOperator ? 'none' : 'block';
   // Contact person: shown for Operator only
   document.getElementById('fieldContactPersonWrap').style.display = isOperator ? 'block' : 'none';
   // NRIC: shown for Stall Owner only
-  document.getElementById('fieldNricWrap').style.display = (!isOperator && !isCustomer) ? 'block' : 'none';
+  document.getElementById('fieldNricWrap').style.display = (!isOperator && !isCustomer && !isOfficer) ? 'block' : 'none';
 
   try {
     const response = await fetch(`${API_BASE}/user/get-profile/${id}`, {
@@ -75,6 +77,8 @@ async function loadProfile() {
     } else if (isCustomer) {
       displayName = data.CustName || 'Your Profile';
       email = data.CustEmail || '';
+    } else if (isOfficer) {
+      displayName = data.OfficerName || 'Your Profile';
     }
 
     document.getElementById('greetingName').textContent = displayName;
@@ -85,6 +89,8 @@ async function loadProfile() {
       document.getElementById('fieldContactPerson').value = data.ContactPerson || '';
     } else if (isCustomer) {
       document.getElementById('fieldContactNo').value = data.CustContactNo || '';
+    } else if (isOfficer) {
+      document.getElementById('fieldContactNo').value = data.OfficerContactNo || '';
     } else {
       document.getElementById('fieldContactNo').value = data.OwnerContactNo || '';
       document.getElementById('fieldNric').value = data.OwnerNRIC || '';
@@ -98,9 +104,9 @@ async function loadProfile() {
 // ---------------------------------------------------------------
 // SAVE PROFILE
 // Sends PUT /api/:userType/update-profile/:id with a body shaped
-// like { name, email, contactNo } (Stall Owner / Customer) or
-// { name, email, contactPerson } (Operator). Adjust field names
-// to match whatever your controller/model actually expects.
+// like { name, email, contactNo } (Stall Owner / Customer / NEA
+// Officer) or { name, email, contactPerson } (Operator). Adjust
+// field names to match whatever your controller/model expects.
 // ---------------------------------------------------------------
 document.getElementById('profileForm').addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -120,7 +126,7 @@ document.getElementById('profileForm').addEventListener('submit', async function
   if (isOperator) {
     payload.contactPerson = document.getElementById('fieldContactPerson').value.trim();
   } else {
-    // Stall Owner and Customer both send contactNo
+    // Stall Owner, Customer, and NEA Officer all send contactNo
     payload.contactNo = document.getElementById('fieldContactNo').value.trim();
   }
 
@@ -220,7 +226,19 @@ document.getElementById('passwordForm').addEventListener('submit', async functio
 
 document.getElementById('backBtn').addEventListener('click', function() {
   const userType = getUserType();
-  window.location.href = userType === 'Customer' ? '/order' : '/dashboard';
+  switch (userType) {
+    case "Customer":
+      window.location.href = '/order';
+      break;
+
+    case "NeaOfficer":
+      window.location.href = '/inspection';
+      break;
+
+    default:
+      window.location.href = '/dashboard';
+      break;
+  }
 });
 
 if (getUserType() === 'Customer') {
