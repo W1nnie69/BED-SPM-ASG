@@ -123,15 +123,24 @@ function renderMenu() {
 
         <div class="food-actions">
           <button class="add-btn" type="button">Add to chit</button>
-          <button class="like-btn" type="button">♡ Like</button>
+          <button class="like-btn" type="button"><span class="like-icon">♡</span> Like (<span class="like-count">0</span>)</button>
         </div>
       `;
       card.querySelector(".add-btn").addEventListener("click", () => addToCart(item));
-      grid.appendChild(card);
 
-      card.querySelector(".like-btn").addEventListener("click", () => {
-        likeFood(item);
+      const likeBtn = card.querySelector(".like-btn");
+      const likeCounter = card.querySelector(".like-count");
+      // Load total likes from database
+      loadLikeCount(item, likeCounter);
+
+      // Load whether current customer has liked this item
+      loadLikeStatus(item, likeBtn, likeCounter);
+
+      // Like or unlike food when button is clicked
+      likeBtn.addEventListener("click", () => {
+        toggleLike(item, likeBtn);
       });
+      grid.appendChild(card);
     });
 
     group.appendChild(grid);
@@ -307,18 +316,25 @@ function escapeHtml(str) {
 })();
 
 
-// ---------- Like Food ----------
-async function likeFood(item) {
+
+// ---------- Like / Unlike Food ----------
+
+async function toggleLike(item, likeBtn) {
+
   if (!currentCustomerId) {
     alert("Please log in to like a food item.");
     return;
   }
 
   const jwtToken = localStorage.getItem("jwtToken");
+  const isLiked = likeBtn.dataset.liked === "true";
 
   try {
-    const res = await fetch("/api/likes", {
-      method: "POST",
+
+    likeBtn.disabled = true;
+
+    const res = await fetch("/likes", {
+      method: isLiked ? "DELETE" : "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${jwtToken}`
@@ -333,13 +349,112 @@ async function likeFood(item) {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.error || "Unable to like food.");
+      throw new Error(data.error || "Unable to update like.");
     }
 
-    alert("Food item liked!");
+    // Update liked status
+    likeBtn.dataset.liked = (!isLiked).toString();
+
+    // Get latest like count
+    const countRes = await fetch(
+      `/likes/count/${item.StallID}/${item.ItemCode}`
+    );
+
+    const countData = await countRes.json();
+
+    if (!countRes.ok) {
+      throw new Error(countData.error || "Unable to load like count.");
+    }
+
+    // Update button directly
+    setLikeButtonState(likeBtn, likeBtn.dataset.liked === "true", countData.likeCount);
 
   } catch (err) {
+
     console.error("Like error:", err);
     alert(err.message);
+
+  } finally {
+
+    likeBtn.disabled = false;
+
+  }
+}
+
+
+// ---------- Load Like Count ----------
+
+async function loadLikeCount(item, likeCounter) {
+
+  try {
+
+    const res = await fetch(
+      `/likes/count/${item.StallID}/${item.ItemCode}`
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Unable to load like count.");
+    }
+
+    likeCounter.textContent = data.likeCount;
+
+  } catch (err) {
+
+    console.error("Load like count error:", err);
+
+    likeCounter.textContent = "0";
+
+  }
+}
+
+
+function setLikeButtonState(likeBtn, liked, count) {
+  const icon = likeBtn.querySelector(".like-icon");
+  const counter = likeBtn.querySelector(".like-count");
+  icon.textContent = liked ? "♥" : "♡";
+  counter.textContent = count;
+  // update the visible label text without touching the icon/counter spans
+  likeBtn.childNodes[1].textContent = liked ? " Unlike (" : " Like (";
+}
+
+
+// ---------- Load Like Status ----------
+
+async function loadLikeStatus(item, likeBtn, likeCounter) {
+
+  if (!currentCustomerId) {
+
+    likeBtn.dataset.liked = "false";
+
+    return;
+  }
+
+  try {
+
+    const res = await fetch(
+      `/likes/status/${currentCustomerId}/${item.StallID}/${item.ItemCode}`
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        data.error || "Unable to load like status."
+      );
+    }
+
+    likeBtn.dataset.liked = data.liked.toString();
+
+    // Update button text using current count
+    const count = likeCounter.textContent;
+
+    setLikeButtonState(likeBtn, data.liked, likeCounter.textContent);
+
+  } catch (err) {
+
+    console.error("Load like status error:", err);
+
   }
 }

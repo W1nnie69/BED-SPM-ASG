@@ -64,6 +64,12 @@ app.post('/likes', custEngagementController.likeFood);
 // Unlike a food item
 app.delete('/likes', custEngagementController.unlikeFood);
 
+// Get total like count for a food item
+app.get('/likes/count/:stallId/:itemCode',custEngagementController.getLikeCount);
+
+// Check if a customer has liked a food item
+app.get('/likes/status/:customerId/:stallId/:itemCode',custEngagementController.hasLikedFood);
+
 //Submit a rating and comment
 app.post('/feedback', custEngagementController.addFeedback);
 
@@ -72,6 +78,7 @@ app.put('/feedback/:fbkID', custEngagementController.updateFeedback);
 
 //Delete their rating and comment
 app.delete('/feedback/:fbkID', custEngagementController.deleteFeedback);
+
 
 
 //reset password not fully implemented yet on the frontend

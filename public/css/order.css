@@ -412,3 +412,9 @@ main { padding: 24px 32px 60px; }
   outline: 2px solid var(--chili-dark);
   outline-offset: 2px;
 }
+
+.like-count {
+  font-size: 12px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}

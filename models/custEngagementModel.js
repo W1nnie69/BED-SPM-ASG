@@ -70,7 +70,51 @@ async function unlikeFood(customerId, stallId, itemCode) {
     connection.close();
 }
 
+// Retrieves the total number of likes for a food item
+async function getLikeCount(stallId, itemCode) {
 
+    const connection = await sql.connect(dbConfig);
+
+    const query = `
+        SELECT COUNT(*) AS LikeCount
+        FROM Likes
+        WHERE StallID = @stallId
+        AND ItemCode = @itemCode
+    `;
+
+    const result = await connection.request()
+        .input('stallId', sql.Char(5), stallId)
+        .input('itemCode', sql.Char(5), itemCode)
+        .query(query);
+
+    connection.close();
+
+    return result.recordset[0].LikeCount;
+}
+
+// Checks whether a customer has already liked a food item
+async function hasLikedFood(customerId, stallId, itemCode) {
+
+    const connection = await sql.connect(dbConfig);
+
+    const query = `
+        SELECT COUNT(*) AS LikeExists
+        FROM Likes
+        WHERE CustomerID = @customerId
+        AND StallID = @stallId
+        AND ItemCode = @itemCode
+    `;
+
+    const result = await connection.request()
+        .input('customerId', sql.Char(5), customerId)
+        .input('stallId', sql.Char(5), stallId)
+        .input('itemCode', sql.Char(5), itemCode)
+        .query(query);
+
+    connection.close();
+
+    return result.recordset[0].LikeExists > 0;
+}
 
 //RATINGS & COMMENTS
 // Adds a customer's rating and comment for a food stall
@@ -140,6 +184,8 @@ module.exports = {
     likeFood,
     getLikedFoods,
     unlikeFood,
+    getLikeCount,
+    hasLikedFood,
     addFeedback,
     updateFeedback,
     deleteFeedback

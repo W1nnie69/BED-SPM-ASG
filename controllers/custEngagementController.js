@@ -64,6 +64,63 @@ async function unlikeFood(req, res) {
     }
 }
 
+// Retrieves the total number of likes for a food item
+async function getLikeCount(req, res) {
+
+    const { stallId, itemCode } = req.params;
+
+    try {
+
+        const likeCount = await likeModel.getLikeCount(
+            stallId,
+            itemCode
+        );
+
+        res.status(200).json({
+            stallId,
+            itemCode,
+            likeCount
+        });
+
+    } catch (error) {
+
+        console.error("Controller error:", error);
+
+        res.status(500).json({
+            error: "Error retrieving like count."
+        });
+
+    }
+}
+
+// Checks whether a customer has liked a food item
+async function hasLikedFood(req, res) {
+
+    const { customerId, stallId, itemCode } = req.params;
+
+    try {
+
+        const liked = await likeModel.hasLikedFood(
+            customerId,
+            stallId,
+            itemCode
+        );
+
+        res.status(200).json({
+            liked
+        });
+
+    } catch (error) {
+
+        console.error("Controller error:", error);
+
+        res.status(500).json({
+            error: "Error checking like status."
+        });
+
+    }
+}
+
 
 
 //RATINGS & COMMENTS
@@ -163,6 +220,8 @@ module.exports = {
     likeFood,
     getLikedFoods,
     unlikeFood,
+    getLikeCount,
+    hasLikedFood,
     addFeedback,
     updateFeedback,
     deleteFeedback
