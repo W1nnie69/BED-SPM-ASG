@@ -16,6 +16,7 @@ const historyListEl = document.getElementById("historyList");
 const tabs = document.querySelectorAll(".tab");
 const views = document.querySelectorAll(".view");
 const payButtons = document.querySelectorAll(".pay-btn");
+const likedListEl = document.getElementById("likedList");
 
 // ---------- Tabs ----------
 tabs.forEach((tab) => {
@@ -26,6 +27,7 @@ tabs.forEach((tab) => {
     views.forEach((v) => v.classList.remove("active"));
     document.getElementById(`view-${target}`).classList.add("active");
     if (target === "history") loadHistory();
+    if (target === "liked") loadLikedFoods();
   });
 });
 
@@ -456,5 +458,49 @@ async function loadLikeStatus(item, likeBtn, likeCounter) {
 
     console.error("Load like status error:", err);
 
+  }
+}
+
+// ---------- Liked foods ----------
+async function loadLikedFoods() {
+  // Guests have no customer ID to look up likes for
+  if (!currentCustomerId) {
+    likedListEl.innerHTML = '<p class="history-empty">Log in to view your liked food items.</p>';
+    return;
+  }
+  likedListEl.innerHTML = '<p class="history-empty">Loading…</p>';
+  try {
+    const jwtToken = localStorage.getItem("jwtToken");
+    const res = await fetch(`/likes/${currentCustomerId}`, {
+      headers: { "Authorization": `Bearer ${jwtToken}` }
+    });
+    const likedFoods = await res.json();
+
+    if (!res.ok) throw new Error(likedFoods.error || "Unable to load liked items.");
+
+    // No liked items yet — show empty state instead of a blank list
+    if (likedFoods.length === 0) {
+      likedListEl.innerHTML = '<p class="history-empty">You haven\'t liked any food items yet.</p>';
+      return;
+    }
+
+    likedListEl.innerHTML = "";
+    // Render one card per liked item, reusing the .history-card style
+    // from Order History so it matches the rest of the UI
+    likedFoods.forEach((food) => {
+      const card = document.createElement("div");
+      card.className = "history-card";
+      card.innerHTML = `
+        <div class="hc-top">
+          <span class="hc-stall">${escapeHtml(food.ItemDesc)}</span>
+          <span class="hc-date">${escapeHtml(food.ItemCategory)}</span>
+        </div>
+        <div class="hc-total">$${Number(food.ItemPrice).toFixed(2)}</div>
+      `;
+      likedListEl.appendChild(card);
+    });
+  } catch (err) {
+    likedListEl.innerHTML = '<p class="history-empty">Could not load liked items.</p>';
+    console.error(err);
   }
 }
