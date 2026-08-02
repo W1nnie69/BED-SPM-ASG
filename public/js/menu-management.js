@@ -1,121 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Manage menu</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/menu-management.css">
-</head>
-<body>
-
-  <div class="topbar">
-    <div class="topbar-brand">
-      <div class="brand-mark">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M4 4h16v4H4zM6 10h12v10H6z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div>
-        <h1>Menu management</h1>
-        <p class="sub">Vendor tools</p>
-      </div>
-    </div>
-    <div class="topbar-right">
-      <a href="/dashboard" class="back-btn">Back to dashboard</a>
-    </div>
-  </div>
-
-  <div class="container">
-    <div class="greeting">
-      <h2>Manage your stall's menu</h2>
-      <p>Add, edit, or remove items — changes are saved instantly.</p>
-    </div>
-
-    <div id="loginRequiredNotice" class="banner error">
-      You need to <a href="/login">log in</a> to manage items.
-    </div>
-
-    <!-- Stall picker -->
-    <div class="card">
-      <div class="card-header">
-        <h3>Select stall</h3>
-      </div>
-      <div class="stall-picker">
-        <div class="field">
-          <label for="stallId">Stall ID</label>
-          <input type="text" id="stallId" value="ST001">
-        </div>
-        <button id="loadBtn" class="load-btn">Load menu</button>
-      </div>
-    </div>
-
-    <div id="topMessage" class="banner"></div>
-
-    <!-- Menu list -->
-    <div class="card">
-      <div class="card-header">
-        <h3>Menu items</h3>
-        <span class="count" id="itemCount">—</span>
-      </div>
-      <table id="menuTable" style="display:none">
-        <thead>
-          <tr>
-            <th>Photo</th>
-            <th>Code</th>
-            <th>Description</th>
-            <th>Price</th>
-            <th>Category</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="menuBody"></tbody>
-      </table>
-      <div id="emptyNote" class="empty-note" style="display:none">No menu items for this stall yet.</div>
-    </div>
-
-    <!-- Add item -->
-    <div class="card" id="addCard" style="display:none">
-      <div class="card-header">
-        <h3>Add new item</h3>
-      </div>
-      <form id="addForm">
-        <div class="field-row">
-          <div class="field">
-            <label for="newCode">Item code</label>
-            <input type="text" id="newCode" placeholder="IT099" required>
-          </div>
-          <div class="field">
-            <label for="newPrice">Price</label>
-            <input type="number" step="0.01" id="newPrice" placeholder="5.50" required>
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="newDesc">Description</label>
-          <input type="text" id="newDesc" placeholder="e.g. Chicken Rice" required>
-        </div>
-
-        <div class="field">
-          <label for="newCategory">Category</label>
-          <input type="text" id="newCategory" placeholder="e.g. Rice & Noodles" required>
-        </div>
-
-        <div class="field">
-          <label for="newPhoto">Photo <span style="font-weight:400;color:var(--ink-soft)">(optional)</span></label>
-          <div class="file-field">
-            <input type="file" id="newPhoto" accept="image/jpeg,image/png,image/webp">
-          </div>
-        </div>
-
-        <button type="submit" class="add-btn-submit">Add item</button>
-      </form>
-      <div id="addMessage" class="banner"></div>
-    </div>
-  </div>
-
-  <script>
-    const stallIdInput = document.getElementById("stallId");
+const stallIdInput = document.getElementById("stallId");
     const loadBtn = document.getElementById("loadBtn");
     const topMessage = document.getElementById("topMessage");
     const menuTable = document.getElementById("menuTable");
@@ -129,6 +12,16 @@
 
     let isLoggedIn = false;
     let ownsCurrentStall = false;
+
+    // ---- Auth helpers ----
+    function getToken() {
+      return localStorage.getItem("token");
+    }
+
+    function authHeaders() {
+      const token = getToken();
+      return token ? { "Authorization": "Bearer " + token } : {};
+    }
 
     function showBanner(el, text, type) {
       el.textContent = text;
@@ -149,9 +42,10 @@
       return `/api/stall/${encodeURIComponent(stallId)}/menu${extra}`;
     }
 
+    // ---- Check session status via the stored JWT ----
     async function checkSession() {
       try {
-        const res = await fetch("/api/session");
+        const res = await fetch("/api/session", { headers: authHeaders() });
         const data = await res.json();
         isLoggedIn = !!data.loggedIn;
       } catch (err) {
@@ -159,6 +53,7 @@
       }
     }
 
+    // ---- Check whether the logged-in user owns the currently selected stall ----
     async function checkOwnership() {
       ownsCurrentStall = false;
 
@@ -170,7 +65,7 @@
 
       try {
         const stallId = stallIdInput.value.trim();
-        const res = await fetch(`/api/stall/${encodeURIComponent(stallId)}/owns`);
+        const res = await fetch(`/api/stall/${encodeURIComponent(stallId)}/owns`, { headers: authHeaders() });
         const data = await res.json();
 
         ownsCurrentStall = !!data.owns;
@@ -263,7 +158,7 @@
       try {
         const res = await fetch(menuUrl(`/${encodeURIComponent(code)}`), {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...authHeaders() },
           body: JSON.stringify(payload)
         });
 
@@ -286,7 +181,8 @@
 
       try {
         const res = await fetch(menuUrl(`/${encodeURIComponent(code)}`), {
-          method: "DELETE"
+          method: "DELETE",
+          headers: authHeaders()
         });
 
         const data = await res.json();
@@ -324,8 +220,11 @@
       }
 
       try {
+        // No Content-Type header — the browser sets the correct multipart
+        // boundary automatically for FormData. Auth header still required.
         const res = await fetch(menuUrl(), {
           method: "POST",
+          headers: authHeaders(),
           body: formData
         });
 
@@ -352,6 +251,3 @@
       checkOwnership();
       loadMenu();
     });
-  </script>
-</body>
-</html>
