@@ -370,11 +370,19 @@ async function getDashboard(req, res) {
 }
 //-shengle- added this to cover feature needed by login
 async function getSessionStatus(req, res) {
-    if (req.session.userId) {
-        res.json({ loggedIn: true, userId: req.session.userId, userType: req.session.userType });
-    } else {
-        res.json({ loggedIn: false });
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.json({ loggedIn: false });
     }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.json({ loggedIn: false });
+        }
+        res.json({ loggedIn: true, userId: decoded.userId, userType: decoded.userType });
+    });
 }
 module.exports = {
     getAllUsers,
